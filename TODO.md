@@ -1,0 +1,4 @@
+- Interfaces für Entitys, Componenten und Systeme erstellen
+- Character System / Input System
+- Beispiel Game
+- Wie klappt das mit den Scenen? Ist World eine Scene?
