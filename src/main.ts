@@ -1,10 +1,11 @@
 import { GameLoop } from './engine/core/game-loop';
 import { World } from './engine/core/world';
-import { MovementSystem } from './engine/core/movement-system';
+import { MovementSystem } from './engine/features/movement/movement-system';
 import { createEntity } from './engine/ecs/entity';
-import { RenderSystem } from './engine/core/render-system';
-import { Canvas2DRenderer } from './engine/renderer/canvas2d/renderer';
+import { RenderSystem } from './engine/features/renderer/render-system';
+import { Canvas2DRenderer } from './engine/features/renderer/canvas2d/renderer';
 import { createTransform } from './engine/types/utils';
+import type { Transform, Velocity, Camera, Sprite2D } from './engine/types';
 // Alternative:
 // import { WebGLRenderer } from './engine/renderer/webgl/renderer';
 // import { WebGPURenderer } from './engine/renderer/webgpu/renderer';
@@ -23,13 +24,13 @@ backend.init(canvas).then(() => {
 
   // Kamera
   const cam = createEntity();
-  world.cameras.add(cam, { mode: '2d', background: '#101010' });
+  world.sceneManager.getComponentStore<Camera>('cameras').add(cam, { mode: '2d', background: '#101010' });
 
   // Entity
   const player = createEntity();
-  world.transforms.add(player, createTransform({ position: { x: 50, y: 50 }}));
-  world.sprites2D.add(player, { color: 'tomato', width: 32, height: 32 });
-  world.velocities.add(player, { x: 40, y: 0 });
+  world.sceneManager.getComponentStore<Transform>('transforms').add(player, createTransform({ position: { x: 50, y: 50 } }));
+  world.sceneManager.getComponentStore<Sprite2D>('sprites2D').add(player, { color: 'tomato', width: 32, height: 32 });
+  world.sceneManager.getComponentStore<Velocity>('velocities').add(player, { x: 1, y: 0 });
 
   function update(deltaTime: number) {
     renderer.exec(deltaTime);

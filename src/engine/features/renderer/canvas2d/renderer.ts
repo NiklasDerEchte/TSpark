@@ -1,5 +1,4 @@
-import type { RendererBackend, Camera, Sprite2D, Mesh3D } from '../backend';
-import type { Transform } from '../../types/index';
+import type { Transform, RendererBackend, Camera, Sprite2D, Mesh3D } from '../../../types/index';
 
 export class Canvas2DRenderer implements RendererBackend {
   private canvas!: HTMLCanvasElement;
