@@ -1,4 +1,4 @@
-import type { Scene } from "../core/scene-manager";
+import type { Scene } from "../core/world";
 
 export type Entity = string;
 
