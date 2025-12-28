@@ -1,4 +1,9 @@
+import type { Scene } from "../core/scene-manager";
+
+export type Entity = string;
+
 export interface System {
+  init(scene: Scene): void;
   exec(deltaTimeMs: number): void;
 }
 

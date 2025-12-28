@@ -1,4 +1,4 @@
-import type { Entity } from "./entity";
+import type { Entity } from "../types/type";
 
 export class ComponentStore<T> {
   private data = new Map<Entity, T>();
