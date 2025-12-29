@@ -4,7 +4,6 @@ import type { Transform, Velocity, Camera, Sprite2D } from '../../engine/types';
 import { TSpark } from '../../app';
 import { MovementSystem } from '../../engine/features/movement/movement-system';
 
-
 let tspark = new TSpark({
   renderer: new Canvas2DRenderer(),
   onUpdate: () => {},
@@ -12,14 +11,14 @@ let tspark = new TSpark({
   onDrawUpdate: () => {},
 });
 
-const world = tspark.createWorld("main");
-const scene = world.createScene("scene1");
+const world = tspark.createWorld('main');
+const scene = world.createScene('scene1');
 
 //scene.registerSystem<MovementSystem>('movementSystem', new MovementSystem(), 'fixed');
 
 // Kamera
 const cam = scene.createEntity();
-scene.getComponentStore<Camera>('cameras').add(cam, { mode: '2d', background: '#101010' });;
+scene.getComponentStore<Camera>('cameras').add(cam, { mode: '2d', background: '#101010' });
 
 // Entity
 const player = scene.createEntity();

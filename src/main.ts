@@ -1,3 +1,13 @@
-import simpleCanvasSpark from './examples/simple-canvas/main';
+async function simpleCanvasExample() {
+  let sparkImport = await import('./examples/simple-canvas/main');
+  sparkImport.default.start();
+}
 
-simpleCanvasSpark.start();
+async function simplePlayerExample() {
+  let sparkImport = await import('./examples/simple-player/main');
+  sparkImport.default.start();
+}
+
+
+//await simpleCanvasExample();
+await simplePlayerExample();
