@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "tspark:dev",
+      "problemMatcher": [],
+      "label": "Dev TSpark",
+      "detail": "vite"
+    },
+    {
+      "label": "TypeDoc",
+      "type": "shell",
+      "command": "npm run docs:api",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Vitepress",
+      "type": "shell",
+      "command": "npm run docs:dev",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev Docs",
+      "dependsOn": ["TypeDoc", "Vitepress"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    }
+  ]
+}

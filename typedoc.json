@@ -1,0 +1,14 @@
+{
+  "entryPoints": ["src/app.ts"],
+  "tsconfig": "tsconfig.json",
+  "plugin": ["typedoc-plugin-markdown"],
+  "out": "docs/api",
+  "exclude": [],
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "hideBreadcrumbs": true,
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  }
+}
