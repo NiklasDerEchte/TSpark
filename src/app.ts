@@ -3,7 +3,7 @@ import { GameLoop } from './engine/core/game-loop';
 import { Scene, World } from './engine/core/world';
 
 export interface TSparkSetup {
-  backendRenderer: RendererBackend;
+  renderer: RendererBackend;
   onUpdate: () => void;
   onFixedUpdate: () => void;
   onDrawUpdate: () => void;
@@ -31,7 +31,7 @@ export class TSpark {
   }
 
   public getRenderer(): RendererBackend {
-    return this.setup.backendRenderer;
+    return this.setup.renderer;
   }
 
   public getActiveWorld(): World {
@@ -54,7 +54,7 @@ export class TSpark {
   }
 
   public start() {
-    this.setup.backendRenderer.init(this.drawCanvas).then(() => {
+    this.setup.renderer.init(this.drawCanvas).then(() => {
       this.gameLoop.start(this.update, this.fixedUpdate);
     });
   }

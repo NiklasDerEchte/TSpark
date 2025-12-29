@@ -6,7 +6,7 @@ import { MovementSystem } from './engine/features/movement/movement-system';
 
 
 let tspark = new TSpark({
-  backendRenderer: new Canvas2DRenderer(),
+  renderer: new Canvas2DRenderer(),
   onUpdate: () => {},
   onFixedUpdate: () => {},
   onDrawUpdate: () => {},
