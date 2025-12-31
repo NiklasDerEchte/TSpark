@@ -16,6 +16,7 @@
     "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "~5.9.3",
     "vite": "^7.2.4",
+    "vite-plugin-node-polyfills": "^0.24.0",
     "vitepress": "^2.0.0-alpha.15"
   },
   "dependencies": {
@@ -23,6 +24,7 @@
     "@luma.gl/engine": "^9.0.0",
     "@luma.gl/shadertools": "^9.0.0",
     "@luma.gl/webgl": "^9.0.0",
-    "colord": "^2.9.3"
+    "colord": "^2.9.3",
+    "mugl": "^0.3.0"
   }
 }

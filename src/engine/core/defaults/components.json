@@ -1,0 +1,27 @@
+[
+  {
+    "component": "Velocity",
+    "key": "velocities",
+    "options": {}
+  },
+  {
+    "component": "Transform",
+    "key": "transforms",
+    "options": {}
+  },
+  {
+    "component": "Sprite2D",
+    "key": "sprites2D",
+    "options": {}
+  },
+  {
+    "component": "Mesh3D",
+    "key": "meshes3D",
+    "options": {}
+  },
+  {
+    "component": "Camera",
+    "key": "cameras",
+    "options": {}
+  }
+]

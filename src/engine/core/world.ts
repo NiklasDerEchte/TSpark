@@ -1,6 +1,8 @@
 import { generateUniqueId } from "..";
 import { RenderSystem } from "../features/renderer/render-system";
-import type { Camera, Entity, Mesh3D, Sprite2D, System, Transform, Velocity } from "../types/type";
+import componentsDefaults from "./defaults/components.json";
+import systemsDefaults from "./defaults/systems.json";
+import type { Entity, System } from "../types/type";
 import { ComponentStore } from "./component-store";
 
 export class World {
@@ -57,12 +59,23 @@ export class Scene {
   private componentStores: Map<string, ComponentStore<any>> = new Map();
 
   constructor() {
-    this.registerComponent<Velocity>('velocities');
-    this.registerComponent<Transform>('transforms');
-    this.registerComponent<Sprite2D>('sprites2D');
-    this.registerComponent<Mesh3D>('meshes3D');
-    this.registerComponent<Camera>('cameras');
-    this.registerSystem<RenderSystem>('renderSystem', new RenderSystem(), 'draw');
+    for (const entry of componentsDefaults as Array<{component: string; key: string; options?: Record<string, any>}>) {
+      this.registerComponent<any>(entry.key);
+    }
+
+    // Map of system constructors for dynamic registration
+    const systemConstructors: Record<string, new () => System> = {
+      RenderSystem: RenderSystem,
+    } as Record<string, new () => System>;
+
+    for (const entry of systemsDefaults as Array<{component: string; key: string; options?: { mode?: 'normal'|'fixed'|'draw' }}>) {
+      const Ctor = systemConstructors[entry.component];
+      if (Ctor) {
+        const instance = new Ctor();
+        const mode = entry.options?.mode ?? 'normal';
+        this.registerSystem(entry.key, instance, mode);
+      }
+    }
   }
 
   public createEntity(): Entity {
