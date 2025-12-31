@@ -11,28 +11,6 @@ export type ComponentData = {
   [k: string]: any;
 };
 
-export type Component<T extends ComponentData> = T;
-
-export type Vector = Component<{ x: number; y: number; z?: number }>;
-export type Position = Component<Vector>;
-export type Rotation = Component<Vector>;
-export type Scale = Component<Vector>;
-export type Transform = Component<{ position: Position; rotation?: Rotation; scale?: Scale }>;
-export type Velocity = Component<Vector>;
-
-export type Camera = { mode: '2d' | '3d'; background?: string };
-
-// 2D
-export type Sprite2D = { color: string; width: number; height: number };
-
-// 3D
-export type Mesh3D = { id: string };
-export type Box3D = Component<Transform>;
-export type Sphere3D = Component<Transform>;
-export type Cylinder3D = Component<Transform>;
-export type Cone3D = Component<Transform>;
-export type Capsule3D = Component<Transform>;
-
 export interface RendererBackend {
   init(canvas: HTMLCanvasElement): Promise<void>;
   resize(width: number, height: number): void;
@@ -40,3 +18,47 @@ export interface RendererBackend {
   draw(scene: Scene): void;
   end(): void;
 }
+
+export type Component<T extends ComponentData> = T;
+export type SceneObject = {id: string}
+export type Camera = Component<SceneObject & { mode: '2d' | '3d'; background?: string }>;
+
+// 2D
+export type Vector2D = Component<{ x: number; y: number }>;
+export type Position2D = Component<Vector2D>;
+export type Rotation2D = Component<Vector2D>;
+export type Scale2D = Component<Vector2D>;
+export type Transform2D = Component<{ position: Position2D; rotation?: Rotation2D; scale?: Scale2D }>;
+export type Velocity2D = Component<Vector2D>;
+export type Sprite2D = Component<SceneObject & {color: string, width: number, height: number}>
+
+// 3D
+export type Vector3D = { x: number; y: number; z: number };
+export type Position3D = Component<Vector3D>;
+export type Rotation3D = Component<Vector3D>;
+export type Scale3D = Component<Vector3D>;
+export type Transform3D = Component<{ position: Position3D; rotation?: Rotation3D; scale?: Scale3D }>;
+
+export type Material3D = Component<{baseColor?: string | [number, number, number, number];}>;
+
+export type BoundsAABB = { min: Vector3D; max: Vector3D };
+export type BoundsSphere = { center: Vector3D; radius: number };
+export type Bounds3D = BoundsAABB | BoundsSphere;
+export type Geometry3D = {
+  vertices: Float32Array | number[];
+  indices?: Uint16Array | Uint32Array | number[];
+  normals?: Float32Array | number[];
+  uvs?: Float32Array | number[];
+  vertexCount: number;
+};
+export type Mesh3D = Component<SceneObject & {
+  geometry: Geometry3D;
+  material?: Material3D;
+  bounds?: Bounds3D;
+  visible?: boolean;
+}>;
+export type Box3D = Component<Transform3D>;
+export type Sphere3D = Component<Transform3D>;
+export type Cylinder3D = Component<Transform3D>;
+export type Cone3D = Component<Transform3D>;
+export type Capsule3D = Component<Transform3D>;

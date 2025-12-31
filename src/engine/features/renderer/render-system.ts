@@ -1,6 +1,6 @@
 import { TSpark } from '../../../app';
 import { Scene } from '../../core/world';
-import type { System, Transform, RendererBackend, Camera, Sprite2D, Mesh3D } from '../../types/index';
+import type { System, RendererBackend, Camera} from '../../types/index';
 
 export class RenderSystem implements System {
   renderer: RendererBackend;
@@ -20,7 +20,7 @@ export class RenderSystem implements System {
       camera = cam;
       break;
     }
-    camera ??= { mode: '2d', background: '#202020' };
+    camera ??= { id: 'cam', mode: '2d', background: '#dbdbdbff' };
 
     this.renderer.begin(camera);
     this.renderer.draw(this.scene);

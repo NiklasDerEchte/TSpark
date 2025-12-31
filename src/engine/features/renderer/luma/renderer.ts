@@ -1,25 +1,9 @@
-import type { Transform, RendererBackend, Camera, Sprite2D, Mesh3D } from '../../../types/index';
+import type { Transform3D, RendererBackend, Camera, Mesh3D } from '../../../types/index';
 import { webgl2Adapter } from '@luma.gl/webgl';
 import { luma } from '@luma.gl/core';
 import { Model } from '@luma.gl/engine';
 import type { Scene } from '../../../core/world';
-
-function hexToRgba(hex: string): [number, number, number, number] {
-  const h = hex.replace('#', '');
-  const bigint = parseInt(
-    h.length === 3
-      ? h
-          .split('')
-          .map((c) => c + c)
-          .join('')
-      : h,
-    16
-  );
-  const r = ((bigint >> 16) & 255) / 255;
-  const g = ((bigint >> 8) & 255) / 255;
-  const b = (bigint & 255) / 255;
-  return [r, g, b, 1];
-}
+import { colord } from 'colord';
 
 export class LumaRenderer implements RendererBackend {
   private canvas!: HTMLCanvasElement;
@@ -76,24 +60,18 @@ export class LumaRenderer implements RendererBackend {
   }
 
   begin(camera: Camera): void {
-    const [r, g, b, a] = hexToRgba(camera.background ?? '#000000');
+    const rgba = colord(camera.background ?? '#000000').toRgb();
     const gl = (this.device as any).gl as WebGLRenderingContext | WebGL2RenderingContext;
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-    gl.clearColor(r, g, b, a);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // Create a render pass targeting the default framebuffer
-    this.renderPass = this.device.beginRenderPass({});
+    this.renderPass = this.device.beginRenderPass({ clearColor: [rgba.r / 255, rgba.g / 255, rgba.b / 255, rgba.a] });
   }
 
   draw(scene: Scene): void {
-    for (const [entity, sprite] of scene.getComponentStore<Sprite2D>('sprites2D').entries()) {
-      const t = scene.getComponentStore<Transform>('transforms').get(entity);
-      if (!t) continue;
-      this.drawSprite(t, sprite);
-    }
     for (const [entity, mesh] of scene.getComponentStore<Mesh3D>('meshes3D').entries()) {
-      const t = scene.getComponentStore<Transform>('transforms').get(entity);
+      const t = scene.getComponentStore<Transform3D>('transforms').get(entity);
       if (!t) continue;
       this.drawMesh(t, mesh);
     }
@@ -109,50 +87,7 @@ export class LumaRenderer implements RendererBackend {
     }
   }
 
-  private drawSprite(t: Transform, s: Sprite2D): void {
-    // Compute rectangle in pixel space and convert to clip space on CPU
-    const cx = t.position.x;
-    const cy = t.position.y;
-    const w = s.width;
-    const h = s.height;
-
-    const cw = this.canvas.width;
-    const ch = this.canvas.height;
-
-    // Pixel corners (two triangles)
-    const x0 = cx;
-    const y0 = cy;
-    const x1 = cx + w;
-    const y1 = cy + h;
-
-    // Convert to clip space (-1..1) with Y flipped
-    const toClipX = (x: number) => (x / cw) * 2 - 1;
-    const toClipY = (y: number) => -((y / ch) * 2 - 1);
-
-    const positions = new Float32Array([
-      toClipX(x0),
-      toClipY(y0),
-      toClipX(x1),
-      toClipY(y0),
-      toClipX(x0),
-      toClipY(y1),
-      toClipX(x0),
-      toClipY(y1),
-      toClipX(x1),
-      toClipY(y0),
-      toClipX(x1),
-      toClipY(y1),
-    ]);
-    this.positionBuffer.write(positions);
-
-    // Set a constant attribute for color (WebGL-only convenience)
-    const color = hexToRgba(s.color);
-    this.model.setConstantAttributes({ aColor: new Float32Array(color) });
-
-    this.model.draw(this.renderPass);
-  }
-
-  private drawMesh(_t: Transform, _m: Mesh3D): void {
+  private drawMesh(_t: Transform3D, _m: Mesh3D): void {
     // 3D not implemented in this minimal example
   }
 }

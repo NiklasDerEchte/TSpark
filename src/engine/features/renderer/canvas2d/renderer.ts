@@ -1,5 +1,5 @@
 import type { Scene } from '../../../core/world';
-import type { Transform, RendererBackend, Camera, Sprite2D } from '../../../types/index';
+import type { Transform3D, RendererBackend, Camera, Sprite2D } from '../../../types/index';
 
 export class Canvas2DRenderer implements RendererBackend {
   private canvas!: HTMLCanvasElement;
@@ -25,7 +25,7 @@ export class Canvas2DRenderer implements RendererBackend {
 
   draw(scene: Scene) {
     for (const [entity, sprite] of scene.getComponentStore<Sprite2D>('sprites2D').entries()) {
-      const t = scene.getComponentStore<Transform>('transforms').get(entity);
+      const t = scene.getComponentStore<Transform3D>('transforms').get(entity);
       if (!t) continue;
       this.drawSprite(t, sprite);
     }
@@ -33,7 +33,7 @@ export class Canvas2DRenderer implements RendererBackend {
 
   end(): void {}
 
-  private drawSprite(t: Transform, s: Sprite2D): void {
+  private drawSprite(t: Transform3D, s: Sprite2D): void {
     this.ctx.fillStyle = s.color;
     this.ctx.fillRect(t.position.x, t.position.y, s.width, s.height);
   }

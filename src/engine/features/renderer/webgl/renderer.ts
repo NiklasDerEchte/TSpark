@@ -1,5 +1,5 @@
 import type { Scene } from '../../../core/world';
-import type { Transform, RendererBackend, Camera, Sprite2D, Mesh3D } from '../../../types/index';
+import type { Transform3D, RendererBackend, Camera, Sprite2D, Mesh3D } from '../../../types/index';
 
 export class WebGLRenderer implements RendererBackend {
   private canvas!: HTMLCanvasElement;
@@ -28,15 +28,13 @@ export class WebGLRenderer implements RendererBackend {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
   }
 
-  draw(scene: Scene) {
+  draw(scene: Scene) {}
 
-  }
-
-  _drawSprite(_t: Transform, _s: Sprite2D): void {
+  _drawSprite(_t: Transform3D, _s: Sprite2D): void {
     // Platzhalter: Quad + Shader später
   }
 
-  _drawMesh(_t: Transform, _m: Mesh3D): void {
+  _drawMesh(_t: Transform3D, _m: Mesh3D): void {
     // Platzhalter: Buffer + DrawCalls später
   }
 
