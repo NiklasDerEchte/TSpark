@@ -1,3 +1,4 @@
+import type { Scene } from '../../../core/world';
 import type { Transform, RendererBackend, Camera, Sprite2D, Mesh3D } from '../../../types/index';
 
 export class WebGPURenderer implements RendererBackend {
@@ -44,12 +45,16 @@ export class WebGPURenderer implements RendererBackend {
     });
   }
 
-  drawSprite(_t: Transform, _s: Sprite2D): void {
+  _drawSprite(_t: Transform, _s: Sprite2D): void {
     // Platzhalter: Pipeline + Quad später
   }
 
-  drawMesh(_t: Transform, _m: Mesh3D): void {
+  _drawMesh(_t: Transform, _m: Mesh3D): void {
     // Platzhalter
+  }
+
+  draw(scene: Scene) {
+
   }
 
   end(): void {

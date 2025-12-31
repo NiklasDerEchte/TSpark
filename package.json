@@ -18,4 +18,11 @@
     "vite": "^7.2.4",
     "vitepress": "^2.0.0-alpha.15"
   }
+  ,
+  "dependencies": {
+    "@luma.gl/core": "^9.0.0",
+    "@luma.gl/engine": "^9.0.0",
+    "@luma.gl/webgl": "^9.0.0",
+    "@luma.gl/shadertools": "^9.0.0"
+  }
 }

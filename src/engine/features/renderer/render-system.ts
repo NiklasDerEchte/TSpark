@@ -14,7 +14,7 @@ export class RenderSystem implements System {
     this.scene = scene;
   }
 
-  exec(dt: number): void {
+  exec(_dt: number): void {
     let camera: Camera | undefined;
     for (const [, cam] of this.scene.getComponentStore<Camera>('cameras').entries()) {
       camera = cam;
@@ -23,19 +23,7 @@ export class RenderSystem implements System {
     camera ??= { mode: '2d', background: '#202020' };
 
     this.renderer.begin(camera);
-
-    for (const [entity, sprite] of this.scene.getComponentStore<Sprite2D>('sprites2D').entries()) {
-      const t = this.scene.getComponentStore<Transform>('transforms').get(entity);
-      if (!t) continue;
-      this.renderer.drawSprite(t, sprite);
-    }
-
-    for (const [entity, mesh] of this.scene.getComponentStore<Mesh3D>('meshes3D').entries()) {
-      const t = this.scene.getComponentStore<Transform>('transforms').get(entity);
-      if (!t) continue;
-      this.renderer.drawMesh(t, mesh);
-    }
-
+    this.renderer.draw(this.scene);
     this.renderer.end();
   }
 }
