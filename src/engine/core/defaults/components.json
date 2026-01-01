@@ -23,5 +23,10 @@
     "component": "Camera",
     "key": "cameras",
     "options": {}
+  },
+  {
+    "component": "Triangle2D",
+    "key": "triangles2D",
+    "options": {}
   }
 ]

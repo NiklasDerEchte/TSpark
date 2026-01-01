@@ -1,10 +1,11 @@
 import type { Scene } from "../core/world";
 
 export type Entity = string;
+export type Dimension = {width: number, height: number};
 
 export interface System {
-  init(scene: Scene): void;
-  exec(deltaTimeMs: number): void;
+  init(scene: Scene): void; // TODO System und Render Cycle muss Ordentlicher werden
+  exec(deltaTimeMs: number): void; // TODO Hier fehlt sowas wie destroy()
 }
 
 export type ComponentData = {
@@ -13,10 +14,9 @@ export type ComponentData = {
 
 export interface RendererBackend {
   init(canvas: HTMLCanvasElement): Promise<void>;
-  resize(width: number, height: number): void;
-  begin(camera: Camera): void;
   draw(scene: Scene): void;
-  end(): void;
+  destroy(): void; // TODO Noch nicht implementiert, wird nirgends aufgerufen
+  resize(size: Dimension): void;
 }
 
 export type Component<T extends ComponentData> = T;
@@ -31,6 +31,7 @@ export type Scale2D = Component<Vector2D>;
 export type Transform2D = Component<{ position: Position2D; rotation?: Rotation2D; scale?: Scale2D }>;
 export type Velocity2D = Component<Vector2D>;
 export type Sprite2D = Component<SceneObject & {color: string, width: number, height: number}>
+export type Triangle2D = Component<SceneObject & Transform2D & {color?: string}>;
 
 // 3D
 export type Vector3D = { x: number; y: number; z: number };

@@ -1,6 +1,7 @@
-import type { Vector, Position, Rotation, Scale, Transform } from './type';
+import type { Scene } from '../core/world';
+import type { Transform3D, Camera } from './type';
 
-export function createTransform(transformInput: Transform): Transform {
+export function createTransform(transformInput: Transform3D): Transform3D {
   return {
     position: transformInput.position,
     rotation: {
@@ -37,4 +38,14 @@ export function generateUniqueId(prefix?: string): string {
   }
   const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
   return prefix ? `${prefix}-${id}` : id;
+}
+
+export function getDefaultCamera(scene: Scene): Camera | undefined {
+  let camera: Camera | undefined;
+  for (const [, cam] of scene.getComponentStore<Camera>('cameras').entries()) {
+    camera = cam;
+    break;
+  }
+  camera ??= { id: 'cam', mode: '2d', background: '#dbdbdbff' };
+  return camera;
 }

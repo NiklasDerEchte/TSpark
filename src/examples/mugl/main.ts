@@ -1,5 +1,5 @@
 import { createTransform } from '../../engine/types/utils';
-import type { Camera, Mesh3D } from '../../engine/types';
+import type { Camera, Mesh3D, Triangle2D } from '../../engine/types';
 import { TSpark } from '../../app';
 import { MuglRenderer } from '../../engine/features/renderer/mugl/renderer';
 
@@ -20,9 +20,9 @@ scene.getComponentStore<Camera>('cameras').add(cam, { id: 'cam', mode: '2d', bac
 
 // Entity
 const mesh = scene.createEntity();
-scene.getComponentStore<Mesh3D>('transforms').add(mesh, {
+scene.getComponentStore<Triangle2D>('triangles2D').add(mesh, { //TODO sind diese namen für die component stores wirklich nötig?
   id: 'mesh',
-  geometry: {vertexCount: 3, vertices: []}
+  position: {x: 0, y: 0}
 });
 
 export default tspark;

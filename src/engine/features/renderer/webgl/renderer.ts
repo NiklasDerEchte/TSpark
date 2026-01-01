@@ -1,5 +1,5 @@
 import type { Scene } from '../../../core/world';
-import type { Transform3D, RendererBackend, Camera, Sprite2D, Mesh3D } from '../../../types/index';
+import { type Transform3D, type RendererBackend, type Camera, type Sprite2D, type Mesh3D, type Dimension, getDefaultCamera } from '../../../types/index';
 
 export class WebGLRenderer implements RendererBackend {
   private canvas!: HTMLCanvasElement;
@@ -13,22 +13,22 @@ export class WebGLRenderer implements RendererBackend {
     this.gl.enable(this.gl.DEPTH_TEST);
   }
 
-  resize(width: number, height: number): void {
-    this.canvas.width = width;
-    this.canvas.height = height;
-    this.gl.viewport(0, 0, width, height);
+  resize(size: Dimension): void {
+    this.canvas.width = size.width;
+    this.canvas.height = size.height;
+    this.gl.viewport(0, 0, size.width, size.height);
   }
 
-  begin(camera: Camera): void {
-    const bg = camera.background ?? '#000000';
+
+  draw(scene: Scene) {
+    let camera = getDefaultCamera(scene);
+    const bg = camera?.background ?? '#000';
     const r = parseInt(bg.slice(1, 3), 16) / 255;
     const g = parseInt(bg.slice(3, 5), 16) / 255;
     const b = parseInt(bg.slice(5, 7), 16) / 255;
     this.gl.clearColor(r, g, b, 1);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
   }
-
-  draw(scene: Scene) {}
 
   _drawSprite(_t: Transform3D, _s: Sprite2D): void {
     // Platzhalter: Quad + Shader später
@@ -38,5 +38,5 @@ export class WebGLRenderer implements RendererBackend {
     // Platzhalter: Buffer + DrawCalls später
   }
 
-  end(): void {}
+  destroy(): void {}
 }

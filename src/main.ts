@@ -8,18 +8,11 @@ async function simplePlayerExample() {
   sparkImport.default.start();
 }
 
-async function lumaControlledExample() {
-  let sparkImport = await import('./examples/luma-controlled/main');
-  sparkImport.default.start();
-}
-
 async function muglControlledExample() {
   let muglImport = await import('./examples/mugl/main');
   muglImport.default.start();
 }
 
-
 //await simpleCanvasExample();
 //await simplePlayerExample();
-//await lumaControlledExample();
 await muglControlledExample();

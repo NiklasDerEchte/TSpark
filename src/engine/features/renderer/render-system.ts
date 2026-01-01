@@ -15,15 +15,6 @@ export class RenderSystem implements System {
   }
 
   exec(_dt: number): void {
-    let camera: Camera | undefined;
-    for (const [, cam] of this.scene.getComponentStore<Camera>('cameras').entries()) {
-      camera = cam;
-      break;
-    }
-    camera ??= { id: 'cam', mode: '2d', background: '#dbdbdbff' };
-
-    this.renderer.begin(camera);
     this.renderer.draw(this.scene);
-    this.renderer.end();
   }
 }

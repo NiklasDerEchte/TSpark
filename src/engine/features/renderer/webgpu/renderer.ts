@@ -1,5 +1,5 @@
 import type { Scene } from '../../../core/world';
-import type { Transform3D, RendererBackend, Camera, Sprite2D, Mesh3D } from '../../../types/index';
+import { type Transform3D, type RendererBackend, type Camera, type Sprite2D, type Mesh3D, type Dimension, getDefaultCamera } from '../../../types/index';
 
 export class WebGPURenderer implements RendererBackend {
   private canvas!: HTMLCanvasElement;
@@ -20,13 +20,22 @@ export class WebGPURenderer implements RendererBackend {
     this.context.configure({ device: this.device, format: this.format, alphaMode: 'opaque' });
   }
 
-  resize(width: number, height: number): void {
-    this.canvas.width = width;
-    this.canvas.height = height;
+  resize(size: Dimension): void {
+    this.canvas.width = size.width;
+    this.canvas.height = size.height;
   }
 
-  begin(camera: Camera): void {
-    const bg = camera.background ?? '#000000';
+  _drawSprite(_t: Transform3D, _s: Sprite2D): void {
+    // Platzhalter: Pipeline + Quad später
+  }
+
+  _drawMesh(_t: Transform3D, _m: Mesh3D): void {
+    // Platzhalter
+  }
+
+  draw(scene: Scene) {
+    let camera = getDefaultCamera(scene);
+    const bg = camera?.background ?? '#000';
     const r = parseInt(bg.slice(1, 3), 16) / 255;
     const g = parseInt(bg.slice(3, 5), 16) / 255;
     const b = parseInt(bg.slice(5, 7), 16) / 255;
@@ -43,24 +52,12 @@ export class WebGPURenderer implements RendererBackend {
         },
       ],
     });
-  }
 
-  _drawSprite(_t: Transform3D, _s: Sprite2D): void {
-    // Platzhalter: Pipeline + Quad später
-  }
-
-  _drawMesh(_t: Transform3D, _m: Mesh3D): void {
-    // Platzhalter
-  }
-
-  draw(scene: Scene) {
-
-  }
-
-  end(): void {
     if (this.pass) this.pass.end();
     if (this.encoder) this.device.queue.submit([this.encoder.finish()]);
     this.pass = undefined;
     this.encoder = undefined;
   }
+
+  destroy(): void {}
 }
