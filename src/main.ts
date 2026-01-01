@@ -13,6 +13,6 @@ async function muglControlledExample() {
   muglImport.default.start();
 }
 
-//await simpleCanvasExample();
+await simpleCanvasExample();
 //await simplePlayerExample();
-await muglControlledExample();
+//await muglControlledExample();

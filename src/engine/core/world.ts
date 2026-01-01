@@ -2,7 +2,7 @@ import { generateUniqueId } from "..";
 import { RenderSystem } from "../features/renderer/render-system";
 import componentsDefaults from "./defaults/components.json";
 import systemsDefaults from "./defaults/systems.json";
-import type { Entity, System } from "../types/type";
+import type { Component, Entity, System } from "../types/type";
 import { ComponentStore } from "./component-store";
 
 export class World {
@@ -56,9 +56,11 @@ export class Scene {
   private systems: Map<string, System> = new Map();
   private fixedSystems: Map<string, System> = new Map();
   private drawSystems: Map<string, System> = new Map();
-  private componentStores: Map<string, ComponentStore<any>> = new Map();
+  private componentStores: Map<string, ComponentStore<Component<any>>> = new Map();
 
   constructor() {
+    // TODO Überarbeiten wie Systeme registriert und geholt werden
+    // TODO Einleisen der Standard Components und Systems überarbeiten
     for (const entry of componentsDefaults as Array<{component: string; key: string; options?: Record<string, any>}>) {
       this.registerComponent<any>(entry.key);
     }
@@ -87,11 +89,22 @@ export class Scene {
     return entity;
   }
 
-  registerComponent<T>(key: string) {
+  registerComponent<T extends Component<any>>({key=undefined, component}:{key?: string | undefined, component: T}): string {
+    if (component == null) {
+      throw new Error('Component is null or undefined');
+    }
+    if (!(typeof component === 'object' && component.constructor)) {
+      throw new Error('Component must be a class instance');
+    }
+    if (key == undefined) {
+      key = component.constructor.name;
+      console.log(`Registriere Component: ${key}`);
+    }
     this.componentStores.set(key, new ComponentStore<T>());
+    return key;
   }
 
-  getComponentStore<T>(key: string): ComponentStore<T> {
+  getComponentStore<T extends Component<any>>(key: string): ComponentStore<T> {
     return this.componentStores.get(key) as ComponentStore<T>;
   }
 

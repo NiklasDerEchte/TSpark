@@ -1,21 +1,5 @@
 import type { Scene } from '../core/world';
-import type { Transform3D, Camera } from './type';
-
-export function createTransform(transformInput: Transform3D): Transform3D {
-  return {
-    position: transformInput.position,
-    rotation: {
-      x: transformInput.rotation?.x ?? 0,
-      y: transformInput.rotation?.y ?? 0,
-      z: transformInput.rotation?.z ?? 0,
-    },
-    scale: {
-      x: transformInput.scale?.x ?? 1,
-      y: transformInput.scale?.y ?? 1,
-      z: transformInput.scale?.z ?? 1,
-    },
-  };
-}
+import type { Camera } from './type';
 
 export function generateUniqueId(prefix?: string): string {
   try {

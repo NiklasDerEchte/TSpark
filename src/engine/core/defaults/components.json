@@ -1,21 +1,21 @@
 [
   {
-    "component": "Velocity",
+    "component": "Component3D.Velocity",
     "key": "velocities",
     "options": {}
   },
   {
-    "component": "Transform",
+    "component": "Component3D.Transform",
     "key": "transforms",
     "options": {}
   },
   {
-    "component": "Sprite2D",
+    "component": "Component2D.Sprite",
     "key": "sprites2D",
     "options": {}
   },
   {
-    "component": "Mesh3D",
+    "component": "Component3D.Mesh",
     "key": "meshes3D",
     "options": {}
   },
@@ -25,7 +25,7 @@
     "options": {}
   },
   {
-    "component": "Triangle2D",
+    "component": "Component2D.Triangle",
     "key": "triangles2D",
     "options": {}
   }
