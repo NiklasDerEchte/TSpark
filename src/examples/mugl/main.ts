@@ -24,5 +24,5 @@ scene.getComponentStore<Triangle2D>('triangles2D').add(mesh, { //TODO sind diese
   id: 'mesh',
   position: {x: 0, y: 0}
 });
-
+// TODO wie könnte ich mehrere components des gleichen typen auf ein entity setzten? eventuell ist das aber nicht für alle erlaubt
 export default tspark;

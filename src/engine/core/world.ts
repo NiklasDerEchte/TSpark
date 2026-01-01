@@ -68,8 +68,8 @@ export class Scene {
       RenderSystem: RenderSystem,
     } as Record<string, new () => System>;
 
-    for (const entry of systemsDefaults as Array<{component: string; key: string; options?: { mode?: 'normal'|'fixed'|'draw' }}>) {
-      const Ctor = systemConstructors[entry.component];
+    for (const entry of systemsDefaults as Array<{ system: string; key: string; options?: { mode?: 'normal' | 'fixed' | 'draw' } }>) {
+      const Ctor = systemConstructors[entry.system];
       if (Ctor) {
         const instance = new Ctor();
         const mode = entry.options?.mode ?? 'normal';
