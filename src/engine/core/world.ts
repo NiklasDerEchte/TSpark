@@ -61,6 +61,7 @@ export class Scene {
   private componentStores: Map<string, ComponentStore<Component<any>>> = new Map();
 
   constructor() {
+    // init defaults
     this.initComponents();
     this.initSystems();
   }
@@ -106,8 +107,8 @@ export class Scene {
         const mode = entry.options?.mode ?? 'normal';
         this.registerSystem({
           key: entry.key,
-          system: instance, 
-          mode: mode
+          system: instance,
+          mode: mode,
         });
       }
     }
@@ -131,7 +132,9 @@ export class Scene {
     }
     if (key == undefined) {
       key = component.constructor.name;
-      console.log(`Registriere Component: ${key}`);
+    }
+    if(this.componentStores.has(key)) {
+      throw new Error(`ComponentStore with key "${key}" is already registered`);
     }
     this.componentStores.set(key, new ComponentStore<T>());
     return key;
@@ -141,18 +144,30 @@ export class Scene {
     return this.componentStores.get(key) as ComponentStore<T>;
   }
 
-  registerSystem<T extends System>({key, system, mode = 'normal'}: {key: string, system: T, mode: 'normal' | 'fixed' | 'draw'}) {
+  registerSystem<T extends System>({ key = undefined, system, mode = 'normal' }: { key?: string | undefined; system: T; mode: 'normal' | 'fixed' | 'draw' }) {
     if (system == null) {
       throw new Error('System is null or undefined');
     }
     if (!(typeof system === 'object' && system.constructor)) {
       throw new Error('System must be a class instance');
     }
+    if (key == undefined) {
+      key = system.constructor.name;
+    }
     if (mode == 'normal') {
+      if (this.systems.has(key)) {
+        throw new Error(`System with key "${key}" is already registered`);
+      }
       this.systems.set(key, system);
     } else if (mode == 'fixed') {
+      if (this.fixedSystems.has(key)) {
+        throw new Error(`FixedSystem with key "${key}" is already registered`);
+      }
       this.fixedSystems.set(key, system);
     } else if (mode == 'draw') {
+      if (this.drawSystems.has(key)) {
+        throw new Error(`DrawSystem with key "${key}" is already registered`);
+      }
       this.drawSystems.set(key, system);
     }
     system.init(this);

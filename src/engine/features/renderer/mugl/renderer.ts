@@ -1,6 +1,6 @@
 import { BufferUsage, ShaderStage, vertexBufferLayouts, VertexFormat, WebGL, type VertexBufferFormats } from 'mugl';
 import type { Scene } from '../../../core/world';
-import type { Camera, Dimension, RendererBackend, Triangle2D } from '../../../types';
+import type { component2D, Dimension, RendererBackend } from '../../../types';
 
 let VERTEX_SHADER_2D: string = `#version 300 es
         layout (location=0) in vec2 position;
@@ -99,7 +99,7 @@ export class MuglRenderer implements RendererBackend {
 
   draw(scene: Scene): void {
     let renderItems: RenderItem[] = [];
-    for (const [entity, triangle] of scene.getComponentStore<Triangle2D>('triangles2D').entries()) {
+    for (const [entity, triangle] of scene.getComponentStore<component2D.Triangle>('triangle2d').entries()) {
       if (!entity) continue;
       // TODO geometrie manipulation ausprogrammieren
       //triangle.position
