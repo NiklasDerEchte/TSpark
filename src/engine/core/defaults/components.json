@@ -1,32 +1,47 @@
 [
   {
-    "component": "Component3D.Velocity",
-    "key": "velocities",
+    "component": "component3D.Velocity",
+    "key": "velocity3d",
     "options": {}
   },
   {
-    "component": "Component3D.Transform",
-    "key": "transforms",
+    "component": "component2D.Velocity",
+    "key": "velocity2d",
     "options": {}
   },
   {
-    "component": "Component2D.Sprite",
-    "key": "sprites2D",
+    "component": "component3D.Transform",
+    "key": "transform3d",
     "options": {}
   },
   {
-    "component": "Component3D.Mesh",
-    "key": "meshes3D",
+    "component": "component2D.Transform",
+    "key": "transform2d",
     "options": {}
   },
   {
-    "component": "Camera",
-    "key": "cameras",
+    "component": "component2D.Sprite",
+    "key": "sprite2d",
     "options": {}
   },
   {
-    "component": "Component2D.Triangle",
-    "key": "triangles2D",
+    "component": "component3D.Mesh",
+    "key": "mesh3d",
+    "options": {}
+  },
+  {
+    "component": "component2D.Camera",
+    "key": "camera2d",
+    "options": {}
+  },
+  {
+    "component": "component3D.Camera",
+    "key": "camera3d",
+    "options": {}
+  },
+  {
+    "component": "component2D.Triangle",
+    "key": "triangle2d",
     "options": {}
   }
 ]

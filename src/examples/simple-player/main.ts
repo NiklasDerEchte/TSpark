@@ -1,5 +1,5 @@
 import { Canvas2DRenderer } from '../../engine/features/renderer/canvas2d/renderer';
-import { type Camera, component2D } from '../../engine/types';
+import { component2D } from '../../engine/types';
 import { TSpark } from '../../app';
 
 let tspark = new TSpark({

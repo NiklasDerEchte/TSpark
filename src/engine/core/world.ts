@@ -1,9 +1,11 @@
-import { generateUniqueId } from "..";
-import { RenderSystem } from "../features/renderer/render-system";
-import componentsDefaults from "./defaults/components.json";
-import systemsDefaults from "./defaults/systems.json";
-import type { Component, Entity, System } from "../types/type";
-import { ComponentStore } from "./component-store";
+import { generateUniqueId } from '..';
+import { RenderSystem } from '../features/renderer/render-system';
+import componentsDefaults from './defaults/components.json';
+import systemsDefaults from './defaults/systems.json';
+import type { Component, Entity, System } from '../types/type';
+import { ComponentStore } from './component-store';
+import * as component2D from '../types/components2D';
+import * as component3D from '../types/components3D';
 
 export class World {
   private scenes: Map<string, Scene> = new Map<string, Scene>();
@@ -59,13 +61,40 @@ export class Scene {
   private componentStores: Map<string, ComponentStore<Component<any>>> = new Map();
 
   constructor() {
-    // TODO Überarbeiten wie Systeme registriert und geholt werden
-    // TODO Einleisen der Standard Components und Systems überarbeiten
-    for (const entry of componentsDefaults as Array<{component: string; key: string; options?: Record<string, any>}>) {
-      this.registerComponent<any>(entry.key);
-    }
+    this.initComponents();
+    this.initSystems();
+  }
 
-    // Map of system constructors for dynamic registration
+  private initComponents() {
+    for (const entry of componentsDefaults as Array<{ component: string; key: string; options?: Record<string, any> }>) {
+      const parts = entry.component.split('.');
+      if (parts.length === 2) {
+        const moduleName = parts[0];
+        const className = parts[1];
+
+        let Ctor: (new () => Component<any> | undefined) | undefined = undefined;
+        if (moduleName === 'component2D') {
+          Ctor = (component2D as any)[className];
+        } else if (moduleName === 'component3D') {
+          Ctor = (component3D as any)[className];
+        }
+
+        if (Ctor) {
+          const instance = new Ctor();
+          this.registerComponent({
+            key: entry.key,
+            component: instance,
+          });
+        } else {
+          console.error(`Unknown component: ${entry.component}`);
+        }
+      } else {
+        console.error(`Component format not valid: ${entry.component}`);
+      }
+    }
+  }
+
+  private initSystems() {
     const systemConstructors: Record<string, new () => System> = {
       RenderSystem: RenderSystem,
     } as Record<string, new () => System>;
@@ -75,7 +104,11 @@ export class Scene {
       if (Ctor) {
         const instance = new Ctor();
         const mode = entry.options?.mode ?? 'normal';
-        this.registerSystem(entry.key, instance, mode);
+        this.registerSystem({
+          key: entry.key,
+          system: instance, 
+          mode: mode
+        });
       }
     }
   }
@@ -89,7 +122,7 @@ export class Scene {
     return entity;
   }
 
-  registerComponent<T extends Component<any>>({key=undefined, component}:{key?: string | undefined, component: T}): string {
+  registerComponent<T extends Component<any>>({ key = undefined, component }: { key?: string | undefined; component: T }): string {
     if (component == null) {
       throw new Error('Component is null or undefined');
     }
@@ -108,7 +141,13 @@ export class Scene {
     return this.componentStores.get(key) as ComponentStore<T>;
   }
 
-  registerSystem<T extends System>(key: string, system: T, mode: 'normal' | 'fixed' | 'draw' = 'normal') {
+  registerSystem<T extends System>({key, system, mode = 'normal'}: {key: string, system: T, mode: 'normal' | 'fixed' | 'draw'}) {
+    if (system == null) {
+      throw new Error('System is null or undefined');
+    }
+    if (!(typeof system === 'object' && system.constructor)) {
+      throw new Error('System must be a class instance');
+    }
     if (mode == 'normal') {
       this.systems.set(key, system);
     } else if (mode == 'fixed') {

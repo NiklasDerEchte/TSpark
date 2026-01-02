@@ -24,6 +24,11 @@ export class Transform implements Component<{ position: Position; rotation?: Rot
   scale?: Scale | undefined;
 }
 
+export class Camera implements Component<SceneObject & { background?: string }> {
+  id: string = '';
+  background?: string | undefined;
+}
+
 export class Velocity implements Component<VectorStructure> {
   x: number = 0;
   y: number = 0;

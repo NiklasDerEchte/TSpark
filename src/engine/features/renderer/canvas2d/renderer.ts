@@ -1,5 +1,5 @@
 import type { Scene } from '../../../core/world';
-import { type Transform3D, type RendererBackend, type Camera, type Sprite2D, type Dimension, getDefaultCamera } from '../../../types/index';
+import { type RendererBackend, type Dimension, getDefaultCamera, component2D, component3D } from '../../../types/index';
 
 export class Canvas2DRenderer implements RendererBackend {
   private canvas!: HTMLCanvasElement;
@@ -23,19 +23,17 @@ export class Canvas2DRenderer implements RendererBackend {
     this.ctx.fillStyle = bg;
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    for (const [entity, sprite] of scene.getComponentStore<Sprite2D>('sprites2D').entries()) {
-      const t = scene.getComponentStore<Transform3D>('transforms').get(entity);
+    for (const [entity, sprite] of scene.getComponentStore<component2D.Sprite>('sprite2d').entries()) {
+      const t = scene.getComponentStore<component3D.Transform>('transform2d').get(entity);
       if (!t) continue;
       this.drawSprite(t, sprite);
     }
   }
 
-  private drawSprite(t: Transform3D, s: Sprite2D): void {
+  private drawSprite(t: component3D.Transform, s: component2D.Sprite): void {
     this.ctx.fillStyle = s.color;
     this.ctx.fillRect(t.position.x, t.position.y, s.width, s.height);
   }
 
-  destroy(): void {
-    
-  }
+  destroy(): void {}
 }

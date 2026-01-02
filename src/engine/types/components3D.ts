@@ -41,6 +41,11 @@ export class Material implements Component<{ baseColor?: string | [number, numbe
   baseColor?: string | [number, number, number, number] | undefined;
 }
 
+export class Camera implements Component<SceneObject & { background?: string }> {
+  id: string = "";
+  background?: string | undefined;
+}
+
 export class Geometry
   implements
     Component<{

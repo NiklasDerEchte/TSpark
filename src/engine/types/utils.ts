@@ -1,5 +1,5 @@
+import type { component2D, component3D } from '.';
 import type { Scene } from '../core/world';
-import type { Camera } from './type';
 
 export function generateUniqueId(prefix?: string): string {
   try {
@@ -24,12 +24,18 @@ export function generateUniqueId(prefix?: string): string {
   return prefix ? `${prefix}-${id}` : id;
 }
 
-export function getDefaultCamera(scene: Scene): Camera | undefined {
-  let camera: Camera | undefined;
-  for (const [, cam] of scene.getComponentStore<Camera>('cameras').entries()) {
+export function getDefaultCamera(scene: Scene): component2D.Camera | component3D.Camera | undefined {
+  let camera: component2D.Camera | component3D.Camera | undefined;
+  for (const [, cam] of scene.getComponentStore<component2D.Camera>('camera2d').entries()) {
     camera = cam;
     break;
   }
-  camera ??= { id: 'cam', mode: '2d', background: '#dbdbdbff' };
+  if(!camera) {
+    for (const [, cam] of scene.getComponentStore<component3D.Camera>('camera3d').entries()) {
+      camera = cam;
+      break;
+    }
+  }
+  camera ??= { id: 'cam', background: '#f8f8f8f8' };
   return camera;
 }

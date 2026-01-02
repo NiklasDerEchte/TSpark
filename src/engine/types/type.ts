@@ -20,5 +20,4 @@ export type ComponentStructure = {
   [k: string]: any;
 };
 export type Component<T extends ComponentStructure> = T;
-
-export type Camera = Component<SceneObject & { mode: '2d' | '3d'; background?: string }>;
+//export interface Component extends ComponentStructure {};

@@ -1,6 +1,6 @@
 import { TSpark } from '../../../app';
 import { Scene } from '../../core/world';
-import type { System, RendererBackend, Camera} from '../../types/index';
+import type { System, RendererBackend} from '../../types/index';
 
 export class RenderSystem implements System {
   renderer: RendererBackend;
