@@ -78,7 +78,7 @@ export class TSpark {
         });
       });
     this.setup.onUpdate();
-    this.drawUpdate(deltaTimeMs);
+    this.drawUpdate();
   };
 
   private fixedUpdate = (deltaTimeMs: number) => {
@@ -92,13 +92,11 @@ export class TSpark {
     this.setup.onFixedUpdate();
   };
 
-  private drawUpdate(deltaTimeMs: number) {
+  private drawUpdate() {
     this.getActiveWorld()
       .getActiveScenes()
       .forEach((scene: Scene) => {
-        scene.getSystems('draw').forEach((system: System) => {
-          system.exec(deltaTimeMs);
-        });
+        this.setup.renderer.draw(scene);
       });
     this.setup.onDrawUpdate();
   }

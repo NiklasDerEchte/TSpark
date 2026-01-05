@@ -1,5 +1,4 @@
 import { generateUniqueId } from '..';
-import { RenderSystem } from './renderer/render-system';
 import componentsDefaults from './scene-defaults/components.json';
 import systemsDefaults from './scene-defaults/systems.json';
 import type { Component, Entity, System } from '../types/type';
@@ -32,9 +31,6 @@ export class World {
           system.destroy();
         });
         scene.getSystems('fixed').forEach((system: System) => {
-          system.destroy();
-        });
-        scene.getSystems('draw').forEach((system: System) => {
           system.destroy();
         });
       }
@@ -121,10 +117,10 @@ export class Scene {
 
   private initSystems() {
     const systemConstructors: Record<string, new () => System> = {
-      RenderSystem: RenderSystem,
+      // System list
     } as Record<string, new () => System>;
 
-    for (const entry of systemsDefaults as Array<{ system: string; key: string; options?: { mode?: 'normal' | 'fixed' | 'draw' } }>) {
+    for (const entry of systemsDefaults as Array<{ system: string; key: string; options?: { mode?: 'normal' | 'fixed' } }>) {
       const Ctor = systemConstructors[entry.system];
       if (Ctor) {
         const instance = new Ctor();
@@ -145,6 +141,10 @@ export class Scene {
     } while (this.entities.includes(entity));
     this.entities.push(entity);
     return entity;
+  }
+
+  public getName(): string {
+    return this.name;
   }
 
   registerComponent<T extends Component<any>>({ key = undefined, component }: { key?: string | undefined; component: T }): string {
@@ -168,7 +168,7 @@ export class Scene {
     return this.componentStores.get(key) as ComponentStore<T>;
   }
 
-  registerSystem<T extends System>({ key = undefined, system, mode = 'normal' }: { key?: string | undefined; system: T; mode: 'normal' | 'fixed' | 'draw' }) {
+  registerSystem<T extends System>({ key = undefined, system, mode = 'normal' }: { key?: string | undefined; system: T; mode: 'normal' | 'fixed'}) {
     if (system == null) {
       throw new Error('System is null or undefined');
     }
@@ -188,11 +188,6 @@ export class Scene {
         throw new Error(`FixedSystem with key "${key}" is already registered`);
       }
       this.fixedSystems.set(key, system);
-    } else if (mode == 'draw') {
-      if (this.drawSystems.has(key)) {
-        throw new Error(`DrawSystem with key "${key}" is already registered`);
-      }
-      this.drawSystems.set(key, system);
     }
     system.init(this);
   }
@@ -228,13 +223,11 @@ export class Scene {
     }
   }
 
-  getSystems(mode: 'normal' | 'fixed' | 'draw' = 'normal'): System[] {
+  getSystems(mode: 'normal' | 'fixed' = 'normal'): System[] {
     if (mode == 'normal') {
       return Array.from(this.systems.values());
     } else if (mode == 'fixed') {
       return Array.from(this.fixedSystems.values());
-    } else if (mode == 'draw') {
-      return Array.from(this.drawSystems.values());
     }
     return [];
   }
