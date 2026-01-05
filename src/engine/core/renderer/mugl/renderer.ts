@@ -3,6 +3,7 @@ import type { Scene } from '../../../core/world';
 import type { component2D, component3D, Dimension, RendererBackend } from '../../types/index';
 import { triangleRenderItem2d } from './triangle2d';
 import { createRenderItemFromGeometry } from './geometry3d';
+import { mat4, vec3 } from 'gl-matrix';
 
 export interface RenderItem {
   vertexShader: string;
@@ -30,6 +31,26 @@ export class MuglRenderer implements RendererBackend {
   }
 
   draw(scene: Scene): void {
+    // Kamera aus der Szene holen (angenommen, es gibt nur eine)
+    const cameraEntity = scene.getComponentStore<component3D.Camera>('camera3d').entries().next().value;
+    let camera: component3D.Camera | undefined;
+    if (cameraEntity) {
+      camera = cameraEntity[1];  // [entity, component]
+    }
+
+    // View-Matrix berechnen (falls Kamera vorhanden)
+    let viewMatrix = mat4.create();
+    if (camera) {
+      const eye = vec3.fromValues(camera.position.x, camera.position.y, camera.position.z);
+      const center = vec3.fromValues(0, 0, 0);  // Blickrichtung (kann angepasst werden)
+      const up = vec3.fromValues(0, 1, 0);      // Up-Vektor
+      mat4.lookAt(viewMatrix, eye, center, up);
+      
+      // Rotation anwenden (Euler-Winkel zu Quaternion konvertieren, falls nötig)
+      // Für Einfachheit: mat4.rotateY(viewMatrix, viewMatrix, camera.rotation.y);
+      // Ähnlich für X und Z.
+    }
+
     let renderItems: RenderItem[] = [];
     for (const [entity, triangle] of scene.getComponentStore<component2D.Triangle>('triangle2d').entries()) {
       if (!entity) continue;
@@ -65,6 +86,17 @@ export class MuglRenderer implements RendererBackend {
       });
       WebGL.setRenderPipeline(this.device, pipeline);
       WebGL.setVertex(this.device, 0, buffer);
+
+      //TODO Camera ist iwie pain weil ich mit mugl nicht so einfach weitere variablen in den shader packen kann
+      //TODO eventuell muss ich hier ein besseres framework nehmen oder komplett selber eine abstraktion schreiben
+      // if (camera) {
+      //   const uniformBuffer = WebGL.createBuffer(this.device, {
+      //     usage: BufferUsage.Uniform,
+      //     size: 64 // mat4 = 16 * 4 bytes = 64
+      //   });
+      //   WebGL.writeBuffer(this.device, uniformBuffer, viewMatrix as Float32Array);
+      //   WebGL.setUniform(this.device, 0, uniformBuffer);
+      // }
 
       if (renderItem.indices) {
         let indexBuffer = WebGL.createBuffer(this.device, { usage: BufferUsage.Index, size: renderItem.indices.byteLength });
