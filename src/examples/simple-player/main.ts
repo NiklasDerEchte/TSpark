@@ -1,5 +1,5 @@
-import { Canvas2DRenderer } from '../../engine/features/renderer/canvas2d/renderer';
-import { component2D } from '../../engine/types';
+import { Canvas2DRenderer } from '../../engine/core/renderer/canvas2d/renderer';
+import { component2D } from '../../engine/index';
 import { TSpark } from '../../app';
 
 let tspark = new TSpark({

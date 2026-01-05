@@ -1,9 +1,0 @@
-[
-  {
-    "system": "RenderSystem",
-    "key": "renderSystem",
-    "options": {
-      "mode": "draw"
-    }
-  }
-]

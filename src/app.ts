@@ -7,6 +7,7 @@ export interface TSparkSetup {
   onUpdate: () => void;
   onFixedUpdate: () => void;
   onDrawUpdate: () => void;
+  canvas?: HTMLCanvasElement | undefined;
 }
 
 export class TSpark {
@@ -24,7 +25,11 @@ export class TSpark {
     }
     this.setup = setup;
     this.gameLoop = new GameLoop();
-    this.drawCanvas = document.createElement('canvas');
+    if(this.setup.canvas) {
+      this.drawCanvas = this.setup.canvas;  
+    } else {
+      this.drawCanvas = document.createElement('canvas');
+    }
     document.body.appendChild(this.drawCanvas);
     TSpark.Instance = this;
     console.log('TSpark initialized');
@@ -61,6 +66,7 @@ export class TSpark {
 
   public stop() {
     this.gameLoop.stop();
+    this.setup.renderer.destroy();
   }
 
   private update = (deltaTimeMs: number) => {
@@ -72,7 +78,7 @@ export class TSpark {
         });
       });
     this.setup.onUpdate();
-    this.drawUpdate(deltaTimeMs);
+    this.drawUpdate();
   };
 
   private fixedUpdate = (deltaTimeMs: number) => {
@@ -86,13 +92,11 @@ export class TSpark {
     this.setup.onFixedUpdate();
   };
 
-  private drawUpdate(deltaTimeMs: number) {
+  private drawUpdate() {
     this.getActiveWorld()
       .getActiveScenes()
       .forEach((scene: Scene) => {
-        scene.getSystems('draw').forEach((system: System) => {
-          system.exec(deltaTimeMs);
-        });
+        this.setup.renderer.draw(scene);
       });
     this.setup.onDrawUpdate();
   }

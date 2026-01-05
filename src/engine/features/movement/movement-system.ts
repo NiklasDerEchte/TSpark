@@ -1,4 +1,4 @@
-import type { System, Transform, Velocity } from '../../types/index';
+import type { component2D, System } from '../../core/types/index';
 import { Scene } from '../../core/world';
 
 export class MovementSystem implements System {
@@ -8,11 +8,15 @@ export class MovementSystem implements System {
   }
 
   exec(dt: number) {
-    for (const [entity, vel] of this.scene.getComponentStore<Velocity>('velocities').entries()) {
-      const transform = this.scene.getComponentStore<Transform>('transforms').get(entity);
+    for (const [entity, vel] of this.scene.getComponentStore<component2D.Velocity>('velocity2d').entries()) {
+      const transform = this.scene.getComponentStore<component2D.Transform>('transform2d').get(entity);
       if (!transform) continue;
 
       transform.position.x += vel.x * dt;
     }
+  }
+
+  destroy(): void {
+    
   }
 }

@@ -1,85 +1,16 @@
 import { BufferUsage, ShaderStage, vertexBufferLayouts, VertexFormat, WebGL, type VertexBufferFormats } from 'mugl';
 import type { Scene } from '../../../core/world';
-import type { component2D, Dimension, RendererBackend } from '../../../types';
+import type { component2D, component3D, Dimension, RendererBackend } from '../../types/index';
+import { triangleRenderItem2d } from './triangle2d';
+import { createRenderItemFromGeometry } from './geometry3d';
 
-let VERTEX_SHADER_2D: string = `#version 300 es
-        layout (location=0) in vec2 position;
-        layout (location=1) in vec4 color;
-        out vec4 vColor;
-        void main () {
-          gl_Position = vec4(position, 0., 1.);
-          vColor = color;
-        }`;
-let FRAGMENT_SHADER_2D: string = `#version 300 es
-        precision mediump float;
-        in vec4 vColor;
-        out vec4 outColor;
-        void main () {
-          outColor = vColor;
-        }`;
-
-let VERTEX_BUFFER_FORMAT_2D = [{ attributes: [VertexFormat.F32x2, VertexFormat.F32x4] }];
-
-interface RenderItem {
+export interface RenderItem {
   vertexShader: string;
   fragmentShader: string;
   bufferFormats: VertexBufferFormats[];
   verticies: Float32Array;
+  indices?: Uint16Array | Uint32Array;
 }
-
-let TRIANGLE_RENDER_ITEM: RenderItem = {
-  vertexShader: VERTEX_SHADER_2D,
-  fragmentShader: FRAGMENT_SHADER_2D,
-  verticies: new Float32Array([
-    // position  color
-    +0.0,
-    +0.5,
-    1.0,
-    0.0,
-    0.0,
-    1.0, // vertex 0
-    +0.5,
-    -0.5,
-    0.0,
-    1.0,
-    0.0,
-    1.0, // vertex 1
-    -0.5,
-    -0.5,
-    0.0,
-    0.0,
-    1.0,
-    1.0, // vertex 2
-  ]),
-  bufferFormats: VERTEX_BUFFER_FORMAT_2D,
-};
-
-let triangleDown: RenderItem = {
-  vertexShader: VERTEX_SHADER_2D,
-  fragmentShader: FRAGMENT_SHADER_2D,
-  verticies: new Float32Array([
-    // position  color
-    +0.0,
-    -0.5,
-    1.0,
-    0.0,
-    0.0,
-    1.0, // vertex 0
-    +0.5,
-    0.5,
-    0.0,
-    1.0,
-    0.0,
-    1.0, // vertex 1
-    -0.5,
-    0.5,
-    0.0,
-    0.0,
-    1.0,
-    1.0, // vertex 2
-  ]),
-  bufferFormats: VERTEX_BUFFER_FORMAT_2D,
-};
 
 export class MuglRenderer implements RendererBackend {
   private canvas!: HTMLCanvasElement;
@@ -88,7 +19,8 @@ export class MuglRenderer implements RendererBackend {
   async init(canvas: HTMLCanvasElement): Promise<void> {
     this.canvas = canvas;
     this.device = WebGL.requestWebGL2Device(canvas);
-    if (!this.device) throw new Error('WebGL 2.0 is unsupported');
+    if (!this.device) throw new Error('[mugl] WebGL 2.0 is unsupported');
+    console.log('[mugl] WebGL 2.0 device initialized');
     return undefined;
   }
 
@@ -105,7 +37,12 @@ export class MuglRenderer implements RendererBackend {
       //triangle.position
       //triangle.rotation
       //triangle.scale
-      renderItems.push(TRIANGLE_RENDER_ITEM);
+      renderItems.push(triangleRenderItem2d);
+    }
+    for (const [entity, mesh] of scene.getComponentStore<component3D.Mesh>('mesh3d').entries()) {
+      if (!entity || !mesh.visible) continue;
+      // TODO transform anwenden
+      renderItems.push(createRenderItemFromGeometry(mesh.geometry));
     }
 
     WebGL.beginRenderPass(this.device);
@@ -128,7 +65,29 @@ export class MuglRenderer implements RendererBackend {
       });
       WebGL.setRenderPipeline(this.device, pipeline);
       WebGL.setVertex(this.device, 0, buffer);
-      WebGL.draw(this.device, 3);
+
+      if (renderItem.indices) {
+        let indexBuffer = WebGL.createBuffer(this.device, { usage: BufferUsage.Index, size: renderItem.indices.byteLength });
+        WebGL.writeBuffer(this.device, indexBuffer, renderItem.indices);
+        WebGL.setIndex(this.device, indexBuffer);
+        WebGL.drawIndexed(this.device, renderItem.indices.length);
+        indexBuffer.destroy();
+      } else {
+        const floatsPerVertex = renderItem.bufferFormats[0].attributes.reduce((sum, attr) => {
+          switch (attr) {
+            case VertexFormat.F32x2:
+              return sum + 2;
+            case VertexFormat.F32x3:
+              return sum + 3;
+            case VertexFormat.F32x4:
+              return sum + 4;
+            default:
+              return sum + 1;
+          }
+        }, 0);
+        const vertexCount = renderItem.verticies.length / floatsPerVertex;
+        WebGL.draw(this.device, vertexCount);
+      }
 
       vertex.destroy();
       fragment.destroy();

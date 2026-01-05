@@ -1,5 +1,5 @@
 import type { Scene } from '../../../core/world';
-import { type RendererBackend, type Dimension, getDefaultCamera, component2D, component3D } from '../../../types/index';
+import { type RendererBackend, type Dimension, getDefaultCamera, component2D, component3D } from '../../types/index';
 
 export class Canvas2DRenderer implements RendererBackend {
   private canvas!: HTMLCanvasElement;

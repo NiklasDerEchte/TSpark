@@ -1,11 +1,9 @@
 import { generateUniqueId } from '..';
-import { RenderSystem } from '../features/renderer/render-system';
-import componentsDefaults from './defaults/components.json';
-import systemsDefaults from './defaults/systems.json';
-import type { Component, Entity, System } from '../types/type';
+import componentsDefaults from './scene-defaults/components.json';
+import systemsDefaults from './scene-defaults/systems.json';
+import type { Component, Entity, System } from './types/index';
 import { ComponentStore } from './component-store';
-import * as component2D from '../types/components2D';
-import * as component3D from '../types/components3D';
+import {component2D, component3D} from './types/index';
 
 export class World {
   private scenes: Map<string, Scene> = new Map<string, Scene>();
@@ -16,9 +14,28 @@ export class World {
     if (this.scenes.size == 0 && this.activeSceneIndexes.length == 0) {
       this.activeSceneIndexes.push(name);
     }
-    let scene = new Scene();
+    let scene = new Scene(name);
     this.scenes.set(name, scene);
     return scene;
+  }
+
+  removeScene(name: string): boolean {
+    if (this.activeSceneIndexes.includes(name)) {
+      this.activeSceneIndexes = this.activeSceneIndexes.filter((n) => n !== name);
+    }
+    if (this.scenes.has(name)){
+      let scene = this.scenes.get(name);
+      if(scene) {
+        scene.getSystems('normal').forEach((system: System) => {
+          system.destroy();
+        });
+        scene.getSystems('fixed').forEach((system: System) => {
+          system.destroy();
+        });
+      }
+      return this.scenes.delete(name);
+    }
+    return false;
   }
 
   getActiveScenes(): Scene[] {
@@ -54,13 +71,14 @@ export class World {
 }
 
 export class Scene {
+  private name: string;
   private entities: Entity[] = [];
   private systems: Map<string, System> = new Map();
   private fixedSystems: Map<string, System> = new Map();
-  private drawSystems: Map<string, System> = new Map();
   private componentStores: Map<string, ComponentStore<Component<any>>> = new Map();
 
-  constructor() {
+  constructor(name: string) {
+    this.name = name;
     // init defaults
     this.initComponents();
     this.initSystems();
@@ -97,10 +115,10 @@ export class Scene {
 
   private initSystems() {
     const systemConstructors: Record<string, new () => System> = {
-      RenderSystem: RenderSystem,
+      // System list
     } as Record<string, new () => System>;
 
-    for (const entry of systemsDefaults as Array<{ system: string; key: string; options?: { mode?: 'normal' | 'fixed' | 'draw' } }>) {
+    for (const entry of systemsDefaults as Array<{ system: string; key: string; options?: { mode?: 'normal' | 'fixed' } }>) {
       const Ctor = systemConstructors[entry.system];
       if (Ctor) {
         const instance = new Ctor();
@@ -121,6 +139,10 @@ export class Scene {
     } while (this.entities.includes(entity));
     this.entities.push(entity);
     return entity;
+  }
+
+  public getName(): string {
+    return this.name;
   }
 
   registerComponent<T extends Component<any>>({ key = undefined, component }: { key?: string | undefined; component: T }): string {
@@ -144,7 +166,7 @@ export class Scene {
     return this.componentStores.get(key) as ComponentStore<T>;
   }
 
-  registerSystem<T extends System>({ key = undefined, system, mode = 'normal' }: { key?: string | undefined; system: T; mode: 'normal' | 'fixed' | 'draw' }) {
+  registerSystem<T extends System>({ key = undefined, system, mode = 'normal' }: { key?: string | undefined; system: T; mode: 'normal' | 'fixed'}) {
     if (system == null) {
       throw new Error('System is null or undefined');
     }
@@ -164,13 +186,23 @@ export class Scene {
         throw new Error(`FixedSystem with key "${key}" is already registered`);
       }
       this.fixedSystems.set(key, system);
-    } else if (mode == 'draw') {
-      if (this.drawSystems.has(key)) {
-        throw new Error(`DrawSystem with key "${key}" is already registered`);
-      }
-      this.drawSystems.set(key, system);
     }
     system.init(this);
+  }
+
+  removeSystem(key: string): boolean {
+    let system: System;
+    if (this.systems.has(key)) {
+      system = this.systems.get(key) as System;
+      system.destroy();
+      return this.systems.delete(key);
+    } else if (this.fixedSystems.has(key)) {
+      system = this.fixedSystems.get(key) as System;
+      system.destroy();
+      return this.fixedSystems.delete(key);
+    } else {
+      return false;
+    }
   }
 
   getSystem<T extends System>(key: string): T | false {
@@ -178,20 +210,16 @@ export class Scene {
       return this.systems.get(key) as T;
     } else if (this.fixedSystems.has(key)) {
       return this.fixedSystems.get(key) as T;
-    } else if (this.drawSystems.has(key)) {
-      return this.drawSystems.get(key) as T;
     } else {
       return false;
     }
   }
 
-  getSystems(mode: 'normal' | 'fixed' | 'draw' = 'normal'): System[] {
+  getSystems(mode: 'normal' | 'fixed' = 'normal'): System[] {
     if (mode == 'normal') {
       return Array.from(this.systems.values());
     } else if (mode == 'fixed') {
       return Array.from(this.fixedSystems.values());
-    } else if (mode == 'draw') {
-      return Array.from(this.drawSystems.values());
     }
     return [];
   }
