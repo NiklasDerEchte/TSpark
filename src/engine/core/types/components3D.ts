@@ -1,9 +1,6 @@
 import type { Component, SceneObject } from './type';
 
 type VectorStructure = { x: number; y: number; z: number };
-type BoundsAABBStructure = { min: Vector; max: Vector };
-type BoundsSphereStructure = { center: Vector; radius: number };
-type BoundsStructure = BoundsAABBStructure | BoundsSphereStructure;
 
 export class Vector implements Component<VectorStructure> {
   x: number = 0;
@@ -51,14 +48,12 @@ export class Geometry
     Component<{
       vertices: Float32Array | number[];
       indices?: Uint16Array | Uint32Array | number[];
-      normals?: Float32Array | number[];
       uvs?: Float32Array | number[];
       vertexCount: number;
     }>
 {
   vertices: number[] | Float32Array<ArrayBufferLike> = [];
   indices?: number[] | Uint16Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike> | undefined;
-  normals?: number[] | Float32Array<ArrayBufferLike> | undefined;
   uvs?: number[] | Float32Array<ArrayBufferLike> | undefined;
   vertexCount: number = 0;
 }
@@ -69,7 +64,6 @@ export class Mesh
       SceneObject & {
         geometry: Geometry;
         material?: Material;
-        bounds?: BoundsStructure;
         visible?: boolean;
       }
     >
@@ -77,7 +71,6 @@ export class Mesh
   id: string = "";
   geometry: Geometry = new Geometry();
   material?: Material | undefined;
-  bounds?: BoundsStructure | undefined;
   visible?: boolean | undefined;
 }
 
