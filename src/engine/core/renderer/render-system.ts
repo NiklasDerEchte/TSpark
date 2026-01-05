@@ -17,4 +17,6 @@ export class RenderSystem implements System {
   exec(_dt: number): void {
     this.renderer.draw(this.scene);
   }
+
+  destroy(): void {}
 }

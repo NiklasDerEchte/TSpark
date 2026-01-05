@@ -1,6 +1,6 @@
 import { TSpark } from '../../app';
 import { component2D } from '../../engine';
-import { MuglRenderer } from '../../engine/features/renderer/mugl/renderer';
+import { MuglRenderer } from '../../engine/core/renderer/mugl/renderer';
 
 
 let tspark = new TSpark({

@@ -1,7 +1,7 @@
 import { generateUniqueId } from '..';
-import { RenderSystem } from '../features/renderer/render-system';
-import componentsDefaults from './defaults/components.json';
-import systemsDefaults from './defaults/systems.json';
+import { RenderSystem } from './renderer/render-system';
+import componentsDefaults from './scene-defaults/components.json';
+import systemsDefaults from './scene-defaults/systems.json';
 import type { Component, Entity, System } from '../types/type';
 import { ComponentStore } from './component-store';
 import * as component2D from '../types/components2D';
@@ -16,9 +16,31 @@ export class World {
     if (this.scenes.size == 0 && this.activeSceneIndexes.length == 0) {
       this.activeSceneIndexes.push(name);
     }
-    let scene = new Scene();
+    let scene = new Scene(name);
     this.scenes.set(name, scene);
     return scene;
+  }
+
+  removeScene(name: string): boolean {
+    if (this.activeSceneIndexes.includes(name)) {
+      this.activeSceneIndexes = this.activeSceneIndexes.filter((n) => n !== name);
+    }
+    if (this.scenes.has(name)){
+      let scene = this.scenes.get(name);
+      if(scene) {
+        scene.getSystems('normal').forEach((system: System) => {
+          system.destroy();
+        });
+        scene.getSystems('fixed').forEach((system: System) => {
+          system.destroy();
+        });
+        scene.getSystems('draw').forEach((system: System) => {
+          system.destroy();
+        });
+      }
+      return this.scenes.delete(name);
+    }
+    return false;
   }
 
   getActiveScenes(): Scene[] {
@@ -54,13 +76,15 @@ export class World {
 }
 
 export class Scene {
+  private name: string;
   private entities: Entity[] = [];
   private systems: Map<string, System> = new Map();
   private fixedSystems: Map<string, System> = new Map();
   private drawSystems: Map<string, System> = new Map();
   private componentStores: Map<string, ComponentStore<Component<any>>> = new Map();
 
-  constructor() {
+  constructor(name: string) {
+    this.name = name;
     // init defaults
     this.initComponents();
     this.initSystems();
@@ -171,6 +195,25 @@ export class Scene {
       this.drawSystems.set(key, system);
     }
     system.init(this);
+  }
+
+  removeSystem(key: string): boolean {
+    let system: System;
+    if (this.systems.has(key)) {
+      system = this.systems.get(key) as System;
+      system.destroy();
+      return this.systems.delete(key);
+    } else if (this.fixedSystems.has(key)) {
+      system = this.fixedSystems.get(key) as System;
+      system.destroy();
+      return this.fixedSystems.delete(key);
+    } else if (this.drawSystems.has(key)) {
+      system = this.drawSystems.get(key) as System;
+      system.destroy();
+      return this.drawSystems.delete(key);
+    } else {
+      return false;
+    }
   }
 
   getSystem<T extends System>(key: string): T | false {

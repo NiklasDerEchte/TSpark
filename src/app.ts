@@ -66,6 +66,7 @@ export class TSpark {
 
   public stop() {
     this.gameLoop.stop();
+    this.setup.renderer.destroy();
   }
 
   private update = (deltaTimeMs: number) => {

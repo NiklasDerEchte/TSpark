@@ -4,14 +4,15 @@ export type Entity = string;
 export type Dimension = {width: number, height: number};
 
 export interface System {
-  init(scene: Scene): void; // TODO System und Render Cycle muss Ordentlicher werden
-  exec(deltaTimeMs: number): void; // TODO Hier fehlt sowas wie destroy()
+  init(scene: Scene): void;
+  exec(deltaTimeMs: number): void;
+  destroy(): void;
 }
 
 export interface RendererBackend {
   init(canvas: HTMLCanvasElement): Promise<void>;
   draw(scene: Scene): void;
-  destroy(): void; // TODO Noch nicht implementiert, wird nirgends aufgerufen
+  destroy(): void;
   resize(size: Dimension): void;
 }
 
