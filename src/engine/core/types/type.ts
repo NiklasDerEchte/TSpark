@@ -1,4 +1,4 @@
-import type { Scene } from "../core/world";
+import type { Scene } from "../world";
 
 export type Entity = string;
 export type Dimension = {width: number, height: number};

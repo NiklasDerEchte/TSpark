@@ -1,10 +1,9 @@
 import { generateUniqueId } from '..';
 import componentsDefaults from './scene-defaults/components.json';
 import systemsDefaults from './scene-defaults/systems.json';
-import type { Component, Entity, System } from '../types/type';
+import type { Component, Entity, System } from './types/index';
 import { ComponentStore } from './component-store';
-import * as component2D from '../types/components2D';
-import * as component3D from '../types/components3D';
+import {component2D, component3D} from './types/index';
 
 export class World {
   private scenes: Map<string, Scene> = new Map<string, Scene>();

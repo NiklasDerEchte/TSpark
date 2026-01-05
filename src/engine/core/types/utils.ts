@@ -1,5 +1,5 @@
 import type { component2D, component3D } from '.';
-import type { Scene } from '../core/world';
+import type { Scene } from '../world';
 
 export function generateUniqueId(prefix?: string): string {
   try {

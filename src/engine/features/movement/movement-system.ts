@@ -1,4 +1,4 @@
-import type { component2D, System } from '../../types/index';
+import type { component2D, System } from '../../core/types/index';
 import { Scene } from '../../core/world';
 
 export class MovementSystem implements System {

@@ -1,6 +1,6 @@
 import { BufferUsage, ShaderStage, vertexBufferLayouts, VertexFormat, WebGL, type VertexBufferFormats } from 'mugl';
 import type { Scene } from '../../../core/world';
-import type { component2D, Dimension, RendererBackend } from '../../../types';
+import type { component2D, Dimension, RendererBackend } from '../../types/index';
 
 let VERTEX_SHADER_2D: string = `#version 300 es
         layout (location=0) in vec2 position;
