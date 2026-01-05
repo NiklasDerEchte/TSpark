@@ -17,6 +17,7 @@ const cam = scene.createEntity();
 scene.getComponentStore<component2D.Camera>('camera2d').add(cam, { id: 'cam', background: '#101010' });
 
 //scene.registerComponent({component: new component2D.Transform()});
+//scene.registerSystem({system: '', key: '', mode: ''})
 component2D.Vector.toString();
 
 // Entity
