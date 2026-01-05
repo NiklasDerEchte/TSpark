@@ -76,7 +76,6 @@ export class Scene {
   private entities: Entity[] = [];
   private systems: Map<string, System> = new Map();
   private fixedSystems: Map<string, System> = new Map();
-  private drawSystems: Map<string, System> = new Map();
   private componentStores: Map<string, ComponentStore<Component<any>>> = new Map();
 
   constructor(name: string) {
@@ -202,10 +201,6 @@ export class Scene {
       system = this.fixedSystems.get(key) as System;
       system.destroy();
       return this.fixedSystems.delete(key);
-    } else if (this.drawSystems.has(key)) {
-      system = this.drawSystems.get(key) as System;
-      system.destroy();
-      return this.drawSystems.delete(key);
     } else {
       return false;
     }
@@ -216,8 +211,6 @@ export class Scene {
       return this.systems.get(key) as T;
     } else if (this.fixedSystems.has(key)) {
       return this.fixedSystems.get(key) as T;
-    } else if (this.drawSystems.has(key)) {
-      return this.drawSystems.get(key) as T;
     } else {
       return false;
     }
