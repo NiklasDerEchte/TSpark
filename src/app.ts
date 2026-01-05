@@ -7,6 +7,7 @@ export interface TSparkSetup {
   onUpdate: () => void;
   onFixedUpdate: () => void;
   onDrawUpdate: () => void;
+  canvas?: HTMLCanvasElement | undefined;
 }
 
 export class TSpark {
@@ -24,7 +25,11 @@ export class TSpark {
     }
     this.setup = setup;
     this.gameLoop = new GameLoop();
-    this.drawCanvas = document.createElement('canvas');
+    if(this.setup.canvas) {
+      this.drawCanvas = this.setup.canvas;  
+    } else {
+      this.drawCanvas = document.createElement('canvas');
+    }
     document.body.appendChild(this.drawCanvas);
     TSpark.Instance = this;
     console.log('TSpark initialized');

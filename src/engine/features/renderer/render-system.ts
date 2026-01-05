@@ -6,8 +6,8 @@ export class RenderSystem implements System {
   renderer: RendererBackend;
   scene!: Scene;
   constructor() {
-    console.log('RenderSystem initialized');
     this.renderer = TSpark.Instance.getRenderer();
+    console.log('RenderSystem initialized');
   }
 
   init(scene: Scene): void {
