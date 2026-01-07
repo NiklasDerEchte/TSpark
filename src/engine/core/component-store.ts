@@ -19,7 +19,7 @@ export class ComponentStore<T> {
     return this.data.delete(entity);
   }
 
-  entries() {
+  entries(): MapIterator<[Entity, T]> {
     return this.data.entries();
   }
 }

@@ -23,6 +23,7 @@
     "@types/gl-matrix": "^2.4.5",
     "colord": "^2.9.3",
     "gl-matrix": "^3.4.4",
-    "mugl": "^0.3.0"
+    "mugl": "^0.3.0",
+    "twgl.js": "^7.0.0"
   }
 }

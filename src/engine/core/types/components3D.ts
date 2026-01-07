@@ -60,13 +60,15 @@ export class Geometry
     Component<{
       vertices: Float32Array | number[];
       indices?: Uint16Array | Uint32Array | number[];
-      vertexCount: number;
+      vertexCount?: number; //TODO in twgl nicht benötigt
+      texture?: HTMLImageElement;
       uvs?: Float32Array | number[] | undefined;
     }>
 {
   vertices: number[] | Float32Array<ArrayBufferLike> = []; // array of x,y,z,x1,y1,z1..
   indices?: number[] | Uint16Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike> | undefined;
   vertexCount: number = 0;
+  texture?: HTMLImageElement | undefined; // new Image()
   uvs?: Float32Array | number[] | undefined = undefined; // array of r,g,b,a,r1,g1,b1,a1..
 }
 
@@ -75,7 +77,6 @@ export class Mesh
     Component<
       SceneObject & {
         geometry: Geometry;
-        material?: Material;
         visible?: boolean;
       }
     >
@@ -99,7 +100,6 @@ export class Mesh
     indices: [0, 1, 2, 0, 2, 3],
     vertexCount: 4,
   };
-  material?: Material | undefined;
   visible?: boolean | undefined = true;
 }
 
