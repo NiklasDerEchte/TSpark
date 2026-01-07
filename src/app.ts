@@ -4,9 +4,10 @@ import { Scene, World } from './engine/core/world';
 
 export interface TSparkSetup {
   renderer: RendererBackend;
-  onUpdate: () => void;
-  onFixedUpdate: () => void;
-  onDrawUpdate: () => void;
+  onStart?: () => void;
+  onUpdate?: () => void;
+  onFixedUpdate?: () => void;
+  onDrawUpdate?: () => void;
   canvas?: HTMLCanvasElement | undefined;
 }
 
@@ -61,6 +62,7 @@ export class TSpark {
   public start() {
     this.setup.renderer.init(this.drawCanvas).then(() => {
       this.gameLoop.start(this.update, this.fixedUpdate);
+      this.setup.onStart?.();
     });
   }
 
@@ -77,7 +79,7 @@ export class TSpark {
           system.exec(deltaTimeMs);
         });
       });
-    this.setup.onUpdate();
+    this.setup.onUpdate?.();
     this.drawUpdate();
   };
 
@@ -89,7 +91,7 @@ export class TSpark {
           system.exec(deltaTimeMs);
         });
       });
-    this.setup.onFixedUpdate();
+    this.setup.onFixedUpdate?.();
   };
 
   private drawUpdate() {
@@ -98,6 +100,6 @@ export class TSpark {
       .forEach((scene: Scene) => {
         this.setup.renderer.draw(scene);
       });
-    this.setup.onDrawUpdate();
+    this.setup.onDrawUpdate?.();
   }
 }

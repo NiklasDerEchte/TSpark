@@ -1,5 +1,5 @@
-import * as twglBase from 'twgl.js';
-import { type twgl, type Dimension, type RendererBackend } from '../../types/index';
+import * as twgljs from 'twgl.js';
+import { twgl, type Dimension, type Entity, type RendererBackend } from '../../types/index';
 import type { Scene } from '../../world';
 
 const XYZ = 3;
@@ -53,9 +53,15 @@ const shader = {
   },
 };
 
+interface RenderCache {
+  buffer: twgljs.BufferInfo;
+  texture: WebGLTexture;
+}
+
 export class TwglRenderer implements RendererBackend {
   private gl!: WebGLRenderingContext;
-  private programInfo!: twglBase.ProgramInfo;
+  private programInfo!: twgljs.ProgramInfo;
+  private renderCache: Map<Entity, RenderCache> = new Map<Entity, RenderCache>();
 
   async init(canvas: HTMLCanvasElement): Promise<void> {
     const gl = canvas.getContext('webgl');
@@ -63,8 +69,8 @@ export class TwglRenderer implements RendererBackend {
       throw new Error('[twgl] WebGL is not supported');
     }
     this.gl = gl;
-    this.programInfo = twglBase.createProgramInfo(this.gl, [shader.texture.vs, shader.texture.fs]);
-    
+    this.programInfo = twgljs.createProgramInfo(this.gl, [shader.texture.vs, shader.texture.fs]);
+
     console.log('[twgl] WebGL device initialized');
   }
 
@@ -78,58 +84,90 @@ export class TwglRenderer implements RendererBackend {
   draw(scene: Scene): void {
     if (!this.gl) return;
 
-    twglBase.resizeCanvasToDisplaySize(this.gl.canvas as HTMLCanvasElement);
+    twgljs.resizeCanvasToDisplaySize(this.gl.canvas as HTMLCanvasElement);
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clearColor(0.97, 0.97, 0.97, 1);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
     this.gl.enable(this.gl.DEPTH_TEST);
-    this.gl.enable(this.gl.CULL_FACE);
+    // this.gl.enable(this.gl.CULL_FACE);
 
-    const worldViewProjection = twglBase.m4.identity();
+    //const worldViewProjection = twgljs.m4.identity();
+    // --- Kamera-Setup ---
+    const fieldOfView = Math.PI * 0.25; // 45 Grad
+    const aspect = this.gl.canvas.width / this.gl.canvas.height;
+    const zNear = 0.1;
+    const zFar = 100.0;
+    const projectionMatrix = twgljs.m4.perspective(fieldOfView, aspect, zNear, zFar);
+
+    // Kamera um den Ursprung rotieren lassen
+    const time = performance.now() * 0.001; // Zeit in Sekunden
+    const cameraRadius = 5;
+    const cameraX = Math.sin(time) * cameraRadius;
+    const cameraZ = Math.cos(time) * cameraRadius;
+    const cameraPosition = [cameraX, Math.PI, cameraZ];
+    const target = [0, 0, 0]; // Auf den Ursprung schauen
+    const up = [0, 1, 0]; // Y-Achse ist oben
+
+    const viewMatrix = twgljs.m4.inverse(twgljs.m4.lookAt(cameraPosition, target, up));
+
+    const worldViewProjection = twgljs.m4.multiply(projectionMatrix, viewMatrix);
+
+    // --- Ende Kamera-Setup ---
 
     this.gl.useProgram(this.programInfo.program);
 
-    for (const [, renderItem] of scene.getComponentStore<twgl.TwglRenderItem>(twgl.TwglRenderItem.name).entries()) {
-      // TODO if (!mesh.visible || !mesh.geometry) continue;
-
-      const arrays: twglBase.Arrays = {
-        position: {
-          numComponents: XYZ,
-          data: renderItem.geometry.vertices as number[] | Float32Array,
-        },
-        indices: renderItem.geometry.indices as number[] | Uint16Array | Uint32Array,
-      };
-
+    for (const [entity, renderItem] of scene.getComponentStore<twgl.TwglRenderItem>(twgl.TwglRenderItem.name).entries()) {
+      if (!renderItem.visible) continue;
 
       let pixelTexture;
-      if (renderItem.material instanceof twgl.TwglBaseColor) {
-        pixelTexture = twglBase.createTexture(this.gl, {
-          src: renderItem.material.baseColor,
-        });
-      } else if (renderItem.material instanceof twgl.TwglMaterial) {
-        arrays.texCoord = {
-          numComponents: UV,
-          data: renderItem.material.uvs as number[] | Float32Array,
-        };
-        pixelTexture = twglBase.createTexture(this.gl, {
-          src: renderItem.material.texture,
-        });
+      let bufferInfo;
+      if (this.renderCache.has(entity) && this.renderCache.get(entity) != undefined) {
+        let cache = this.renderCache.get(entity);
+        pixelTexture = cache!.texture;
+        bufferInfo = cache!.buffer;
       } else {
-        pixelTexture = twglBase.createTexture(this.gl, {
-          src: [255, 255, 255, 255],
+        const arrays: twgljs.Arrays = {
+          position: {
+            numComponents: XYZ,
+            data: renderItem.geometry.vertices as number[] | Float32Array,
+          },
+          indices: renderItem.geometry.indices as number[] | Uint16Array | Uint32Array,
+        };
+        if (renderItem.material instanceof twgl.TwglMaterial && renderItem.material.uvs) {
+          arrays.texCoord = {
+            numComponents: UV,
+            data: renderItem.material.uvs as number[] | Float32Array,
+          };
+        }
+        bufferInfo = twgljs.createBufferInfoFromArrays(this.gl, arrays);
+
+        if (renderItem.material instanceof twgl.TwglBaseColor) {
+          pixelTexture = twgljs.createTexture(this.gl, {
+            src: renderItem.material.baseColor as number[],
+          });
+        } else if (renderItem.material instanceof twgl.TwglMaterial) {
+          pixelTexture = twgljs.createTexture(this.gl, {
+            src: renderItem.material.texture,
+          });
+        } else {
+          pixelTexture = twgljs.createTexture(this.gl, {
+            src: [255, 255, 255, 255],
+          });
+        }
+        this.renderCache.set(entity, {
+          buffer: bufferInfo,
+          texture: pixelTexture,
         });
       }
-
-      const bufferInfo = twglBase.createBufferInfoFromArrays(this.gl, arrays);
 
       const uniforms = {
         u_worldViewProjection: worldViewProjection,
         u_texture: pixelTexture,
       };
 
-      twglBase.setBuffersAndAttributes(this.gl, this.programInfo, bufferInfo);
-      twglBase.setUniforms(this.programInfo, uniforms);
-      twglBase.drawBufferInfo(this.gl, bufferInfo);
+      twgljs.setBuffersAndAttributes(this.gl, this.programInfo, bufferInfo);
+      twgljs.setUniforms(this.programInfo, uniforms);
+      twgljs.drawBufferInfo(this.gl, bufferInfo);
     }
   }
 

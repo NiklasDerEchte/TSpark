@@ -36,8 +36,10 @@ export class TwglRenderItem
     Component<{
       geometry: TwglGeometry;
       material: TwglBaseColor | TwglMaterial;
+      visible: boolean;
     }>
 {
   geometry: TwglGeometry = new TwglGeometry();
   material: TwglBaseColor | TwglMaterial = new TwglBaseColor();
+  visible: boolean = true;
 }
