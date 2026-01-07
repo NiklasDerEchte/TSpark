@@ -1,4 +1,4 @@
-import type { component2D, component3D } from '.';
+import { component2D, component3D } from '.';
 import type { Scene } from '../world';
 
 export function generateUniqueId(prefix?: string): string {
@@ -24,18 +24,22 @@ export function generateUniqueId(prefix?: string): string {
   return prefix ? `${prefix}-${id}` : id;
 }
 
-export function getDefaultCamera(scene: Scene): component2D.Camera | component3D.Camera | undefined {
-  let camera: component2D.Camera | component3D.Camera | undefined;
+export function getDefaultCamera(scene: Scene): component2D.Camera | component3D.Camera3 | undefined {
+  let camera: component2D.Camera | component3D.Camera3 | undefined;
   for (const [, cam] of scene.getComponentStore<component2D.Camera>('camera2d').entries()) {
     camera = cam;
     break;
   }
   if(!camera) {
-    for (const [, cam] of scene.getComponentStore<component3D.Camera>('camera3d').entries()) {
+    for (const [, cam] of scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).entries()) {
       camera = cam;
       break;
     }
   }
   camera ??= { id: 'cam', background: '#f8f8f8f8' };
   return camera;
+}
+
+export function degreeToRadians(degree: number): number {
+  return degree * (Math.PI / 180);
 }

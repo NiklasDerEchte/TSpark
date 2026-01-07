@@ -1,8 +1,6 @@
 import { TSpark } from '../../app';
-import { twgl } from '../../engine';
+import { component3D } from '../../engine';
 import { TwglRenderer } from '../../engine/core/renderer/twgl/renderer';
-import { Mesh } from '../../engine/core/types/components3D';
-
 
 let tspark = new TSpark({
   renderer: new TwglRenderer(),
@@ -17,7 +15,7 @@ let tspark = new TSpark({
 const world = tspark.createWorld("main");
 const scene = world.createScene("scene1");
 
-let planeComponent = new twgl.TwglRenderItem();
+let planeComponent = new component3D.RenderItem3();
 planeComponent.geometry.vertices = [
   -0.5,
   0.0,
@@ -33,10 +31,10 @@ planeComponent.geometry.vertices = [
   0.5, // top-left
 ];
 planeComponent.geometry.indices = [0, 1, 2, 0, 2, 3];
-planeComponent.material = new twgl.TwglBaseColor();
+planeComponent.material = new component3D.BaseColor3();
 planeComponent.material.baseColor = [120, 120, 160, 255];
 
 let planeEntity = scene.createEntity();
-scene.getComponentStore<twgl.TwglRenderItem>(twgl.TwglRenderItem.name).add(planeEntity, planeComponent);
+scene.getComponentStore<component3D.RenderItem3>(component3D.RenderItem3.name).add(planeEntity, planeComponent);
 
 export default tspark;

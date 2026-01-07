@@ -8,11 +8,6 @@ async function simplePlayerExample() {
   sparkImport.default.start();
 }
 
-async function muglControlledExample() {
-  let muglImport = await import('./examples/mugl/main');
-  muglImport.default.start();
-}
-
 async function twglControlledExample() {
   let twglImport = await import('./examples/twgl/main');
   twglImport.default.start();
@@ -20,5 +15,4 @@ async function twglControlledExample() {
 
 //await simpleCanvasExample();
 //await simplePlayerExample();
-//await muglControlledExample();
 await twglControlledExample();

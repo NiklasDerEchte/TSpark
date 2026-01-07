@@ -3,7 +3,7 @@ import componentsDefaults from './scene-defaults/components.json';
 import systemsDefaults from './scene-defaults/systems.json';
 import type { Component, Entity, System } from './types/index';
 import { ComponentStore } from './component-store';
-import {component2D, component3D, twgl} from './types/index';
+import {component2D, component3D} from './types/index';
 
 export class World {
   private scenes: Map<string, Scene> = new Map<string, Scene>();
@@ -96,8 +96,6 @@ export class Scene {
           Ctor = (component2D as any)[className];
         } else if (moduleName === 'component3D') {
           Ctor = (component3D as any)[className];
-        } else if (moduleName === 'twgl') {
-          Ctor = (twgl as any)[className];
         } else {
           throw new Error(`Unknown component module: ${moduleName}`);
         }

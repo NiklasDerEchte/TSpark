@@ -1,5 +1,5 @@
 import * as twgljs from 'twgl.js';
-import { twgl, type Dimension, type Entity, type RendererBackend } from '../../types/index';
+import { component3D, type Dimension, type Entity, type RendererBackend } from '../../types/index';
 import type { Scene } from '../../world';
 
 const XYZ = 3;
@@ -116,7 +116,7 @@ export class TwglRenderer implements RendererBackend {
 
     this.gl.useProgram(this.programInfo.program);
 
-    for (const [entity, renderItem] of scene.getComponentStore<twgl.TwglRenderItem>(twgl.TwglRenderItem.name).entries()) {
+    for (const [entity, renderItem] of scene.getComponentStore<component3D.RenderItem3>(component3D.RenderItem3.name).entries()) {
       if (!renderItem.visible) continue;
 
       let pixelTexture;
@@ -133,7 +133,7 @@ export class TwglRenderer implements RendererBackend {
           },
           indices: renderItem.geometry.indices as number[] | Uint16Array | Uint32Array,
         };
-        if (renderItem.material instanceof twgl.TwglMaterial && renderItem.material.uvs) {
+        if (renderItem.material instanceof component3D.Material3 && renderItem.material.uvs) {
           arrays.texCoord = {
             numComponents: UV,
             data: renderItem.material.uvs as number[] | Float32Array,
@@ -141,11 +141,11 @@ export class TwglRenderer implements RendererBackend {
         }
         bufferInfo = twgljs.createBufferInfoFromArrays(this.gl, arrays);
 
-        if (renderItem.material instanceof twgl.TwglBaseColor) {
+        if (renderItem.material instanceof component3D.BaseColor3) {
           pixelTexture = twgljs.createTexture(this.gl, {
             src: renderItem.material.baseColor as number[],
           });
-        } else if (renderItem.material instanceof twgl.TwglMaterial) {
+        } else if (renderItem.material instanceof component3D.Material3) {
           pixelTexture = twgljs.createTexture(this.gl, {
             src: renderItem.material.texture,
           });
