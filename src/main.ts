@@ -13,6 +13,12 @@ async function muglControlledExample() {
   muglImport.default.start();
 }
 
+async function twglControlledExample() {
+  let twglImport = await import('./examples/twgl/main');
+  twglImport.default.start();
+}
+
 //await simpleCanvasExample();
 //await simplePlayerExample();
-await muglControlledExample();
+//await muglControlledExample();
+await twglControlledExample();

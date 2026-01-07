@@ -1,5 +1,5 @@
-import * as twgl from 'twgl.js';
-import type { component3D, Dimension, RendererBackend } from '../../types/index';
+import * as twglBase from 'twgl.js';
+import { type twgl, type Dimension, type RendererBackend } from '../../types/index';
 import type { Scene } from '../../world';
 
 const XYZ = 3;
@@ -29,25 +29,24 @@ const shader = {
   texture: {
     vs: `
   attribute vec4 position;
-  attribute vec2 texCoord; // 1. Attribut für UVs hinzufügen
+  attribute vec2 texCoord;
 
   uniform mat4 u_worldViewProjection;
 
-  varying vec2 v_texCoord; // 2. Varying, um UVs an Fragment-Shader weiterzugeben
+  varying vec2 v_texCoord;
 
   void main() {
     gl_Position = u_worldViewProjection * position;
-    v_texCoord = texCoord; // 3. UVs weitergeben
+    v_texCoord = texCoord;
   }
 `,
     fs: `
   precision mediump float;
 
-  uniform sampler2D u_texture; // 4. Uniform für die Textur statt Farbe
-  varying vec2 v_texCoord;     // 5. UVs vom Vertex-Shader empfangen
+  uniform sampler2D u_texture;
+  varying vec2 v_texCoord;
 
   void main() {
-    // 6. Farbe aus der Textur an der Koordinate v_texCoord auslesen
     gl_FragColor = texture2D(u_texture, v_texCoord);
   }
 `,
@@ -56,8 +55,7 @@ const shader = {
 
 export class TwglRenderer implements RendererBackend {
   private gl!: WebGLRenderingContext;
-  private programInfo!: twgl.ProgramInfo;
-  private whitePixelTexture!: WebGLTexture; // Platzhalter-Textur
+  private programInfo!: twglBase.ProgramInfo;
 
   async init(canvas: HTMLCanvasElement): Promise<void> {
     const gl = canvas.getContext('webgl');
@@ -65,11 +63,7 @@ export class TwglRenderer implements RendererBackend {
       throw new Error('[twgl] WebGL is not supported');
     }
     this.gl = gl;
-    this.programInfo = twgl.createProgramInfo(this.gl, [shader.texture.vs, shader.texture.fs]);
-
-    this.whitePixelTexture = twgl.createTexture(this.gl, {
-      src: [255, 255, 255, 255],
-    });
+    this.programInfo = twglBase.createProgramInfo(this.gl, [shader.texture.vs, shader.texture.fs]);
     
     console.log('[twgl] WebGL device initialized');
   }
@@ -84,49 +78,58 @@ export class TwglRenderer implements RendererBackend {
   draw(scene: Scene): void {
     if (!this.gl) return;
 
-    twgl.resizeCanvasToDisplaySize(this.gl.canvas as HTMLCanvasElement);
+    twglBase.resizeCanvasToDisplaySize(this.gl.canvas as HTMLCanvasElement);
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clearColor(0.97, 0.97, 0.97, 1);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.enable(this.gl.CULL_FACE);
 
-    const worldViewProjection = twgl.m4.identity();
+    const worldViewProjection = twglBase.m4.identity();
 
     this.gl.useProgram(this.programInfo.program);
 
-    for (const [, mesh] of scene.getComponentStore<component3D.Mesh>('mesh3d').entries()) {
-      if (!mesh.visible || !mesh.geometry) continue;
+    for (const [, renderItem] of scene.getComponentStore<twgl.TwglRenderItem>(twgl.TwglRenderItem.name).entries()) {
+      // TODO if (!mesh.visible || !mesh.geometry) continue;
 
-      const arrays: twgl.Arrays = {
+      const arrays: twglBase.Arrays = {
         position: {
           numComponents: XYZ,
-          data: mesh.geometry.vertices as number[] | Float32Array,
+          data: renderItem.geometry.vertices as number[] | Float32Array,
         },
+        indices: renderItem.geometry.indices as number[] | Uint16Array | Uint32Array,
       };
 
-      if (mesh.geometry.uvs) {
+
+      let pixelTexture;
+      if (renderItem.material instanceof twgl.TwglBaseColor) {
+        pixelTexture = twglBase.createTexture(this.gl, {
+          src: renderItem.material.baseColor,
+        });
+      } else if (renderItem.material instanceof twgl.TwglMaterial) {
         arrays.texCoord = {
           numComponents: UV,
-          data: mesh.geometry.uvs as number[] | Float32Array,
+          data: renderItem.material.uvs as number[] | Float32Array,
         };
+        pixelTexture = twglBase.createTexture(this.gl, {
+          src: renderItem.material.texture,
+        });
+      } else {
+        pixelTexture = twglBase.createTexture(this.gl, {
+          src: [255, 255, 255, 255],
+        });
       }
 
-      if (mesh.geometry.indices) {
-        arrays.indices = mesh.geometry.indices as number[] | Uint16Array | Uint32Array;
-      }
-
-      const bufferInfo = twgl.createBufferInfoFromArrays(this.gl, arrays);
-      const texture = mesh.geometry.texture || this.whitePixelTexture;
+      const bufferInfo = twglBase.createBufferInfoFromArrays(this.gl, arrays);
 
       const uniforms = {
         u_worldViewProjection: worldViewProjection,
-        u_texture: texture,
+        u_texture: pixelTexture,
       };
 
-      twgl.setBuffersAndAttributes(this.gl, this.programInfo, bufferInfo);
-      twgl.setUniforms(this.programInfo, uniforms);
-      twgl.drawBufferInfo(this.gl, bufferInfo);
+      twglBase.setBuffersAndAttributes(this.gl, this.programInfo, bufferInfo);
+      twglBase.setUniforms(this.programInfo, uniforms);
+      twglBase.drawBufferInfo(this.gl, bufferInfo);
     }
   }
 

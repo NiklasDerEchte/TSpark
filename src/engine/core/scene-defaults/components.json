@@ -43,5 +43,25 @@
     "component": "component2D.Triangle",
     "key": "triangle2d",
     "options": {}
+  },
+  {
+    "component": "twgl.TwglMaterial",
+    "key": "TwglMaterial",
+    "options": {}
+  },
+  {
+    "component": "twgl.TwglBaseColor",
+    "key": "TwglBaseColor",
+    "options": {}
+  },
+  {
+    "component": "twgl.TwglGeometry",
+    "key": "TwglGeometry",
+    "options": {}
+  },
+  {
+    "component": "twgl.TwglRenderItem",
+    "key": "TwglRenderItem",
+    "options": {}
   }
 ]
