@@ -61,8 +61,8 @@ export class TSpark {
 
   public start() {
     this.setup.renderer.init(this.drawCanvas).then(() => {
-      this.gameLoop.start(this.update, this.fixedUpdate);
       this.setup.onStart?.();
+      this.gameLoop.start(this.update, this.fixedUpdate);
     });
   }
 
@@ -95,11 +95,7 @@ export class TSpark {
   };
 
   private drawUpdate() {
-    this.getActiveWorld()
-      .getActiveScenes()
-      .forEach((scene: Scene) => {
-        this.setup.renderer.draw(scene);
-      });
+    this.setup.renderer.draw(this.getActiveWorld().getActiveScenes());
     this.setup.onDrawUpdate?.();
   }
 }

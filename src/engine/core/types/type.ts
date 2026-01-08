@@ -11,7 +11,7 @@ export interface System {
 
 export interface RendererBackend {
   init(canvas: HTMLCanvasElement): Promise<void>;
-  draw(scene: Scene): void;
+  draw(scenes: Scene[]): void;
   destroy(): void;
   resize(size: Dimension): void;
 }

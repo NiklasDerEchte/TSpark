@@ -77,6 +77,8 @@ export class Scene {
   private fixedSystems: Map<string, System> = new Map();
   private componentStores: Map<string, ComponentStore<Component<any>>> = new Map();
 
+  private activeCameraEntity: Entity | undefined = undefined;
+
   constructor(name: string) {
     this.name = name;
     // init defaults
@@ -134,6 +136,18 @@ export class Scene {
     }
   }
 
+  public setActiveCameraEntity(camera: Entity): void {
+    if (this.entities.includes(camera)) {
+      this.activeCameraEntity = camera;
+    } else {
+      throw new Error('Camera entity does not exist in the scene');
+    }
+  }
+
+  public getActiveCameraEntity(): Entity | undefined {
+    return this.activeCameraEntity;
+  }
+
   public createEntity(): Entity {
     let entity = '';
     do {
@@ -157,7 +171,7 @@ export class Scene {
     if (key == undefined) {
       key = component.constructor.name;
     }
-    if(this.componentStores.has(key)) {
+    if (this.componentStores.has(key)) {
       throw new Error(`ComponentStore with key "${key}" is already registered`);
     }
     this.componentStores.set(key, new ComponentStore<T>());
@@ -168,7 +182,7 @@ export class Scene {
     return this.componentStores.get(key) as ComponentStore<T>;
   }
 
-  registerSystem<T extends System>({ key = undefined, system, mode = 'normal' }: { key?: string | undefined; system: T; mode: 'normal' | 'fixed'}) {
+  registerSystem<T extends System>({ key = undefined, system, mode = 'normal' }: { key?: string | undefined; system: T; mode: 'normal' | 'fixed' }) {
     if (system == null) {
       throw new Error('System is null or undefined');
     }

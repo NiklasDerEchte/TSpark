@@ -1,5 +1,5 @@
 import * as twgljs from 'twgl.js';
-import { component3D, type Dimension, type Entity, type RendererBackend } from '../../types/index';
+import { component3D, degreeToRadians, type Dimension, type Entity, type RendererBackend } from '../../types/index';
 import type { Scene } from '../../world';
 
 const XYZ = 3;
@@ -81,7 +81,7 @@ export class TwglRenderer implements RendererBackend {
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
   }
 
-  draw(scene: Scene): void {
+  draw(scenes: Scene[]): void {
     if (!this.gl) return;
 
     twgljs.resizeCanvasToDisplaySize(this.gl.canvas as HTMLCanvasElement);
@@ -91,84 +91,90 @@ export class TwglRenderer implements RendererBackend {
     this.gl.enable(this.gl.DEPTH_TEST);
     // this.gl.enable(this.gl.CULL_FACE);
 
-    //const worldViewProjection = twgljs.m4.identity();
-    // --- Kamera-Setup ---
-    const fieldOfView = Math.PI * 0.25; // 45 Grad
-    const aspect = this.gl.canvas.width / this.gl.canvas.height;
-    const zNear = 0.1;
-    const zFar = 100.0;
-    const projectionMatrix = twgljs.m4.perspective(fieldOfView, aspect, zNear, zFar);
-
-    // Kamera um den Ursprung rotieren lassen
-    const time = performance.now() * 0.001; // Zeit in Sekunden
-    const cameraRadius = 5;
-    const cameraX = Math.sin(time) * cameraRadius;
-    const cameraZ = Math.cos(time) * cameraRadius;
-    const cameraPosition = [cameraX, Math.PI, cameraZ];
-    const target = [0, 0, 0]; // Auf den Ursprung schauen
-    const up = [0, 1, 0]; // Y-Achse ist oben
-
-    const viewMatrix = twgljs.m4.inverse(twgljs.m4.lookAt(cameraPosition, target, up));
-
-    const worldViewProjection = twgljs.m4.multiply(projectionMatrix, viewMatrix);
-
-    // --- Ende Kamera-Setup ---
-
-    this.gl.useProgram(this.programInfo.program);
-
-    for (const [entity, renderItem] of scene.getComponentStore<component3D.RenderItem3>(component3D.RenderItem3.name).entries()) {
-      if (!renderItem.visible) continue;
-
-      let pixelTexture;
-      let bufferInfo;
-      if (this.renderCache.has(entity) && this.renderCache.get(entity) != undefined) {
-        let cache = this.renderCache.get(entity);
-        pixelTexture = cache!.texture;
-        bufferInfo = cache!.buffer;
-      } else {
-        const arrays: twgljs.Arrays = {
-          position: {
-            numComponents: XYZ,
-            data: renderItem.geometry.vertices as number[] | Float32Array,
-          },
-          indices: renderItem.geometry.indices as number[] | Uint16Array | Uint32Array,
-        };
-        if (renderItem.material instanceof component3D.Material3 && renderItem.material.uvs) {
-          arrays.texCoord = {
-            numComponents: UV,
-            data: renderItem.material.uvs as number[] | Float32Array,
-          };
-        }
-        bufferInfo = twgljs.createBufferInfoFromArrays(this.gl, arrays);
-
-        if (renderItem.material instanceof component3D.BaseColor3) {
-          pixelTexture = twgljs.createTexture(this.gl, {
-            src: renderItem.material.baseColor as number[],
-          });
-        } else if (renderItem.material instanceof component3D.Material3) {
-          pixelTexture = twgljs.createTexture(this.gl, {
-            src: renderItem.material.texture,
-          });
-        } else {
-          pixelTexture = twgljs.createTexture(this.gl, {
-            src: [255, 255, 255, 255],
-          });
-        }
-        this.renderCache.set(entity, {
-          buffer: bufferInfo,
-          texture: pixelTexture,
-        });
+    scenes.forEach((scene: Scene) => {
+      let camera: component3D.Camera3 | undefined = undefined;
+      if (scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).has(scene.getActiveCameraEntity() ?? 'undefined')) {
+        camera = scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).get(scene.getActiveCameraEntity() ?? 'undefined');
       }
 
-      const uniforms = {
-        u_worldViewProjection: worldViewProjection,
-        u_texture: pixelTexture,
-      };
+      let worldViewProjection;
+      if (camera) {
+        // --- Camera-Setup ---
+        const aspect = this.gl.canvas.width / this.gl.canvas.height;
+        const projectionMatrix = twgljs.m4.perspective(degreeToRadians(camera.fov), aspect, camera.near, camera.far);
 
-      twgljs.setBuffersAndAttributes(this.gl, this.programInfo, bufferInfo);
-      twgljs.setUniforms(this.programInfo, uniforms);
-      twgljs.drawBufferInfo(this.gl, bufferInfo);
-    }
+        // Camera Rotation
+        const time = performance.now() * 0.001; // Zeit in Sekunden
+        const cameraRadius = 5;
+        const cameraX = Math.sin(time) * cameraRadius;
+        const cameraZ = Math.cos(time) * cameraRadius;
+        const cameraPosition = [cameraX, Math.PI, cameraZ];
+        const target = [0, 0, 0]; // Auf den Ursprung schauen
+        const up = [0, 1, 0]; // Y-Achse ist oben
+
+        const viewMatrix = twgljs.m4.inverse(twgljs.m4.lookAt(cameraPosition, target, up));
+
+        worldViewProjection = twgljs.m4.multiply(projectionMatrix, viewMatrix);
+      } else {
+        worldViewProjection = twgljs.m4.identity();
+      }
+
+      this.gl.useProgram(this.programInfo.program);
+
+      for (const [entity, renderItem] of scene.getComponentStore<component3D.RenderItem3>(component3D.RenderItem3.name).entries()) {
+        if (!renderItem.visible) continue;
+
+        let pixelTexture;
+        let bufferInfo;
+        if (this.renderCache.has(entity) && this.renderCache.get(entity) != undefined) {
+          let cache = this.renderCache.get(entity);
+          pixelTexture = cache!.texture;
+          bufferInfo = cache!.buffer;
+        } else {
+          const arrays: twgljs.Arrays = {
+            position: {
+              numComponents: XYZ,
+              data: renderItem.geometry.vertices as number[] | Float32Array,
+            },
+            indices: renderItem.geometry.indices as number[] | Uint16Array | Uint32Array,
+          };
+          if (renderItem.material instanceof component3D.Material3 && renderItem.material.uvs) {
+            arrays.texCoord = {
+              numComponents: UV,
+              data: renderItem.material.uvs as number[] | Float32Array,
+            };
+          }
+          bufferInfo = twgljs.createBufferInfoFromArrays(this.gl, arrays);
+
+          if (renderItem.material instanceof component3D.BaseColor3) {
+            pixelTexture = twgljs.createTexture(this.gl, {
+              src: renderItem.material.baseColor as number[],
+            });
+          } else if (renderItem.material instanceof component3D.Material3) {
+            pixelTexture = twgljs.createTexture(this.gl, {
+              src: renderItem.material.texture,
+            });
+          } else {
+            pixelTexture = twgljs.createTexture(this.gl, {
+              src: [255, 255, 255, 255],
+            });
+          }
+          this.renderCache.set(entity, {
+            buffer: bufferInfo,
+            texture: pixelTexture,
+          });
+        }
+
+        const uniforms = {
+          u_worldViewProjection: worldViewProjection,
+          u_texture: pixelTexture,
+        };
+
+        twgljs.setBuffersAndAttributes(this.gl, this.programInfo, bufferInfo);
+        twgljs.setUniforms(this.programInfo, uniforms);
+        twgljs.drawBufferInfo(this.gl, bufferInfo);
+      }
+    });
   }
 
   destroy(): void {

@@ -17,23 +17,25 @@ export class Canvas2DRenderer implements RendererBackend {
     this.canvas.height = size.height;
   }
 
-  draw(scene: Scene) {
-    let camera = getDefaultCamera(scene);
-    const bg = camera?.background ?? '#000';
-    this.ctx.fillStyle = bg;
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  draw(scenes: Scene[]) {
+    // let camera = getDefaultCamera(scene);
+    // const bg = camera?.background ?? '#000';
+    // this.ctx.fillStyle = bg;
+    // this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    for (const [entity, sprite] of scene.getComponentStore<component2D.Sprite>('sprite2d').entries()) {
-      const t = scene.getComponentStore<component3D.Transform>('transform2d').get(entity);
-      if (!t) continue;
-      this.drawSprite(t, sprite);
-    }
+    // scenes.forEach((scene: Scene) => {
+    //   for (const [entity, sprite] of scene.getComponentStore<component2D.Sprite>('sprite2d').entries()) {
+    //     const t = scene.getComponentStore<component3D.Transform>('transform2d').get(entity);
+    //     if (!t) continue;
+    //     this.drawSprite(t, sprite);
+    //   }
+    // });
   }
 
-  private drawSprite(t: component3D.Transform, s: component2D.Sprite): void {
-    this.ctx.fillStyle = s.color;
-    this.ctx.fillRect(t.position.x, t.position.y, s.width, s.height);
-  }
+  // private drawSprite(t: component3D.Transform, s: component2D.Sprite): void {
+  //   this.ctx.fillStyle = s.color;
+  //   this.ctx.fillRect(t.position.x, t.position.y, s.width, s.height);
+  // }
 
   destroy(): void {}
 }
