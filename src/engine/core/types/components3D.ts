@@ -12,6 +12,10 @@ export class Position3 implements Component<VectorStructure> {
   x: number = 0;
   y: number = 0;
   z: number = 0;
+
+  toArray(): number[] {
+    return [this.x, this.y, this.z];
+  }
 }
 
 export class Rotation3 implements Component<VectorStructure> {
@@ -38,21 +42,34 @@ export class Velocity3 implements Component<VectorStructure> {
   z: number = 0;
 }
 
-export class Camera3 implements Component<SceneObject & { 
-  background?: string; 
-  position?: Position3; 
-  rotation?: Rotation3; 
-  fov?: number;  // Field of View
-  near?: number; // Near-Plane
-  far?: number;  // Far-Plane
-}> {
+export class Camera3
+  implements
+    Component<
+      SceneObject & {
+        background?: string;
+        position: Position3;
+        target: Position3;
+        up: Position3;
+        rotation?: Rotation3;
+        fov?: number; // Field of View
+        near?: number; // Near-Plane
+        far?: number; // Far-Plane
+      }
+    >
+{
   id: string = '';
   background?: string | undefined;
   position: Position3 = new Position3();
+  up: Position3 = new Position3();
+  target: Position3 = new Position3();
   rotation: Rotation3 = new Rotation3();
   fov: number = 45;
   near: number = 0.1;
   far: number = 100;
+
+  constructor() {
+    this.up.y = 1;
+  }
 }
 
 // export class Box implements Component<Transform3> {
