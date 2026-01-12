@@ -104,7 +104,18 @@ export class TwglRenderer implements RendererBackend {
         const projectionMatrix = twgljs.m4.perspective(degreeToRadians(camera.fov), aspect, camera.near, camera.far);
 
         // Camera Rotation
-        const viewMatrix = twgljs.m4.inverse(twgljs.m4.lookAt(camera.position.toArray(), camera.target.toArray(), camera.up.toArray()));
+        let viewMatrix;
+        if (camera.target) {
+          viewMatrix = twgljs.m4.inverse(twgljs.m4.lookAt(camera.position.toArray(), camera.target.position.toArray(), camera.target.up.toArray()));
+        } else {
+          let rotation = camera.rotation;
+          let cameraMatrix = twgljs.m4.identity();
+          cameraMatrix = twgljs.m4.translate(cameraMatrix, camera.position.toArray());
+          cameraMatrix = twgljs.m4.rotateY(cameraMatrix, rotation.y);
+          cameraMatrix = twgljs.m4.rotateX(cameraMatrix, rotation.x);
+          cameraMatrix = twgljs.m4.rotateZ(cameraMatrix, rotation.z);
+          viewMatrix = twgljs.m4.inverse(cameraMatrix);
+        }
         worldViewProjection = twgljs.m4.multiply(projectionMatrix, viewMatrix);
       } else {
         worldViewProjection = twgljs.m4.identity();

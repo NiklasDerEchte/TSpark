@@ -1,6 +1,7 @@
 import { TSpark } from '../../app';
 import { component3D } from '../../engine';
 import { TwglRenderer } from '../../engine/core/renderer/twgl/renderer';
+import { Vector3Defaults } from '../../engine/core/types/components3D';
 
 let tspark = new TSpark({
   renderer: new TwglRenderer(),
@@ -40,8 +41,14 @@ function setup() {
   planeComponent.material = new component3D.BaseColor3();
   planeComponent.material.baseColor = [120, 120, 160, 255];
 
+  let cameraComponent = new component3D.Camera3();
+  cameraComponent.target = {
+    position: new component3D.Position3(),
+    up: Vector3Defaults.Up
+  };
+
   scene.getComponentStore<component3D.RenderItem3>(component3D.RenderItem3.name).add(planeEntity, planeComponent);
-  scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).add(mainCamera, new component3D.Camera3());
+  scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).add(mainCamera, cameraComponent);
   scene.setActiveCameraEntity(mainCamera);
 }
 
