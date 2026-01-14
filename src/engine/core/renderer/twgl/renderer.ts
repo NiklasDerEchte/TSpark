@@ -60,6 +60,7 @@ interface RenderCache {
 }
 
 export interface TwglRenderSettings {
+  clearColor: { r: number; g: number; b: number; a: number };
   enableDepthTest: boolean;
   enableCullFace: boolean;
 }
@@ -70,8 +71,12 @@ export class TwglRenderer implements RendererBackend {
   private programInfo!: twgljs.ProgramInfo;
   private renderCache: Map<Entity, RenderCache> = new Map<Entity, RenderCache>();
 
-  constructor(setup: TwglRenderSettings = {enableCullFace: false, enableDepthTest: true}) {
-    this.setup = setup;
+  constructor(setup?: Partial<TwglRenderSettings>) {
+    this.setup = { 
+      enableCullFace: setup?.enableCullFace ?? false, 
+      enableDepthTest: setup?.enableDepthTest ?? true, 
+      clearColor: setup?.clearColor ?? { r: 0.97, g: 0.97, b: 0.97, a: 1 } 
+    };
   }
 
   async init(canvas: HTMLCanvasElement): Promise<void> {
@@ -97,7 +102,7 @@ export class TwglRenderer implements RendererBackend {
 
     twgljs.resizeCanvasToDisplaySize(this.gl.canvas as HTMLCanvasElement);
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-    this.gl.clearColor(0.97, 0.97, 0.97, 1);
+    this.gl.clearColor(this.setup.clearColor.r, this.setup.clearColor.g, this.setup.clearColor.b, this.setup.clearColor.a);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
     if(this.setup.enableDepthTest) {
       this.gl.enable(this.gl.DEPTH_TEST);
@@ -153,10 +158,16 @@ export class TwglRenderer implements RendererBackend {
 
     let pixelTexture;
     let bufferInfo;
+
+    if (renderItem.isDirty) {
+      this.renderCache.delete(entity);
+      renderItem.isDirty = false;
+    }
+
     if (this.renderCache.has(entity) && this.renderCache.get(entity) != undefined) {
       let cache = this.renderCache.get(entity);
       pixelTexture = cache!.texture;
-      bufferInfo = cache!.buffer;
+      bufferInfo = cache!.buffer;  
     } else {
       const arrays: twgljs.Arrays = {
         position: {
@@ -183,7 +194,7 @@ export class TwglRenderer implements RendererBackend {
         });
       } else {
         pixelTexture = twgljs.createTexture(this.gl, {
-          src: [255, 255, 255, 255],
+          src: [211, 57, 93, 255],
         });
       }
       this.renderCache.set(entity, {

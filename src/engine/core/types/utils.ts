@@ -55,3 +55,35 @@ export function assignProps<T>(instance: T, props?: Properties<T>): void {
     Object.assign<any, any>(instance, props);
   }
 }
+
+export async function objFileToRenderItem(filePath: string): Promise<component3D.RenderItem3> {
+  const response = await fetch(filePath);
+  const objText = await response.text();
+
+  const renderItem = new component3D.RenderItem3();
+  const vertices: number[][] = [];
+  const indices: number[] = [];
+
+  const lines = objText.split('\n');
+
+  for (const line of lines) {
+    const parts = line.trim().split(/\s+/);
+    const type = parts.shift();
+
+    if (type === 'v') {
+      vertices.push(parts.map(parseFloat));
+    } else if (type === 'f') {
+      for (const part of parts) {
+        const faceIndices = part.split('/');
+        const vertexIndex = parseInt(faceIndices[0], 10) - 1;
+        indices.push(vertexIndex);
+      }
+    }
+  }
+
+  const flatVertices = vertices.flat();
+  renderItem.geometry.vertices = flatVertices;
+  renderItem.geometry.indices = indices;
+
+  return renderItem;
+}

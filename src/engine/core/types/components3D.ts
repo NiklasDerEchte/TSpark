@@ -1,5 +1,5 @@
 import type { Component, Properties, SceneObject } from './type';
-import { assignProps } from './utils';
+import { assignProps, objFileToRenderItem } from './utils';
 
 type VectorStructure = { x: number; y: number; z: number };
 
@@ -174,11 +174,13 @@ export class RenderItem3
       geometry: Geometry3;
       material: BaseColor3 | Material3;
       visible: boolean;
+      isDirty: boolean;
     }>
 {
   geometry: Geometry3 = new Geometry3();
   material: BaseColor3 | Material3 = new BaseColor3();
   visible: boolean = true;
+  isDirty: boolean = false;
 }
 
 export class Box3 implements Component<Transform3 & { renderItem: RenderItem3 }> {
@@ -188,10 +190,11 @@ export class Box3 implements Component<Transform3 & { renderItem: RenderItem3 }>
   scale?: Scale3 | undefined;
 
   constructor(props?: Properties<Box3>) {
-    this.renderItem.geometry = {
-      indices: [0, 1, 2, 1, 3, 2],
-      vertices: [-0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, ],
-    };
+    objFileToRenderItem('cube.obj').then((renderItem: RenderItem3) => {
+      this.renderItem = renderItem;
+      this.renderItem.isDirty = true;
+      assignProps(this, props);
+    });
     assignProps(this, props);
   }
 }
