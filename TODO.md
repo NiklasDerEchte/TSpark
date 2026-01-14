@@ -1,4 +1,6 @@
-- Ich brauche eine neue RenderPipeLine die komplett von mir in WebGl geschrieben wird, Problem: mugl ist zu eingeschränkt was das übergeben von attributen angeht
+- Mich stören die namen der Components, vlt sind die 3d componenten wirklich so einzigartig sodass ich es ohne prefix oder suffix wie "3" oder "3d" brauche
+  
+- Es müssen Blender Scenen oder URDF files eingelesen werden können für den renderer
 
 - Character System / Input System
 - Beispiel Game

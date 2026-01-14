@@ -136,6 +136,10 @@ export class Scene {
     }
   }
 
+  /**
+   * tells the renderer which entity is the active camera
+   * @param camera 
+   */
   public setActiveCameraEntity(camera: Entity): void {
     if (this.entities.includes(camera)) {
       this.activeCameraEntity = camera;
