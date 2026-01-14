@@ -1,4 +1,4 @@
-import { component2D, component3D } from '.';
+import { component2D, component3D, type Properties } from '.';
 import type { Scene } from '../world';
 
 export function generateUniqueId(prefix?: string): string {
@@ -42,4 +42,16 @@ export function getDefaultCamera(scene: Scene): component2D.Camera | component3D
 
 export function degreeToRadians(degree: number): number {
   return degree * (Math.PI / 180);
+}
+
+/**
+ * Weist die Eigenschaften eines Teilobjekts einer Klasseninstanz zu.
+ * Nützlich für die Initialisierung in Konstruktoren.
+ * @param instance Die Klasseninstanz (this)
+ * @param props Das Objekt mit den zu setzenden Eigenschaften
+ */
+export function assignProps<T>(instance: T, props?: Properties<T>): void {
+  if (props) {
+    Object.assign<any, any>(instance, props);
+  }
 }

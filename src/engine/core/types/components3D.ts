@@ -1,4 +1,5 @@
-import type { Component, SceneObject } from './type';
+import type { Component, Properties, SceneObject } from './type';
+import { assignProps } from './utils';
 
 type VectorStructure = { x: number; y: number; z: number };
 
@@ -6,12 +7,28 @@ export class Vector3 implements Component<VectorStructure> {
   x: number = 0;
   y: number = 0;
   z: number = 0;
+
+  constructor(x?: number, y?: number, z?: number) {
+    this.x = x ?? 0;
+    this.y = y ?? 0;
+    this.z = z ?? 0;
+  }
+
+  toArray(): number[] {
+    return [this.x, this.y, this.z];
+  }
 }
 
 export class Position3 implements Component<VectorStructure> {
   x: number = 0;
   y: number = 0;
   z: number = 0;
+
+  constructor(x?: number, y?: number, z?: number) {
+    this.x = x ?? 0;
+    this.y = y ?? 0;
+    this.z = z ?? 0;
+  }
 
   toArray(): number[] {
     return [this.x, this.y, this.z];
@@ -22,12 +39,32 @@ export class Rotation3 implements Component<VectorStructure> {
   x: number = 0;
   y: number = 0;
   z: number = 0;
+
+  constructor(x?: number, y?: number, z?: number) {
+    this.x = x ?? 0;
+    this.y = y ?? 0;
+    this.z = z ?? 0;
+  }
+
+  toArray(): number[] {
+    return [this.x, this.y, this.z];
+  }
 }
 
 export class Scale3 implements Component<VectorStructure> {
   x: number = 0;
   y: number = 0;
   z: number = 0;
+
+  constructor(x?: number, y?: number, z?: number) {
+    this.x = x ?? 0;
+    this.y = y ?? 0;
+    this.z = z ?? 0;
+  }
+
+  toArray(): number[] {
+    return [this.x, this.y, this.z];
+  }
 }
 
 export class Transform3 implements Component<{ position: Position3; rotation?: Rotation3; scale?: Scale3 }> {
@@ -42,15 +79,24 @@ export class Velocity3 implements Component<VectorStructure> {
   z: number = 0;
 }
 
+export const Vector3Defaults = {
+  Zero: new Position3(0, 0, 0),
+  Left: new Position3(-1, 0, 0),
+  Right: new Position3(1, 0, 0),
+  Up: new Position3(0, 1, 0),
+  Down: new Position3(0, -1, 0),
+  Front: new Position3(0, 0, 1),
+  Back: new Position3(0, 0, -1),
+} as const;
+
 export class Camera3
   implements
     Component<
       SceneObject & {
         background?: string;
         position: Position3;
-        target: Position3;
-        up: Position3;
         rotation?: Rotation3;
+        target?: { position: Position3; up: Position3 }; // target disables rotation
         fov?: number; // Field of View
         near?: number; // Near-Plane
         far?: number; // Far-Plane
@@ -60,23 +106,12 @@ export class Camera3
   id: string = '';
   background?: string | undefined;
   position: Position3 = new Position3();
-  up: Position3 = new Position3();
-  target: Position3 = new Position3();
+  target: { position: Position3; up: Position3 } | undefined = undefined;
   rotation: Rotation3 = new Rotation3();
   fov: number = 45;
   near: number = 0.1;
   far: number = 100;
-
-  constructor() {
-    this.up.y = 1;
-  }
 }
-
-// export class Box implements Component<Transform3> {
-//   position: Position3 = new Position3();
-//   rotation?: Rotation3 | undefined;
-//   scale?: Scale3 | undefined;
-// }
 
 // export class Sphere implements Component<Transform3> {
 //   position: Position3 = new Position3();
@@ -144,4 +179,19 @@ export class RenderItem3
   geometry: Geometry3 = new Geometry3();
   material: BaseColor3 | Material3 = new BaseColor3();
   visible: boolean = true;
+}
+
+export class Box3 implements Component<Transform3 & { renderItem: RenderItem3 }> {
+  renderItem: RenderItem3 = new RenderItem3();
+  position: Position3 = new Position3();
+  rotation?: Rotation3 | undefined;
+  scale?: Scale3 | undefined;
+
+  constructor(props?: Properties<Box3>) {
+    this.renderItem.geometry = {
+      indices: [0, 1, 2, 1, 3, 2],
+      vertices: [-0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, ],
+    };
+    assignProps(this, props);
+  }
 }
