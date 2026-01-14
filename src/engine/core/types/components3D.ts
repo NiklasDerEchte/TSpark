@@ -189,8 +189,8 @@ export class Box3 implements Component<Transform3 & { renderItem: RenderItem3 }>
 
   constructor(props?: Properties<Box3>) {
     this.renderItem.geometry = {
-      indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 2, 3, 7, 2, 7, 6, 0, 3, 7, 0, 7, 4, 1, 2, 6, 1, 6, 5],
-      vertices: [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
+      indices: [0, 1, 2, 1, 3, 2],
+      vertices: [-0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, ],
     };
     assignProps(this, props);
   }

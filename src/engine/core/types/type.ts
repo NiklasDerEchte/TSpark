@@ -29,6 +29,7 @@ export interface SceneDefaultComponents {
   key: string,
   options: {},
 }
+
 export interface SceneDefaultSystems {
   system: new () => System;
   key: string;

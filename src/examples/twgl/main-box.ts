@@ -1,10 +1,13 @@
 import { TSpark } from '../../app';
 import { component3D } from '../../engine';
 import { TwglRenderer } from '../../engine/core/renderer/twgl/renderer';
-import { Position3, Vector3Defaults } from '../../engine/core/types/components3D';
+import { Vector3Defaults } from '../../engine/core/types/components3D';
 
 let tspark = new TSpark({
-  renderer: new TwglRenderer(),
+  renderer: new TwglRenderer({
+    enableCullFace: false,
+    enableDepthTest: true
+  }),
   onStart: () => {
     setup();
     tspark.getRenderer().resize({ height: 680, width: 1200 });

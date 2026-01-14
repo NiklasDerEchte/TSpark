@@ -59,10 +59,20 @@ interface RenderCache {
   texture: WebGLTexture;
 }
 
+export interface TwglRenderSettings {
+  enableDepthTest: boolean;
+  enableCullFace: boolean;
+}
+
 export class TwglRenderer implements RendererBackend {
+  private setup: TwglRenderSettings;
   private gl!: WebGLRenderingContext;
   private programInfo!: twgljs.ProgramInfo;
   private renderCache: Map<Entity, RenderCache> = new Map<Entity, RenderCache>();
+
+  constructor(setup: TwglRenderSettings = {enableCullFace: false, enableDepthTest: true}) {
+    this.setup = setup;
+  }
 
   async init(canvas: HTMLCanvasElement): Promise<void> {
     const gl = canvas.getContext('webgl');
@@ -89,8 +99,12 @@ export class TwglRenderer implements RendererBackend {
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clearColor(0.97, 0.97, 0.97, 1);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-    this.gl.enable(this.gl.DEPTH_TEST);
-    // this.gl.enable(this.gl.CULL_FACE);
+    if(this.setup.enableDepthTest) {
+      this.gl.enable(this.gl.DEPTH_TEST);
+    }
+    if(this.setup.enableCullFace) {
+      this.gl.enable(this.gl.CULL_FACE);
+    }
 
     scenes.forEach((scene: Scene) => {
       let camera: component3D.Camera3 | undefined = undefined;
