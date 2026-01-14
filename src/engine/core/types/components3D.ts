@@ -1,4 +1,5 @@
-import type { Component, SceneObject } from './type';
+import type { Component, Properties, SceneObject } from './type';
+import { assignProps } from './utils';
 
 type VectorStructure = { x: number; y: number; z: number };
 
@@ -112,12 +113,6 @@ export class Camera3
   far: number = 100;
 }
 
-// export class Box implements Component<Transform3> {
-//   position: Position3 = new Position3();
-//   rotation?: Rotation3 | undefined;
-//   scale?: Scale3 | undefined;
-// }
-
 // export class Sphere implements Component<Transform3> {
 //   position: Position3 = new Position3();
 //   rotation?: Rotation3 | undefined;
@@ -184,4 +179,19 @@ export class RenderItem3
   geometry: Geometry3 = new Geometry3();
   material: BaseColor3 | Material3 = new BaseColor3();
   visible: boolean = true;
+}
+
+export class Box3 implements Component<Transform3 & { renderItem: RenderItem3 }> {
+  renderItem: RenderItem3 = new RenderItem3();
+  position: Position3 = new Position3();
+  rotation?: Rotation3 | undefined;
+  scale?: Scale3 | undefined;
+
+  constructor(props?: Properties<Box3>) {
+    this.renderItem.geometry = {
+      indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 2, 3, 7, 2, 7, 6, 0, 3, 7, 0, 7, 4, 1, 2, 6, 1, 6, 5],
+      vertices: [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
+    };
+    assignProps(this, props);
+  }
 }

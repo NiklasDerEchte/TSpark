@@ -5,26 +5,26 @@
       "type": "npm",
       "script": "tspark:dev",
       "problemMatcher": [],
-      "label": "Dev TSpark",
+      "label": "TSpark",
       "detail": "vite"
     },
     {
-      "label": "TypeDoc",
+      "label": "_TypeDoc",
       "type": "shell",
       "command": "npm run docs:api",
       "isBackground": true,
       "problemMatcher": []
     },
     {
-      "label": "Vitepress",
+      "label": "_Vitepress",
       "type": "shell",
       "command": "npm run docs:dev",
       "isBackground": true,
       "problemMatcher": []
     },
     {
-      "label": "Dev Docs",
-      "dependsOn": ["TypeDoc", "Vitepress"],
+      "label": "Documentation",
+      "dependsOn": ["_TypeDoc", "_Vitepress"],
       "dependsOrder": "sequence",
       "problemMatcher": []
     }

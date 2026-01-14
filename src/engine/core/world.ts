@@ -1,9 +1,8 @@
 import { generateUniqueId } from '..';
-import componentsDefaults from './scene-defaults/components.json';
-import systemsDefaults from './scene-defaults/systems.json';
-import type { Component, Entity, System } from './types/index';
+import type { Component, Entity, SceneDefaultComponents, SceneDefaultSystems, System } from './types/index';
 import { ComponentStore } from './component-store';
-import {component2D, component3D} from './types/index';
+import { defaultComponents } from './scene-defaults/components';
+import { defaultSystems } from './scene-defaults/systems';
 
 export class World {
   private scenes: Map<string, Scene> = new Map<string, Scene>();
@@ -87,52 +86,24 @@ export class Scene {
   }
 
   private initComponents() {
-    for (const entry of componentsDefaults as Array<{ component: string; key: string; options?: Record<string, any> }>) {
-      const parts = entry.component.split('.');
-      if (parts.length === 2) {
-        const moduleName = parts[0];
-        const className = parts[1];
-
-        let Ctor: (new () => Component<any> | undefined) | undefined = undefined;
-        if (moduleName === 'component2D') {
-          Ctor = (component2D as any)[className];
-        } else if (moduleName === 'component3D') {
-          Ctor = (component3D as any)[className];
-        } else {
-          throw new Error(`Unknown component module: ${moduleName}`);
-        }
-
-        if (Ctor) {
-          const instance = new Ctor();
-          this.registerComponent({
-            key: entry.key,
-            component: instance,
-          });
-        } else {
-          console.error(`Unknown component: ${entry.component}`);
-        }
-      } else {
-        console.error(`Component format not valid: ${entry.component}`);
-      }
+    for (const entry of defaultComponents as Array<SceneDefaultComponents>) {
+      const instance = new entry.component();
+      this.registerComponent({
+        key: entry.key,
+        component: instance,
+      });
     }
   }
 
   private initSystems() {
-    const systemConstructors: Record<string, new () => System> = {
-      // System list
-    } as Record<string, new () => System>;
-
-    for (const entry of systemsDefaults as Array<{ system: string; key: string; options?: { mode?: 'normal' | 'fixed' } }>) {
-      const Ctor = systemConstructors[entry.system];
-      if (Ctor) {
-        const instance = new Ctor();
-        const mode = entry.options?.mode ?? 'normal';
-        this.registerSystem({
-          key: entry.key,
-          system: instance,
-          mode: mode,
-        });
-      }
+    for (const entry of defaultSystems as Array<SceneDefaultSystems>) {
+      const instance = new entry.system();
+      const mode = entry.options?.mode ?? 'normal';
+      this.registerSystem({
+        key: entry.key,
+        system: instance,
+        mode: mode,
+      });
     }
   }
 
