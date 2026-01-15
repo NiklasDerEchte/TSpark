@@ -1,3 +1,4 @@
+import { colord } from 'colord';
 import { TSpark } from '../../app';
 import { component3D, objFileToRenderItem } from '../../engine';
 import { TwglRenderer } from '../../engine/core/renderer/twgl/renderer';
@@ -24,10 +25,12 @@ let boxEntity = scene.createEntity();
 let mainCameraEntity = scene.createEntity();
 
 function setup() {
-  let boxComponent = new component3D.Box3();
-  // TODO Hier ist ein Problem: Das RenderItem wird asynchron geladen, aber die Zuweisung der Materialeigenschaft erfolgt sofort.
-  boxComponent.renderItem.material = new BaseColor3();
-  boxComponent.renderItem.material.baseColor = [211, 57, 93, 1];
+  let boxComponent = new component3D.Box3(() => {
+    boxComponent.renderItem.material = new BaseColor3();
+    boxComponent.renderItem.material.baseColor = colord({ r: 110, g: 210, b: 210, a: 1 });
+    boxComponent.renderItem.isDirty = true;
+    console.log("ready");
+  });
   
   let cameraComponent = new component3D.Camera3();
   cameraComponent.target = {

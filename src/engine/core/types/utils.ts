@@ -1,5 +1,7 @@
+import { colord } from 'colord';
 import { component2D, component3D, type Properties } from '.';
 import type { Scene } from '../world';
+import { Material3 } from './components3D';
 
 export function generateUniqueId(prefix?: string): string {
   try {
@@ -14,7 +16,9 @@ export function generateUniqueId(prefix?: string): string {
       bytes[6] = (bytes[6] & 0x0f) | 0x40;
       bytes[8] = (bytes[8] & 0x3f) | 0x80;
       const hex = Array.from(bytes).map((b) => b.toString(16).padStart(2, '0'));
-      const id = `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10).join('')}`;
+      const id = `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex
+        .slice(10)
+        .join('')}`;
       return prefix ? `${prefix}-${id}` : id;
     }
   } catch (_) {
@@ -30,7 +34,7 @@ export function getDefaultCamera(scene: Scene): component2D.Camera | component3D
     camera = cam;
     break;
   }
-  if(!camera) {
+  if (!camera) {
     for (const [, cam] of scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).entries()) {
       camera = cam;
       break;
@@ -62,9 +66,15 @@ export async function objFileToRenderItem(filePath: string): Promise<component3D
 
   const renderItem = new component3D.RenderItem3();
   const vertices: number[][] = [];
+  const uvs: number[][] = [];
+  const normals: number[][] = [];
   const indices: number[] = [];
 
+  const finalUvs: number[] = [];
+  const finalNormals: number[] = [];
+
   const lines = objText.split('\n');
+  let materialLib: string | undefined;
 
   for (const line of lines) {
     const parts = line.trim().split(/\s+/);
@@ -72,18 +82,100 @@ export async function objFileToRenderItem(filePath: string): Promise<component3D
 
     if (type === 'v') {
       vertices.push(parts.map(parseFloat));
+    } else if (type === 'vt') {
+      uvs.push(parts.map(parseFloat));
+    } else if (type === 'vn') {
+      normals.push(parts.map(parseFloat));
     } else if (type === 'f') {
       for (const part of parts) {
-        const faceIndices = part.split('/');
-        const vertexIndex = parseInt(faceIndices[0], 10) - 1;
-        indices.push(vertexIndex);
+        const [vIdx, uvIdx, nIdx] = part.split('/').map((s) => parseInt(s, 10) - 1);
+
+        if (uvIdx < uvs.length) {
+          finalUvs.push(...uvs[uvIdx]);
+        }
+        if (nIdx < normals.length) {
+          finalNormals.push(...normals[nIdx]);
+        }
+
+        indices.push(vIdx);
+      }
+    } else if (type === 'mtllib') {
+      materialLib = parts.join(' ');
+      console.log(materialLib);
+    }
+  }
+
+  renderItem.geometry.vertices = vertices.flat();
+  renderItem.geometry.indices = indices;
+  // TODO Noch nicht Implementiert: renderItem.geometry.normals = finalNormals;
+
+  if (materialLib) {
+    const objDirectory = filePath.substring(0, filePath.lastIndexOf('/') + 1);
+    const mtlPath = objDirectory + materialLib;
+    console.log(mtlPath);
+    const materials = await mtlFileToMaterial(mtlPath);
+    // Assuming the obj file uses the first material found in the mtl file, or you can implement logic to select one.
+    const firstMaterialName = Object.keys(materials)[0];
+    if (firstMaterialName) {
+      console.log(firstMaterialName);
+      renderItem.material = materials[firstMaterialName]; //TODO Die Zuweisung hier Überarbeiten und eventuell die namen der Materials abspeichern
+      renderItem.material.uvs = finalUvs;
+    }
+  }
+
+  return renderItem;
+}
+
+export async function mtlFileToMaterial(filePath: string): Promise<{ [name: string]: component3D.Material3 }> {
+  const response = await fetch(filePath);
+  const mtlText = await response.text();
+  const materials: { [name: string]: component3D.Material3 } = {};
+
+  const lines = mtlText.split('\n');
+  let currentMaterial: component3D.Material3 | null = null;
+
+  let blenderConverter = (n: number) => {
+    return (n ** (1 / 2.2)) * 255;
+  };
+
+  for (const line of lines) {
+    const parts = line.trim().split(/\s+/);
+    const type = parts.shift();
+
+    if (!type || type.startsWith('#')) {
+      continue; // Skip empty lines and comments
+    }
+
+    if (type === 'newmtl') {
+      const materialName = parts[0];
+      currentMaterial = new component3D.Material3();
+      materials[materialName] = currentMaterial;
+    } else if (currentMaterial) {
+      if (type === 'Ka') {
+        // Ambient color
+        const [r, g, b] = parts.map((p) => parseFloat(p));
+        currentMaterial.ambient = colord({ r: blenderConverter(r), g: blenderConverter(g), b: blenderConverter(b), a: 1 });
+      } else if (type === 'Kd') {
+        // Diffuse color
+        const [r, g, b] = parts.map((p) => parseFloat(p));
+        console.log(r, g, b);
+        currentMaterial.color = colord({ r: blenderConverter(r), g: blenderConverter(g), b: blenderConverter(b), a: 1 });
+      } else if (type === 'Ks') {
+        // Specular color
+        const [r, g, b] = parts.map((p) => parseFloat(p));
+        currentMaterial.specularColor = colord({ r: blenderConverter(r), g: blenderConverter(g), b: blenderConverter(b), a: 1 });
+      } else if (type === 'Ns') {
+        // Specular exponent (shininess)
+        currentMaterial.specularColor.rgba.r = parseFloat(parts[0]) * 255; // Storing in r of RGBA as per structure
+      } else if (type === 'd' || type === 'Tr') {
+        const opacity = parseFloat(parts[0]);
+        currentMaterial.color.rgba.a = type === 'Tr' ? 1 - opacity : opacity;
+      } else if (type === 'map_Kd') {
+        const objDirectory = filePath.substring(0, filePath.lastIndexOf('/') + 1);
+        currentMaterial.texture.src = objDirectory + parts.join(' ');
       }
     }
   }
 
-  const flatVertices = vertices.flat();
-  renderItem.geometry.vertices = flatVertices;
-  renderItem.geometry.indices = indices;
-
-  return renderItem;
+  return materials;
 }

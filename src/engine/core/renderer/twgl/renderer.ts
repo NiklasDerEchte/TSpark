@@ -56,7 +56,8 @@ const shader = {
 
 interface RenderCache {
   buffer: twgljs.BufferInfo;
-  texture: WebGLTexture;
+  texture?: WebGLTexture;
+  programInfo: twgljs.ProgramInfo;
 }
 
 export interface TwglRenderSettings {
@@ -68,14 +69,15 @@ export interface TwglRenderSettings {
 export class TwglRenderer implements RendererBackend {
   private setup: TwglRenderSettings;
   private gl!: WebGLRenderingContext;
-  private programInfo!: twgljs.ProgramInfo;
+  private baseColorProgramInfo!: twgljs.ProgramInfo;
+  private textureProgramInfo!: twgljs.ProgramInfo;
   private renderCache: Map<Entity, RenderCache> = new Map<Entity, RenderCache>();
 
   constructor(setup?: Partial<TwglRenderSettings>) {
-    this.setup = { 
-      enableCullFace: setup?.enableCullFace ?? false, 
-      enableDepthTest: setup?.enableDepthTest ?? true, 
-      clearColor: setup?.clearColor ?? { r: 0.97, g: 0.97, b: 0.97, a: 1 } 
+    this.setup = {
+      enableCullFace: setup?.enableCullFace ?? false,
+      enableDepthTest: setup?.enableDepthTest ?? true,
+      clearColor: setup?.clearColor ?? { r: 0.97, g: 0.97, b: 0.97, a: 1 },
     };
   }
 
@@ -85,7 +87,8 @@ export class TwglRenderer implements RendererBackend {
       throw new Error('[twgl] WebGL is not supported');
     }
     this.gl = gl;
-    this.programInfo = twgljs.createProgramInfo(this.gl, [shader.texture.vs, shader.texture.fs]);
+    this.baseColorProgramInfo = twgljs.createProgramInfo(this.gl, [shader.baseColor.vs, shader.baseColor.fs]);
+    this.textureProgramInfo = twgljs.createProgramInfo(this.gl, [shader.texture.vs, shader.texture.fs]);
 
     console.log('[twgl] WebGL device initialized');
   }
@@ -104,17 +107,18 @@ export class TwglRenderer implements RendererBackend {
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clearColor(this.setup.clearColor.r, this.setup.clearColor.g, this.setup.clearColor.b, this.setup.clearColor.a);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-    if(this.setup.enableDepthTest) {
+    if (this.setup.enableDepthTest) {
       this.gl.enable(this.gl.DEPTH_TEST);
     }
-    if(this.setup.enableCullFace) {
+    if (this.setup.enableCullFace) {
       this.gl.enable(this.gl.CULL_FACE);
     }
 
     scenes.forEach((scene: Scene) => {
       let camera: component3D.Camera3 | undefined = undefined;
-      if (scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).has(scene.getActiveCameraEntity() ?? 'undefined')) {
-        camera = scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).get(scene.getActiveCameraEntity() ?? 'undefined');
+      let cameraEntity = scene.getActiveCameraEntity();
+      if (cameraEntity && scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).has(cameraEntity)) {
+        camera = scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).get(cameraEntity);
       }
 
       let worldViewProjection;
@@ -141,8 +145,6 @@ export class TwglRenderer implements RendererBackend {
         worldViewProjection = twgljs.m4.identity();
       }
 
-      this.gl.useProgram(this.programInfo.program);
-
       for (const [entity, renderItem] of scene.getComponentStore<component3D.RenderItem3>(component3D.RenderItem3.name).entries()) {
         this.calculateRenderItem(entity, renderItem, worldViewProjection);
       }
@@ -158,6 +160,7 @@ export class TwglRenderer implements RendererBackend {
 
     let pixelTexture;
     let bufferInfo;
+    let programInfo;
 
     if (renderItem.isDirty) {
       this.renderCache.delete(entity);
@@ -167,7 +170,8 @@ export class TwglRenderer implements RendererBackend {
     if (this.renderCache.has(entity) && this.renderCache.get(entity) != undefined) {
       let cache = this.renderCache.get(entity);
       pixelTexture = cache!.texture;
-      bufferInfo = cache!.buffer;  
+      bufferInfo = cache!.buffer;
+      programInfo = cache!.programInfo;
     } else {
       const arrays: twgljs.Arrays = {
         position: {
@@ -176,40 +180,53 @@ export class TwglRenderer implements RendererBackend {
         },
         indices: renderItem.geometry.indices as number[] | Uint16Array | Uint32Array,
       };
-      if (renderItem.material instanceof component3D.Material3 && renderItem.material.uvs) {
+
+      if (renderItem.material instanceof component3D.Material3 && renderItem.material.texture.src && renderItem.material.uvs.length > 0) {
+        programInfo = this.textureProgramInfo;
         arrays.texCoord = {
           numComponents: UV,
           data: renderItem.material.uvs as number[] | Float32Array,
         };
-      }
-      bufferInfo = twgljs.createBufferInfoFromArrays(this.gl, arrays);
-
-      if (renderItem.material instanceof component3D.BaseColor3) {
-        pixelTexture = twgljs.createTexture(this.gl, {
-          src: renderItem.material.baseColor as number[],
-        });
-      } else if (renderItem.material instanceof component3D.Material3) {
         pixelTexture = twgljs.createTexture(this.gl, {
           src: renderItem.material.texture,
         });
       } else {
-        pixelTexture = twgljs.createTexture(this.gl, {
-          src: [211, 57, 93, 255],
-        });
+        programInfo = this.baseColorProgramInfo;
       }
+
+      bufferInfo = twgljs.createBufferInfoFromArrays(this.gl, arrays);
+
       this.renderCache.set(entity, {
         buffer: bufferInfo,
         texture: pixelTexture,
+        programInfo: programInfo,
       });
     }
 
-    const uniforms = {
+    this.gl.useProgram(programInfo.program);
+
+    const uniforms: { [key: string]: any } = {
       u_worldViewProjection: worldViewProjection,
-      u_texture: pixelTexture,
     };
 
-    twgljs.setBuffersAndAttributes(this.gl, this.programInfo, bufferInfo);
-    twgljs.setUniforms(this.programInfo, uniforms);
+    if (programInfo === this.textureProgramInfo) {
+      uniforms.u_texture = pixelTexture;
+    } else {
+      if (renderItem.material instanceof component3D.BaseColor3) {
+        const color = renderItem.material.baseColor.toRgb();
+        uniforms.u_color = [color.r / 255, color.g / 255, color.b / 255, color.a]; // TODO: Dieses Teilen ist nicht geil
+        console.log('BaseColor3', color);
+      } else if (renderItem.material instanceof component3D.Material3) {
+        const color = renderItem.material.color.toRgb();
+        uniforms.u_color = [color.r / 255, color.g / 255, color.b / 255, color.a]; // TODO: Dieses Teilen ist nicht geil
+        console.log('Material3', color);
+      } else {
+        uniforms.u_color = [0.556, 0.556, 0.556, 1]; // Default color
+      }
+    }
+
+    twgljs.setBuffersAndAttributes(this.gl, programInfo, bufferInfo);
+    twgljs.setUniforms(programInfo, uniforms);
     twgljs.drawBufferInfo(this.gl, bufferInfo);
   }
 

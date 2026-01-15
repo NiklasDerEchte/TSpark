@@ -1,3 +1,4 @@
+import { colord, type Colord } from 'colord';
 import type { Component, Properties, SceneObject } from './type';
 import { assignProps, objFileToRenderItem } from './utils';
 
@@ -140,10 +141,20 @@ export class Camera3
 export class Material3
   implements
     Component<{
+      color: Colord;
+      specularColor: Colord;
+      shininess: Colord;
+      ambient: Colord;
+      diffuseMap: Colord;
       texture: HTMLImageElement;
-      uvs: Float32Array | number[] | undefined;
+      uvs: Float32Array | number[];
     }>
 {
+  color: Colord = colord('');
+  specularColor: Colord = colord('');
+  shininess: Colord = colord('');
+  ambient: Colord = colord('');
+  diffuseMap: Colord = colord('');
   texture: HTMLImageElement = new Image();
   uvs: Float32Array | number[] = []; // array of texture 2d positions x1,y1,x2,y2..
 }
@@ -151,10 +162,10 @@ export class Material3
 export class BaseColor3
   implements
     Component<{
-      baseColor: string | [number, number, number, number];
+      baseColor: Colord;
     }>
 {
-  baseColor: string | [number, number, number, number] = [255, 255, 255, 255];
+  baseColor: Colord = colord('');
 }
 
 export class Geometry3
@@ -189,11 +200,12 @@ export class Box3 implements Component<Transform3 & { renderItem: RenderItem3 }>
   rotation?: Rotation3 | undefined;
   scale?: Scale3 | undefined;
 
-  constructor(props?: Properties<Box3>) {
-    objFileToRenderItem('cube.obj').then((renderItem: RenderItem3) => {
+  constructor(onReady: () => void = () => {}, props?: Properties<Box3>) {
+    objFileToRenderItem('cube/cube.obj').then((renderItem: RenderItem3) => {
       this.renderItem = renderItem;
       this.renderItem.isDirty = true;
       assignProps(this, props);
+      onReady();
     });
     assignProps(this, props);
   }
