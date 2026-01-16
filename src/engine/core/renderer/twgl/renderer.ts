@@ -159,6 +159,7 @@ export class TwglRenderer implements RendererBackend {
         };
         pixelTexture = twgljs.createTexture(this.gl, {
           src: renderItem.material.texture,
+          flipY: 1, // TODO das hier muss wegen den Blender Textures gemacht werden, ansonsten 0
         });
       } else {
         programInfo = this.baseColorProgramInfo;

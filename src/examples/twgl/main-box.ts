@@ -35,7 +35,7 @@ function setup() {
   let cameraComponent = new component3D.Camera3();
   cameraComponent.target = {
     position: new component3D.Position3(),
-    up: Vector3Defaults.BlenderUp
+    up: Vector3Defaults.Up
   };
   scene.getComponentStore<component3D.Box3>(component3D.Box3.name).add(boxEntity, boxComponent);
   scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).add(mainCameraEntity, cameraComponent);
