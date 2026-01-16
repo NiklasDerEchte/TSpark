@@ -2,56 +2,24 @@ import * as twgljs from 'twgl.js';
 import { component3D, degreeToRadians, type Dimension, type Entity, type RendererBackend } from '../../types/index';
 import type { Scene } from '../../world';
 import type { RenderItem3 } from '../../types/components3D';
-
 const XYZ = 3;
 const UV = 2;
 
-const shader = {
-  baseColor: {
-    vs: `
-  attribute vec4 position;
-  
-  uniform mat4 u_worldViewProjection;
-
-  void main() {
-    gl_Position = u_worldViewProjection * position;
-  }
-`,
-    fs: `
-  precision mediump float;
-
-  uniform vec4 u_color;
-
-  void main() {
-    gl_FragColor = u_color;
-  }
-`,
-  },
-  texture: {
-    vs: `
-  attribute vec4 position;
-  attribute vec2 texCoord;
-
-  uniform mat4 u_worldViewProjection;
-
-  varying vec2 v_texCoord;
-
-  void main() {
-    gl_Position = u_worldViewProjection * position;
-    v_texCoord = texCoord;
-  }
-`,
-    fs: `
-  precision mediump float;
-
-  uniform sampler2D u_texture;
-  varying vec2 v_texCoord;
-
-  void main() {
-    gl_FragColor = texture2D(u_texture, v_texCoord);
-  }
-`,
-  },
+let getShader = async () => {
+  let baseColorVertex = await fetch('shader/base-color-vertex.shader');
+  let baseColorFragment = await fetch('shader/base-color-fragment.shader');
+  let textureVertex = await fetch('shader/texture-vertex.shader');
+  let textureFragment = await fetch('shader/texture-fragment.shader');
+  return await {
+    baseColor: {
+      vs: await baseColorVertex.text(),
+      fs: await baseColorFragment.text(),
+    },
+    texture: {
+      vs: await textureVertex.text(),
+      fs: await textureFragment.text(),
+    },
+  };
 };
 
 interface RenderCache {
@@ -86,6 +54,7 @@ export class TwglRenderer implements RendererBackend {
     if (!gl) {
       throw new Error('[twgl] WebGL is not supported');
     }
+    let shader = await getShader();
     this.gl = gl;
     this.baseColorProgramInfo = twgljs.createProgramInfo(this.gl, [shader.baseColor.vs, shader.baseColor.fs]);
     this.textureProgramInfo = twgljs.createProgramInfo(this.gl, [shader.texture.vs, shader.texture.fs]);
@@ -182,6 +151,7 @@ export class TwglRenderer implements RendererBackend {
       };
 
       if (renderItem.material instanceof component3D.Material3 && renderItem.material.texture.src && renderItem.material.uvs.length > 0) {
+        console.log(renderItem.material.uvs as number[] | Float32Array);
         programInfo = this.textureProgramInfo;
         arrays.texCoord = {
           numComponents: UV,

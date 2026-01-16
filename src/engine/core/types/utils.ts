@@ -68,10 +68,14 @@ export async function objFileToRenderItem(filePath: string): Promise<component3D
   const vertices: number[][] = [];
   const uvs: number[][] = [];
   const normals: number[][] = [];
-  const indices: number[] = [];
 
+  const finalVertices: number[] = [];
   const finalUvs: number[] = [];
   const finalNormals: number[] = [];
+
+  const indices: number[] = [];
+  const faceCache = new Map<string, number>();
+  let faceCount = 0;
 
   const lines = objText.split('\n');
   let materialLib: string | undefined;
@@ -88,37 +92,41 @@ export async function objFileToRenderItem(filePath: string): Promise<component3D
       normals.push(parts.map(parseFloat));
     } else if (type === 'f') {
       for (const part of parts) {
-        const [vIdx, uvIdx, nIdx] = part.split('/').map((s) => parseInt(s, 10) - 1);
+        if (faceCache.has(part)) {
+          indices.push(faceCache.get(part)!);
+          continue;
+        }
 
+        const [vIdx, uvIdx, nIdx] = part.split('/').map((s) => (parseInt(s, 10) - 1));
+        const newIndex = faceCount;
+        faceCount++;
+        faceCache.set(part, newIndex);
+        indices.push(newIndex);
+
+        finalVertices.push(...vertices[vIdx]);
         if (uvIdx < uvs.length) {
           finalUvs.push(...uvs[uvIdx]);
         }
         if (nIdx < normals.length) {
           finalNormals.push(...normals[nIdx]);
         }
-
-        indices.push(vIdx);
       }
     } else if (type === 'mtllib') {
       materialLib = parts.join(' ');
-      console.log(materialLib);
     }
   }
 
-  renderItem.geometry.vertices = vertices.flat();
+  renderItem.geometry.vertices = finalVertices;
   renderItem.geometry.indices = indices;
   // TODO Noch nicht Implementiert: renderItem.geometry.normals = finalNormals;
 
   if (materialLib) {
     const objDirectory = filePath.substring(0, filePath.lastIndexOf('/') + 1);
     const mtlPath = objDirectory + materialLib;
-    console.log(mtlPath);
     const materials = await mtlFileToMaterial(mtlPath);
-    // Assuming the obj file uses the first material found in the mtl file, or you can implement logic to select one.
     const firstMaterialName = Object.keys(materials)[0];
     if (firstMaterialName) {
-      console.log(firstMaterialName);
-      renderItem.material = materials[firstMaterialName]; //TODO Die Zuweisung hier Überarbeiten und eventuell die namen der Materials abspeichern
+      renderItem.material = materials[firstMaterialName];
       renderItem.material.uvs = finalUvs;
     }
   }
@@ -135,7 +143,7 @@ export async function mtlFileToMaterial(filePath: string): Promise<{ [name: stri
   let currentMaterial: component3D.Material3 | null = null;
 
   let blenderConverter = (n: number) => {
-    return (n ** (1 / 2.2)) * 255;
+    return n ** (1 / 2.2) * 255;
   };
 
   for (const line of lines) {

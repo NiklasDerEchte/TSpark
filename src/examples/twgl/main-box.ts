@@ -26,16 +26,16 @@ let mainCameraEntity = scene.createEntity();
 
 function setup() {
   let boxComponent = new component3D.Box3(() => {
-    boxComponent.renderItem.material = new BaseColor3();
-    boxComponent.renderItem.material.baseColor = colord({ r: 110, g: 210, b: 210, a: 1 });
-    boxComponent.renderItem.isDirty = true;
-    console.log("ready");
+    // boxComponent.renderItem.material = new BaseColor3();
+    // boxComponent.renderItem.material.baseColor = colord({ r: 110, g: 210, b: 210, a: 1 });
+    // boxComponent.renderItem.isDirty = true;
+    // console.log("ready");
   });
   
   let cameraComponent = new component3D.Camera3();
   cameraComponent.target = {
     position: new component3D.Position3(),
-    up: Vector3Defaults.Up
+    up: Vector3Defaults.BlenderUp
   };
   scene.getComponentStore<component3D.Box3>(component3D.Box3.name).add(boxEntity, boxComponent);
   scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).add(mainCameraEntity, cameraComponent);
@@ -53,7 +53,7 @@ function update() {
     
     let position = new component3D.Position3();
     position.x = cameraX;
-    position.y = Math.PI;
+    position.y = Math.sin(time) * Math.PI;
     position.z = cameraZ;
     camera.position = position;
   }

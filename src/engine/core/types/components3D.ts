@@ -88,6 +88,8 @@ export const Vector3Defaults = {
   Down: new Position3(0, -1, 0),
   Front: new Position3(0, 0, 1),
   Back: new Position3(0, 0, -1),
+  BlenderUp: new Position3(0, -1, 0),
+  BlenderDown: new Position3(0, 1, 0),
 } as const;
 
 export class Camera3
