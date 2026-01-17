@@ -1,7 +1,9 @@
+import { colord } from 'colord';
 import { TSpark } from '../../app';
 import { component2D, component3D, RotationLoop, RotationLoopBox3System } from '../../engine';
 import { TwglRenderer } from '../../engine/core/renderer/twgl/renderer';
 import { Vector3Defaults } from '../../engine/core/types/components3D';
+import { Rect2D } from '../../engine/core/types/components2D';
 
 let tspark = new TSpark({
   renderer: new TwglRenderer({
@@ -37,7 +39,12 @@ function setup() {
     up: Vector3Defaults.Up
   };
   let uiText = new component2D.UIText2();
+  uiText.rect = new Rect2D()
+  uiText.rect.position.x =20;
+  uiText.rect.position.y = 20;
   uiText.text = "Stress Test: Cubes are spawning every second!";
+  uiText.size = 24;
+  uiText.color = colord({ r: 255, g: 255, b: 210 });
   scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).add(mainCameraEntity, cameraComponent);
   scene.getComponentStore<component2D.UIText2>(component2D.UIText2.name).add(uiTextEntity, uiText);
   scene.setActiveCameraEntity(mainCameraEntity);

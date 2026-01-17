@@ -16,6 +16,10 @@ export interface RendererBackend {
   resize(size: Dimension): void;
 }
 
+export interface SubRendererBackend {
+  draw(scenes: Scene[]): void;
+}
+
 export type SceneObject = {id: string}
 export type ComponentStructure = {
   [k: string]: any;
