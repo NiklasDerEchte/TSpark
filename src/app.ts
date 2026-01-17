@@ -59,6 +59,10 @@ export class TSpark {
     return world;
   }
 
+  public getFPS(): number {
+    return this.gameLoop.getFps();
+  }
+
   public start() {
     this.setup.renderer.init(this.drawCanvas).then(() => {
       this.setup.onStart?.();

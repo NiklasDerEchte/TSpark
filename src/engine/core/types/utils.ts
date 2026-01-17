@@ -1,7 +1,5 @@
 import { colord } from 'colord';
 import { component2D, component3D, type Properties } from '.';
-import type { Scene } from '../world';
-import { Material3 } from './components3D';
 
 export function generateUniqueId(prefix?: string): string {
   try {
@@ -26,22 +24,6 @@ export function generateUniqueId(prefix?: string): string {
   }
   const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
   return prefix ? `${prefix}-${id}` : id;
-}
-
-export function getDefaultCamera(scene: Scene): component2D.Camera | component3D.Camera3 | undefined {
-  let camera: component2D.Camera | component3D.Camera3 | undefined;
-  for (const [, cam] of scene.getComponentStore<component2D.Camera>('camera2d').entries()) {
-    camera = cam;
-    break;
-  }
-  if (!camera) {
-    for (const [, cam] of scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).entries()) {
-      camera = cam;
-      break;
-    }
-  }
-  camera ??= { id: 'cam', background: '#f8f8f8f8' };
-  return camera;
 }
 
 export function degreeToRadians(degree: number): number {

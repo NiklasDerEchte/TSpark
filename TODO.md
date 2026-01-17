@@ -13,3 +13,5 @@ https://medium.com/@lovonmahon/simple-player-input-in-unity-dots-ecs-unity-2019-
 - OBJ -> Texturen Müssen noch getestet werden
 - https://people.math.sc.edu/Burkardt/data/obj/obj.html
 - https://www.loc.gov/preservation/digital/formats/fdd/fdd000507.shtml
+
+- culling - nur die meshes anzeigen die im view sind

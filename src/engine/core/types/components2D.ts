@@ -1,50 +1,29 @@
-import type { Component, SceneObject } from "./type";
+import { colord, type Colord } from "colord";
+import type { Component } from "./type";
 
 type VectorStructure = { x: number; y: number };
 
-export class Vector implements Component<VectorStructure> {
-  x: number = 0;
-  y: number = 0;
-}
-export class Position implements Component<VectorStructure> {
-  x: number = 0;
-  y: number = 0;
-}
-export class Rotation implements Component<VectorStructure> {
-  x: number = 0;
-  y: number = 0;
-}
-export class Scale implements Component<VectorStructure> {
-  x: number = 0;
-  y: number = 0;
-}
-export class Transform implements Component<{ position: Position; rotation?: Rotation; scale?: Scale }> {
-  position: Position = new Position();
-  rotation?: Rotation | undefined;
-  scale?: Scale | undefined;
-}
-
-export class Camera implements Component<SceneObject & { background?: string }> {
-  id: string = '';
-  background?: string | undefined;
-}
-
-export class Velocity implements Component<VectorStructure> {
+export class Vector2 implements Component<VectorStructure> {
   x: number = 0;
   y: number = 0;
 }
 
-export class Sprite implements Component<SceneObject & { color: string; width: number; height: number }> {
-  id: string = "";
-  color: string = "";
-  width: number = 0;
-  height: number = 0;
+export class Rect2D implements Component<{ position: Vector2; size: { width: number; height: number }, color: Colord}> {
+  position: Vector2 = {
+    x: 0,
+    y: 0
+  };
+  size: { width: number; height: number } = {
+    width: 0,
+    height: 0
+  };
+  color: Colord = colord("");
 }
 
-export class Triangle implements Component<SceneObject & Transform & { color?: string }> {
-  id: string = "";
-  position: Position = new Position();
-  rotation?: Rotation | undefined;
-  scale?: Scale | undefined;
-  color?: string | undefined;
+export class UIText2 implements Component<{rect: Rect2D, text: string, size: number, color: Colord}> {
+  rect: Rect2D = new Rect2D();
+  text: string = "";
+  size: number = 0;
+  color: Colord = colord("");
 }
+

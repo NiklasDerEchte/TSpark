@@ -8,6 +8,11 @@ export class GameLoop {
   private fixedUpdateIntervalCounter = 0;
   private elapsedTimeSeconds = 0;
 
+  // FPS Calculation
+  private frameCount: number = 0;
+  private lastFpsUpdateTime: number = 0;
+  private fps: number = 0;
+
   private loop = (currentTime: number) => {
     if (!this.isRunning) return;
     if (this.lastTime === 0) {
@@ -22,6 +27,14 @@ export class GameLoop {
       this.fixedUpdateIntervalCounter -= this.fixedUpdateInterval;
     }
     this.updateCallback(this.deltaTime);
+
+    this.frameCount++;
+    if (currentTime > this.lastFpsUpdateTime + 1000) {
+      this.fps = this.frameCount;
+      this.frameCount = 0;
+      this.lastFpsUpdateTime = currentTime;
+    }
+
     requestAnimationFrame(this.loop);
   };
 
@@ -29,11 +42,16 @@ export class GameLoop {
     this.updateCallback = update;
     this.fixedUpdateCallback = fixedUpdate;
     this.isRunning = true;
-    this.lastTime = 0;
+    this.lastTime = performance.now();
+    this.lastFpsUpdateTime = this.lastTime;
     requestAnimationFrame(this.loop);
   }
 
   stop() {
     this.isRunning = false;
+  }
+
+  public getFps(): number {
+    return this.fps;
   }
 }

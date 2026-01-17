@@ -17,7 +17,14 @@ async function twglBoxControlledExample() {
   let twglImport = await import('./examples/twgl/main-box');
   twglImport.default.start();
 }
+
+async function twglStressTestExample() {
+  let twglImport = await import('./examples/twgl/stress-test');
+  twglImport.default.start();
+}
+
 //await simpleCanvasExample();
 //await simplePlayerExample();
 //await twglControlledExample();
-await twglBoxControlledExample();
+//await twglBoxControlledExample();
+await twglStressTestExample();

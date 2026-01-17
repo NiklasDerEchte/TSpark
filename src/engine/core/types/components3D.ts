@@ -9,10 +9,8 @@ export class Vector3 implements Component<VectorStructure> {
   y: number = 0;
   z: number = 0;
 
-  constructor(x?: number, y?: number, z?: number) {
-    this.x = x ?? 0;
-    this.y = y ?? 0;
-    this.z = z ?? 0;
+  constructor(props?: Properties<Vector3>) {
+    assignProps(this, props);
   }
 
   toArray(): number[] {
@@ -20,57 +18,15 @@ export class Vector3 implements Component<VectorStructure> {
   }
 }
 
-export class Position3 implements Component<VectorStructure> {
-  x: number = 0;
-  y: number = 0;
-  z: number = 0;
+export class Position3 extends Vector3 {}
 
-  constructor(x?: number, y?: number, z?: number) {
-    this.x = x ?? 0;
-    this.y = y ?? 0;
-    this.z = z ?? 0;
-  }
+export class Rotation3 extends Vector3 {}
 
-  toArray(): number[] {
-    return [this.x, this.y, this.z];
-  }
-}
+export class Scale3 extends Vector3 {}
 
-export class Rotation3 implements Component<VectorStructure> {
-  x: number = 0;
-  y: number = 0;
-  z: number = 0;
-
-  constructor(x?: number, y?: number, z?: number) {
-    this.x = x ?? 0;
-    this.y = y ?? 0;
-    this.z = z ?? 0;
-  }
-
-  toArray(): number[] {
-    return [this.x, this.y, this.z];
-  }
-}
-
-export class Scale3 implements Component<VectorStructure> {
-  x: number = 0;
-  y: number = 0;
-  z: number = 0;
-
-  constructor(x?: number, y?: number, z?: number) {
-    this.x = x ?? 0;
-    this.y = y ?? 0;
-    this.z = z ?? 0;
-  }
-
-  toArray(): number[] {
-    return [this.x, this.y, this.z];
-  }
-}
-
-export class Transform3 implements Component<{ position: Position3; rotation?: Rotation3; scale?: Scale3 }> {
+export class Transform3 implements Component<{ position: Position3; rotation: Rotation3; scale?: Scale3 }> {
   position: Position3 = new Position3();
-  rotation?: Rotation3 | undefined;
+  rotation: Rotation3 = new Rotation3();
   scale?: Scale3 | undefined;
 }
 
@@ -81,13 +37,13 @@ export class Velocity3 implements Component<VectorStructure> {
 }
 
 export const Vector3Defaults = {
-  Zero: new Position3(0, 0, 0),
-  Left: new Position3(-1, 0, 0),
-  Right: new Position3(1, 0, 0),
-  Up: new Position3(0, 1, 0),
-  Down: new Position3(0, -1, 0),
-  Front: new Position3(0, 0, 1),
-  Back: new Position3(0, 0, -1),
+  Zero: new Position3({x: 0, y: 0, z: 0}),
+  Left: new Position3({x: -1, y: 0, z: 0}),
+  Right: new Position3({x: 1, y: 0, z: 0}),
+  Up: new Position3({x: 0, y: 1, z: 0}),
+  Down: new Position3({x: 0, y: -1, z: 0}),
+  Front: new Position3({x: 0, y: 0, z: 1}),
+  Back: new Position3({x: 0, y: 0, z: -1}),
 } as const;
 
 export class Camera3
@@ -111,7 +67,7 @@ export class Camera3
   rotation: Rotation3 = new Rotation3();
   fov: number = 45;
   near: number = 0.1;
-  far: number = 100;
+  far: number = 100; // max view distance
 }
 
 // export class Sphere implements Component<Transform3> {
@@ -197,7 +153,7 @@ export class RenderItem3
 export class Box3 implements Component<Transform3 & { renderItem: RenderItem3 }> {
   renderItem: RenderItem3 = new RenderItem3();
   position: Position3 = new Position3();
-  rotation?: Rotation3 | undefined;
+  rotation: Rotation3 = new Rotation3();
   scale?: Scale3 | undefined;
 
   constructor(onReady: () => void = () => {}, props?: Properties<Box3>) {

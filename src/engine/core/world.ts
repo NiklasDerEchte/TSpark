@@ -1,8 +1,6 @@
 import { generateUniqueId } from '..';
-import type { Component, Entity, SceneDefaultComponents, SceneDefaultSystems, System } from './types/index';
+import type { Component, Entity, System } from './types/index';
 import { ComponentStore } from './component-store';
-import { defaultComponents } from './scene-defaults/components';
-import { defaultSystems } from './scene-defaults/systems';
 
 export class World {
   private scenes: Map<string, Scene> = new Map<string, Scene>();
@@ -80,31 +78,6 @@ export class Scene {
 
   constructor(name: string) {
     this.name = name;
-    // init defaults
-    this.initComponents();
-    this.initSystems();
-  }
-
-  private initComponents() {
-    for (const entry of defaultComponents as Array<SceneDefaultComponents>) {
-      const instance = new entry.component();
-      this.registerComponent({
-        key: entry.key,
-        component: instance,
-      });
-    }
-  }
-
-  private initSystems() {
-    for (const entry of defaultSystems as Array<SceneDefaultSystems>) {
-      const instance = new entry.system();
-      const mode = entry.options?.mode ?? 'normal';
-      this.registerSystem({
-        key: entry.key,
-        system: instance,
-        mode: mode,
-      });
-    }
   }
 
   /**
@@ -154,6 +127,12 @@ export class Scene {
   }
 
   getComponentStore<T extends Component<any>>(key: string): ComponentStore<T> {
+    if (!this.componentStores.has(key)) {
+      this.registerComponent<T>({
+        key: key,
+        component: {} as T,
+      });
+    }
     return this.componentStores.get(key) as ComponentStore<T>;
   }
 
