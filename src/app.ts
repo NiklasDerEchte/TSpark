@@ -4,11 +4,12 @@ import { Scene, World } from './engine/core/world';
 
 export interface TSparkSetup {
   renderer: RendererBackend;
+  canvas?: HTMLCanvasElement | undefined;
+  onAsyncStart?: () => Promise<void>;
   onStart?: () => void;
   onUpdate?: () => void;
   onFixedUpdate?: () => void;
-  onDrawUpdate?: () => void;
-  canvas?: HTMLCanvasElement | undefined;
+  onDrawUpdate?: (scenes: Scene[]) => void;
 }
 
 export class TSpark {
@@ -26,18 +27,69 @@ export class TSpark {
     }
     this.setup = setup;
     this.gameLoop = new GameLoop();
-    if(this.setup.canvas) {
-      this.drawCanvas = this.setup.canvas;  
+    if (this.setup.canvas) {
+      this.drawCanvas = this.setup.canvas;
     } else {
-      this.drawCanvas = document.createElement('canvas');
+      let drawCanvas = document.getElementById('canvas');
+      if (!drawCanvas || !(drawCanvas instanceof HTMLCanvasElement)) {
+        drawCanvas = document.createElement('canvas');
+        drawCanvas.id = 'canvas';
+        document.body.appendChild(drawCanvas);
+      }
+      this.drawCanvas = drawCanvas as HTMLCanvasElement;
     }
-    document.body.appendChild(this.drawCanvas);
     TSpark.Instance = this;
     console.log('TSpark initialized');
   }
 
+  public async inject(data: { html?: string[]; css?: string[] }) {
+    if (data.css) {
+      for (const path of data.css) {
+        await this.injectCss(path);
+      }
+    }
+    if (data.html) {
+      for (const path of data.html) {
+        await this.injectHtml(path);
+      }
+    }
+  }
+
+  public async injectHtml(path: string) {
+    try {
+      const response = await fetch(path);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch HTML from ${path}: ${response.statusText}`);
+      }
+      const injectedHtml = await response.text();
+      this.getDrawCanvas().insertAdjacentHTML('beforebegin', injectedHtml);
+    } catch (error) {
+      console.error('Error injecting HTML:', error);
+    }
+  }
+
+  public async injectCss(path: string) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = path;
+    document.head.appendChild(link);
+  }
+
+  // public injectHtml(path: string) {
+  //   import injectedHtml from `${path}?raw`;
+  //   this.getDrawCanvas().insertAdjacentHTML('beforebegin', injectedHtml);
+  // }
+
+  // public injectCss(path: string) {
+  //   import `${path}`;
+  // }
+
   public getRenderer(): RendererBackend {
     return this.setup.renderer;
+  }
+
+  public getDrawCanvas(): HTMLCanvasElement {
+    return this.drawCanvas;
   }
 
   public getActiveWorld(): World {
@@ -63,11 +115,11 @@ export class TSpark {
     return this.gameLoop.getFps();
   }
 
-  public start() {
-    this.setup.renderer.init(this.drawCanvas).then(() => {
-      this.setup.onStart?.();
-      this.gameLoop.start(this.update, this.fixedUpdate);
-    });
+  public async start() {
+    await this.setup.renderer.init(this.drawCanvas);
+    await this.setup.onAsyncStart?.();
+    this.setup.onStart?.();
+    this.gameLoop.start(this.update, this.fixedUpdate);
   }
 
   public stop() {
@@ -100,6 +152,6 @@ export class TSpark {
 
   private drawUpdate() {
     this.setup.renderer.draw(this.getActiveWorld().getActiveScenes());
-    this.setup.onDrawUpdate?.();
+    this.setup.onDrawUpdate?.(this.getActiveWorld().getActiveScenes());
   }
 }

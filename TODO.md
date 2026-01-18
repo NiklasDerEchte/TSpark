@@ -15,3 +15,8 @@ https://medium.com/@lovonmahon/simple-player-input-in-unity-dots-ecs-unity-2019-
 - https://www.loc.gov/preservation/digital/formats/fdd/fdd000507.shtml
 
 - culling - nur die meshes anzeigen die im view sind
+
+UI-Text Rendern:
+- 2D SubRenderer updaten, sodass der Text verfünftig angezeigt wird
+- https://webglfundamentals.org/webgl/lessons/webgl-text-glyphs.html
+- https://webgl2fundamentals.org/webgl/lessons/webgl-text-html.html

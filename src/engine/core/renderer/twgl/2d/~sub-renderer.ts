@@ -4,6 +4,9 @@ import type { TwglRenderEnvironment } from "../environment";
 import * as twgljs from 'twgl.js';
 import * as opentype from 'opentype.js';
 
+/**
+ * @deprecated Diese Klasse ist veraltet, sie ist zwar in der Lage Text zu Zeichnen aber nur sehr hässlich. glyph-sub-renderer oder ein sdf renderer sollen diesen hier ersetzen
+ */
 export class Sub2DRenderer implements SubRendererBackend {
 
   private fontAtlas: { font: opentype.Font } | undefined;

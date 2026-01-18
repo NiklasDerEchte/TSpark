@@ -3,7 +3,7 @@ import { component2D, component3D, type Dimension, type Entity, type RendererBac
 import { Scene } from '../../world';
 import { Sub3DRenderer } from './3d/sub-renderer';
 import { setupEnvironment, type TwglRenderEnvironment } from './environment';
-import { Sub2DRenderer } from './2d/sub-renderer';
+import { SdfSub2DRenderer } from './2d/sdf-sub-renderer';
 
 export interface TwglRenderSettings {
   clearColor: { r: number; g: number; b: number; a: number };
@@ -17,7 +17,7 @@ export class TwglRenderer implements RendererBackend {
 
   private environment!: TwglRenderEnvironment;
   private sub3DRenderer!: Sub3DRenderer;
-  private sub2DRenderer!: Sub2DRenderer;
+  private sdfSub2DRenderer!: SdfSub2DRenderer;
 
   constructor(setup?: Partial<TwglRenderSettings>) {
     this.setup = {
@@ -36,9 +36,10 @@ export class TwglRenderer implements RendererBackend {
 
     this.environment = await setupEnvironment(gl);
     this.sub3DRenderer = new Sub3DRenderer(gl, this.environment);
-    this.sub2DRenderer = new Sub2DRenderer(gl, this.environment);
+    this.sdfSub2DRenderer = new SdfSub2DRenderer(gl, this.environment);
 
-    await this.sub2DRenderer.loadFont('fonts/roboto/Roboto-VariableFont_wdth,wght.ttf');
+    // TODO NEXT Irgendwie wird immer noch kein text gerendert wenn ich sdf verwende
+    await this.sdfSub2DRenderer.loadFont('fonts/arial/arial.fnt', 'fonts/arial/arial.png');
 
     console.log('[twgl] WebGL device initialized');
   }
@@ -71,7 +72,7 @@ export class TwglRenderer implements RendererBackend {
 
     this.sub3DRenderer.draw(scenes);
     this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
-    this.sub2DRenderer.draw(scenes);
+    this.sdfSub2DRenderer.draw(scenes);
     if (this.setup.enableDepthTest) {
       this.gl.enable(this.gl.DEPTH_TEST);
     }
