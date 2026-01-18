@@ -1,7 +1,6 @@
 import { TSpark } from "../../../../app";
 
 export class FPSOverlay {
-
   private fpsNode: Text | undefined;
   constructor() {}
   async init() {
@@ -13,8 +12,7 @@ export class FPSOverlay {
     this.fpsNode = document.createTextNode('');
     fpsElement?.appendChild(this.fpsNode);
   }
-  start() {}
-  update() {
+  draw() {
     if(this.fpsNode) {
       this.fpsNode.nodeValue = TSpark.Instance.getFPS().toFixed(0);
     }

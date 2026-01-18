@@ -1,9 +1,7 @@
-import { colord } from 'colord';
 import { TSpark } from '../../../../app';
 import { component2D, component3D, RotationLoopBox3System } from '../../../../engine';
 import { TwglRenderer } from '../../../../engine/core/renderer/twgl/renderer';
 import { Vector3Defaults } from '../../../../engine/core/types/components3D';
-import { Rect2D } from '../../../../engine/core/types/components2D';
 import { OrbitalCameraControlComponent, OrbitalCameraControlSystem } from '../../../../engine/features/camera/OrbitalCameraControlSystem';
 import { FPSOverlay } from './fps-overlay';
 
@@ -18,12 +16,11 @@ let tspark = new TSpark({
   },
   onStart: () => {
     tspark.getRenderer().resize({ height: 680, width: 1200 });
-    fpsOverlay.start();
     setup();
   },
-  onUpdate: () => {
-    fpsOverlay.update();
-  }
+  onDrawUpdate(scenes) {
+    fpsOverlay.draw();
+  },
 });
 
 const world = tspark.createWorld('main');
