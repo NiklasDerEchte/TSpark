@@ -1,6 +1,6 @@
-import { TSpark } from '../../../app';
-import type { System } from '../../core/types/index';
-import { Scene } from '../../core/world';
+import { TSpark } from '../../app';
+import type { System } from '../../engine/core/types/index';
+import { Scene } from '../../engine/core/world';
 
 export class KeyboardControlSystem implements System {
   scene!: Scene;
