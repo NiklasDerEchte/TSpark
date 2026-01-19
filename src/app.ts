@@ -42,7 +42,7 @@ export class TSpark {
     console.log('TSpark initialized');
   }
 
-  public async inject(data: { html?: string[]; css?: string[] }) {
+  public async inject(data: { html?: string[]; css?: string[] }): Promise<void> {
     if (data.css) {
       for (const path of data.css) {
         await this.injectCss(path);

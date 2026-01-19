@@ -1,36 +1,18 @@
-async function simpleCanvasExample() {
-  let sparkImport = await import('./examples/simple-canvas/main');
-  await sparkImport.default.start();
-}
-
 async function simplePlayerExample() {
-  let sparkImport = await import('./examples/simple-player/main');
-  await sparkImport.default.start();
+  let i = await import('./examples/simple-player/main');
+  await i.default.start();
 }
 
-async function twglControlledExample() {
-  let twglImport = await import('./examples/twgl/main');
-  await twglImport.default.start();
+async function twglUiHtmlExample() {
+  let i = await import('./examples/twgl/ui/html/main');
+  await i.default.start();
 }
 
-async function twglBoxControlledExample() {
-  let twglImport = await import('./examples/twgl/main-box');
-  await twglImport.default.start();
+async function twgl3DStressTestExample() {
+  let i = await import('./examples/twgl/3d/stress-test');
+  await i.default.start();
 }
 
-async function twglStressTestExample() {
-  let twglImport = await import('./examples/twgl/stress-test');
-  await twglImport.default.start();
-}
-
-async function twglUiHtmlTestExample() {
-  let twglImport = await import('./examples/twgl/ui/html/main');
-  await twglImport.default.start();
-}
-
-//await simpleCanvasExample();
-//await simplePlayerExample();
-//await twglControlledExample();
-//await twglBoxControlledExample();
-//await twglStressTestExample();
-await twglUiHtmlTestExample();
+// await simplePlayerExample();
+// await twglUiHtmlExample();
+await twgl3DStressTestExample();

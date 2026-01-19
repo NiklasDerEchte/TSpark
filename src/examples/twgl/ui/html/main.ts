@@ -1,25 +1,17 @@
 import { TSpark } from '../../../../app';
-import { component2D, component3D, RotationLoopBox3System } from '../../../../engine';
+import { component3D, RotationLoopBox3System } from '../../../../engine';
 import { TwglRenderer } from '../../../../engine/core/renderer/twgl/renderer';
 import { Vector3Defaults } from '../../../../engine/core/types/components3D';
-import { OrbitalCameraControlComponent, OrbitalCameraControlSystem } from '../../../../engine/features/camera/OrbitalCameraControlSystem';
-import { FPSOverlay } from './fps-overlay';
-
-let fpsOverlay = new FPSOverlay();
+import { OrbitalCameraControlComponent, OrbitalCameraControlSystem } from '../../../../engine/features/camera/orbital-camera-control-system';
+import { FPSOverlaySystem } from './fps-overlay-system';
 
 let tspark = new TSpark({
   renderer: new TwglRenderer({
     enableCullFace: false,
   }),
-  onAsyncStart: async () => {
-    await fpsOverlay.init();
-  },
   onStart: () => {
     tspark.getRenderer().resize({ height: 680, width: 1200 });
     setup();
-  },
-  onDrawUpdate(scenes) {
-    fpsOverlay.draw();
   },
 });
 
@@ -35,6 +27,11 @@ scene.registerSystem<OrbitalCameraControlSystem>({
   key: OrbitalCameraControlSystem.name,
   mode: 'normal',
   system: new OrbitalCameraControlSystem(),
+});
+scene.registerSystem<FPSOverlaySystem>({
+  key: FPSOverlaySystem.name,
+  mode: 'normal',
+  system: new FPSOverlaySystem(),
 });
 
 let mainCameraEntity = scene.createEntity();

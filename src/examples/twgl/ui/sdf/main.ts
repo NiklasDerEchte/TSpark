@@ -4,7 +4,9 @@ import { component2D, component3D, RotationLoopBox3System } from '../../../../en
 import { TwglRenderer } from '../../../../engine/core/renderer/twgl/renderer';
 import { Vector3Defaults } from '../../../../engine/core/types/components3D';
 import { Rect2D } from '../../../../engine/core/types/components2D';
-import { OrbitalCameraControlComponent, OrbitalCameraControlSystem } from '../../../../engine/features/camera/OrbitalCameraControlSystem';
+import { OrbitalCameraControlComponent, OrbitalCameraControlSystem } from '../../../../engine/features/camera/orbital-camera-control-system';
+
+// TODO Die Renderer für dieses Beispiel funktionieren noch nicht ganz
 
 let tspark = new TSpark({
   renderer: new TwglRenderer({
