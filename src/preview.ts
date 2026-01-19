@@ -13,6 +13,6 @@ async function twgl3DStressTestExample() {
   await i.default.start();
 }
 
-// await simplePlayerExample();
-await twglUiHtmlExample();
+await simplePlayerExample();
+// await twglUiHtmlExample();
 // await twgl3DStressTestExample();

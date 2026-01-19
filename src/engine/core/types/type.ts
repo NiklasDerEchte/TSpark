@@ -6,7 +6,7 @@ export type Dimension = {width: number, height: number};
 export interface System {
   init(scene: Scene): void;
   exec(deltaTimeMs: number): void;
-  destroy(): void;
+  destroy(): void; // TODO Werden nur bei einem Scenen Wechsel aufgerufen und nicht am ende des programms, hier eventuell destroy() exit() einführen
 }
 
 export interface RendererBackend {

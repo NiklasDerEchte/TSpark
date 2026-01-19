@@ -19,6 +19,7 @@ export class TSpark {
   private drawCanvas!: HTMLCanvasElement;
   private worlds: Map<string, World> = new Map<string, World>();
   private activeWorldIndex: string = '';
+  private pressedKeys: Map<string, boolean> = new Map();
 
   constructor(setup: TSparkSetup) {
     if (TSpark.Instance) {
@@ -53,6 +54,14 @@ export class TSpark {
         await this.injectHtml(path);
       }
     }
+  }
+
+  public isKeyPressed(code: string): boolean {
+    let k = this.pressedKeys.get(code);
+    if (!k) {
+      return false;
+    }
+    return k;
   }
 
   public async injectHtml(path: string) {
@@ -116,6 +125,8 @@ export class TSpark {
   }
 
   public async start() {
+    window.addEventListener('keydown', this.onKeyDown);
+    window.addEventListener('keyup', this.onKeyUp);
     await this.setup.renderer.init(this.drawCanvas);
     await this.setup.onAsyncStart?.();
     this.setup.onStart?.();
@@ -123,6 +134,8 @@ export class TSpark {
   }
 
   public stop() {
+    window.removeEventListener('keydown', this.onKeyDown);
+    window.removeEventListener('keyup', this.onKeyUp);
     this.gameLoop.stop();
     this.setup.renderer.destroy();
   }
@@ -154,4 +167,12 @@ export class TSpark {
     this.setup.renderer.draw(this.getActiveWorld().getActiveScenes());
     this.setup.onDrawUpdate?.(this.getActiveWorld().getActiveScenes());
   }
+
+  private onKeyDown = (event: KeyboardEvent) => {
+    this.pressedKeys.set(event.code, true);
+  };
+
+  private onKeyUp = (event: KeyboardEvent) => {
+    this.pressedKeys.set(event.code, false);
+  };
 }

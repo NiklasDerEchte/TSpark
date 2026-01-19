@@ -1,4 +1,5 @@
-import { assignProps, component3D, type Component, type Entity, type Properties, type System } from '../../core/types/index';
+import { assignProps } from '../../core';
+import { component3D, type Component, type Entity, type Properties, type System } from '../../core/types/index';
 import { Scene } from '../../core/world';
 
 export interface IOrbitalCameraControlSystem {

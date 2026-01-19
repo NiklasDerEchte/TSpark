@@ -136,7 +136,7 @@ export class Scene {
     return this.componentStores.get(key) as ComponentStore<T>;
   }
 
-  registerSystem<T extends System>({ key = undefined, system, mode = 'normal' }: { key?: string | undefined; system: T; mode: 'normal' | 'fixed' }) {
+  registerSystem<T extends System>({ key = undefined, system, mode = 'normal' }: { key?: string | undefined; system: T; mode?: 'normal' | 'fixed' }) {
     if (system == null) {
       throw new Error('System is null or undefined');
     }

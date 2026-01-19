@@ -1,5 +1,6 @@
+import { assignProps } from '../../core';
 import { Rotation3 } from '../../core/types/components3D';
-import { assignProps, component3D, type Component, type Properties, type System } from '../../core/types/index';
+import { component3D, type Component, type Properties, type System } from '../../core/types/index';
 import { Scene } from '../../core/world';
 
 export class RotationLoop

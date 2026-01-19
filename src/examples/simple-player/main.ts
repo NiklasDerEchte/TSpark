@@ -1,13 +1,21 @@
-import { Canvas2DRenderer } from '../../engine/core/renderer/canvas2d/renderer';
 import { TSpark } from '../../app';
+import { KeyboardControlSystem, TwglRenderer } from '../../engine';
 
 let tspark = new TSpark({
-  renderer: new Canvas2DRenderer(),
+  renderer: new TwglRenderer({
+    enableCullFace: false,
+  }),
+  onStart: () => {
+    tspark.getRenderer().resize({ height: 680, width: 1200 });
+  },
 });
 
 const world = tspark.createWorld('main');
 const scene = world.createScene('scene1');
 
-// TODO ...
+scene.registerSystem<KeyboardControlSystem>({
+  key: KeyboardControlSystem.name,
+  system: new KeyboardControlSystem(),
+});
 
 export default tspark;
