@@ -1,9 +1,9 @@
 import { colord } from 'colord';
-import { TSpark } from '../../app';
-import { component2D, component3D, RotationLoop, RotationLoopBox3System } from '../../engine';
-import { TwglRenderer } from '../../engine/core/renderer/twgl/renderer';
-import { Vector3Defaults } from '../../engine/core/types/components3D';
-import { Rect2D } from '../../engine/core/types/components2D';
+import { TSpark } from '../../../app';
+import { component2D, component3D, RotationLoop, RotationLoopBox3System } from '../../../engine';
+import { TwglRenderer } from '../../../engine/core/renderer/twgl/renderer';
+import { Vector3Defaults } from '../../../engine/core/types/components3D';
+import { Rect2D } from '../../../engine/core/types/components2D';
 
 let tspark = new TSpark({
   renderer: new TwglRenderer({

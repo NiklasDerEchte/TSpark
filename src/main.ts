@@ -14,5 +14,5 @@ async function twgl3DStressTestExample() {
 }
 
 // await simplePlayerExample();
-// await twglUiHtmlExample();
-await twgl3DStressTestExample();
+await twglUiHtmlExample();
+// await twgl3DStressTestExample();
