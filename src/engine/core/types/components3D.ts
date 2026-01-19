@@ -1,6 +1,8 @@
 import { colord, type Colord } from 'colord';
 import type { Component, Properties, SceneObject } from './type';
-import { assignProps, objFileToRenderItem } from './utils';
+import { assignProps } from '../utils/common';
+import { objFileToRenderItem } from '../utils/io';
+
 
 type VectorStructure = { x: number; y: number; z: number };
 

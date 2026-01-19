@@ -1,6 +1,6 @@
-import { generateUniqueId } from '..';
 import type { Component, Entity, System } from './types/index';
 import { ComponentStore } from './component-store';
+import { generateUniqueId } from './utils/index';
 
 export class World {
   private scenes: Map<string, Scene> = new Map<string, Scene>();

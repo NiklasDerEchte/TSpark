@@ -1,8 +1,9 @@
-import { component3D, degreeToRadians, type Entity, type SubRendererBackend } from "../../../types";
+import { component3D, type Entity, type SubRendererBackend } from "../../../types";
 import type { RenderItem3 } from "../../../types/components3D";
 import type { Scene } from "../../../world";
 import * as twgljs from 'twgl.js';
 import type { TwglRenderEnvironment } from "../environment";
+import { degreeToRadians } from "../../../utils/common";
 
 const XYZ = 3;
 const UV = 2;
