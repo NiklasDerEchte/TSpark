@@ -22,8 +22,8 @@ export class TSpark {
   private gameLoop!: GameLoop;
   private drawCanvas!: HTMLCanvasElement;
   private worlds: Map<string, World> = new Map<string, World>();
-  private activeWorldIndex: string = '';
   private pressedKeys: Map<string, boolean> = new Map();
+  private activeWorldIndex: string = '';
 
   /**
    * TSpark Constructor
@@ -176,9 +176,9 @@ export class TSpark {
     window.addEventListener('keyup', this.onKeyUp);
     await this.setup.renderer.init(this.drawCanvas);
     await this.setup.onAsyncStart?.();
-    if(this.setup.size) {
+    if (this.setup.size) {
       this.setup.renderer.resize(this.setup.size);
-      console.log("Resize!");
+      console.log('Resize!');
     }
     this.setup.onStart?.();
     this.gameLoop.start(this.update, this.fixedUpdate);

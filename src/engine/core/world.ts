@@ -7,6 +7,11 @@ export class World {
   private activeSceneIndexes: string[] = [];
   constructor() {}
 
+  /**
+   * creates a new scene in the world
+   * @param name 
+   * @returns {Scene} the created scene
+   */
   createScene(name: string): Scene {
     if (this.scenes.size == 0 && this.activeSceneIndexes.length == 0) {
       this.activeSceneIndexes.push(name);
@@ -16,6 +21,11 @@ export class World {
     return scene;
   }
 
+  /**
+   * removes a scene from the world
+   * @param name the name of the scene to remove
+   * @returns {boolean} true if the scene was removed, false otherwise
+   */
   removeScene(name: string): boolean {
     if (this.activeSceneIndexes.includes(name)) {
       this.activeSceneIndexes = this.activeSceneIndexes.filter((n) => n !== name);
@@ -35,6 +45,10 @@ export class World {
     return false;
   }
 
+  /**
+   * gets all active scenes in the world
+   * @returns {Scene[]}
+   */
   getActiveScenes(): Scene[] {
     let activeScenes: Scene[] = [];
     this.activeSceneIndexes.forEach((key: string) => {
@@ -46,6 +60,11 @@ export class World {
     return activeScenes;
   }
 
+  /**
+   * gets a scene by its key
+   * @param key the key of the scene
+   * @returns {Scene | false}
+   */
   getScene(key: string): Scene | false {
     if (this.scenes.has(key)) {
       return this.scenes.get(key) as Scene;
@@ -54,12 +73,20 @@ export class World {
     }
   }
 
+  /**
+   * activates a scene by its name
+   * @param name the name of the scene to activate
+   */
   activateScene(name: string) {
     if (this.scenes.has(name) && !this.activeSceneIndexes.includes(name)) {
       this.activeSceneIndexes.push(name);
     }
   }
 
+  /**
+   * deactivates a scene by its name
+   * @param name the name of the scene to deactivate
+   */
   deactivateScene(name: string) {
     if (this.activeSceneIndexes.includes(name)) {
       this.activeSceneIndexes = this.activeSceneIndexes.filter((n) => n !== name);
@@ -73,7 +100,6 @@ export class Scene {
   private systems: Map<string, System> = new Map();
   private fixedSystems: Map<string, System> = new Map();
   private componentStores: Map<string, ComponentStore<Component<any>>> = new Map();
-
   private activeCameraEntity: Entity | undefined = undefined;
 
   constructor(name: string) {
@@ -92,10 +118,18 @@ export class Scene {
     }
   }
 
+  /**
+   * gets the active camera entity
+   * @returns {Entity | undefined}
+   */
   public getActiveCameraEntity(): Entity | undefined {
     return this.activeCameraEntity;
   }
 
+  /**
+   * creates a new entity in the scene
+   * @returns {Entity} the created entity
+   */
   public createEntity(): Entity {
     let entity = '';
     do {
@@ -105,10 +139,19 @@ export class Scene {
     return entity;
   }
 
+  /**
+   * gets the name of the scene
+   * @returns {string} the name of the scene
+   */
   public getName(): string {
     return this.name;
   }
 
+  /**
+   * registers a component store in the scene
+   * @param param0 
+   * @returns {string} the key of the registered component store
+   */
   registerComponent<T extends Component<any>>({ key = undefined, component }: { key?: string | undefined; component: T }): string {
     if (component == null) {
       throw new Error('Component is null or undefined');
@@ -126,6 +169,11 @@ export class Scene {
     return key;
   }
 
+  /**
+   * gets a component store by its key
+   * @param key the key of the component store
+   * @returns {ComponentStore<T>}
+   */
   getComponentStore<T extends Component<any>>(key: string): ComponentStore<T> {
     if (!this.componentStores.has(key)) {
       this.registerComponent<T>({
@@ -136,6 +184,10 @@ export class Scene {
     return this.componentStores.get(key) as ComponentStore<T>;
   }
 
+  /**
+   * registers a system in the scene
+   * @param param0 
+   */
   registerSystem<T extends System>({ key = undefined, system, mode = 'normal' }: { key?: string | undefined; system: T; mode?: 'normal' | 'fixed' }) {
     if (system == null) {
       throw new Error('System is null or undefined');
@@ -160,6 +212,11 @@ export class Scene {
     system.init(this);
   }
 
+  /**
+   * removes a system from the scene
+   * @param key the key of the system to remove
+   * @returns {boolean} true if the system was removed, false otherwise
+   */
   removeSystem(key: string): boolean {
     let system: System;
     if (this.systems.has(key)) {
@@ -175,6 +232,11 @@ export class Scene {
     }
   }
 
+  /**
+   * gets a system by its key
+   * @param key the key of the system
+   * @returns {T | false} the system or false if not found
+   */
   getSystem<T extends System>(key: string): T | false {
     if (this.systems.has(key)) {
       return this.systems.get(key) as T;
@@ -185,6 +247,11 @@ export class Scene {
     }
   }
 
+  /**
+   * gets all systems in the scene
+   * @param mode the mode of the systems to get
+   * @returns {System[]}
+   */
   getSystems(mode: 'normal' | 'fixed' = 'normal'): System[] {
     if (mode == 'normal') {
       return Array.from(this.systems.values());
