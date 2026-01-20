@@ -18,17 +18,17 @@ let tspark = new TSpark({
 const world = tspark.createWorld('main');
 const scene = world.createScene('scene1');
 
-scene.registerSystem<RotationLoopBox3System>({
+world.registerSystem<RotationLoopBox3System>({
   key: RotationLoopBox3System.name,
   mode: 'normal',
   system: new RotationLoopBox3System(),
 });
-scene.registerSystem<OrbitalCameraControlSystem>({
+world.registerSystem<OrbitalCameraControlSystem>({
   key: OrbitalCameraControlSystem.name,
   mode: 'normal',
   system: new OrbitalCameraControlSystem(),
 });
-scene.registerSystem<FPSOverlaySystem>({
+world.registerSystem<FPSOverlaySystem>({
   key: FPSOverlaySystem.name,
   mode: 'normal',
   system: new FPSOverlaySystem(),

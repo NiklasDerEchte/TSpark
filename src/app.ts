@@ -23,7 +23,7 @@ export class TSpark {
   private drawCanvas!: HTMLCanvasElement;
   private worlds: Map<string, World> = new Map<string, World>();
   private pressedKeys: Map<string, boolean> = new Map();
-  private activeWorldIndex: string = '';
+  private activeWorldIndex: string = ''; // TODO Es dürfen mehr als nur ein World aktiv sein, hier und in den updates dafür sorgen
 
   /**
    * TSpark Constructor
@@ -199,13 +199,9 @@ export class TSpark {
    * @param deltaTimeMs number
    */
   private update = (deltaTimeMs: number) => {
-    this.getActiveWorld()
-      .getActiveScenes()
-      .forEach((scene: Scene) => {
-        scene.getSystems().forEach((system: System) => {
-          system.exec(deltaTimeMs);
-        });
-      });
+    this.getActiveWorld().getSystems().forEach((system: System) => {
+      system.exec(deltaTimeMs);
+    });
     this.setup.onUpdate?.();
     this.drawUpdate();
   };
@@ -215,13 +211,9 @@ export class TSpark {
    * @param deltaTimeMs number
    */
   private fixedUpdate = (deltaTimeMs: number) => {
-    this.getActiveWorld()
-      .getActiveScenes()
-      .forEach((scene: Scene) => {
-        scene.getSystems('fixed').forEach((system: System) => {
-          system.exec(deltaTimeMs);
-        });
-      });
+    this.getActiveWorld().getSystems('fixed').forEach((system: System) => {
+      system.exec(deltaTimeMs);
+    });
     this.setup.onFixedUpdate?.();
   };
 

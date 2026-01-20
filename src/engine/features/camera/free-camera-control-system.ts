@@ -1,7 +1,7 @@
 import { TSpark } from '../../../app';
 import { assignProps } from '../../../engine';
-import { component3D, type Component, type Properties, type System } from '../../../engine/core/types/index';
-import { Scene } from '../../../engine/core/world';
+import { component3D, type Component, type Properties, type System, type WorldQueryData } from '../../../engine/core/types/index';
+import { World } from '../../../engine/core/world';
 
 export interface IFreeCameraControlComponent {
   camera:
@@ -28,23 +28,23 @@ export class FreeCameraControlComponent implements Component<IFreeCameraControlC
 }
 
 export class FreeCameraControlSystem implements System {
-  scene!: Scene;
+  world!: World;
   character?: component3D.Position3;
   isPointerLocked: boolean = false;
 
-  init(scene: Scene): void {
-    this.scene = scene;
+  init(world: World): void {
+    this.world = world;
     document.addEventListener('mousemove', this.handleMouseMove.bind(this));
     document.addEventListener('pointerlockchange', this.onPointerLockChange);
     TSpark.Instance.getDrawCanvas().addEventListener('click', this.onClick);
   }
 
   exec(dt: number) {
-    for (let [entity, component] of this.scene.getComponentStore<FreeCameraControlComponent>(FreeCameraControlComponent.name).entries()) {
-      if (component.camera.position) {
-        this.calculatComponentPosition(dt / 1000, component);
+    this.world.query<FreeCameraControlComponent>(FreeCameraControlComponent.name, (result: WorldQueryData<FreeCameraControlComponent>) => {
+      if (result.component.camera.position) {
+        this.calculatComponentPosition(dt / 1000, result.component);
       }
-    }
+    });
   }
 
   destroy(): void {
@@ -72,15 +72,14 @@ export class FreeCameraControlSystem implements System {
    */
   handleMouseMove(event: MouseEvent) {
     if (!this.isPointerLocked) return;
-
-    for (let [entity, component] of this.scene.getComponentStore<FreeCameraControlComponent>(FreeCameraControlComponent.name).entries()) {
-      if (component.camera.rotation) {
+    this.world.query<FreeCameraControlComponent>(FreeCameraControlComponent.name, (result: WorldQueryData<FreeCameraControlComponent>) => {
+      if (result.component.camera.rotation) {
         const sensitivity = 0.002;
-        component.camera.rotation.y -= event.movementX * sensitivity;
-        component.camera.rotation.x -= event.movementY * sensitivity;
-        component.camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, component.camera.rotation.x));
+        result.component.camera.rotation.y -= event.movementX * sensitivity;
+        result.component.camera.rotation.x -= event.movementY * sensitivity;
+        result.component.camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, result.component.camera.rotation.x));
       }
-    }
+    });
   }
 
   /**

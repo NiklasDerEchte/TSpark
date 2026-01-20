@@ -1,12 +1,18 @@
-import type { Scene } from "../world";
+import type { Scene, World } from "../world";
 
 export type Entity = string;
 export type Dimension = {width: number, height: number};
 
+export interface WorldQueryData<T> {
+  scene: Scene;
+  entity: Entity;
+  component: T;
+}
+
 export interface System {
-  init(scene: Scene): void;
+  init(world: World): void;
   exec(deltaTimeMs: number): void;
-  destroy(): void; // TODO Werden nur bei einem Scenen Wechsel aufgerufen und nicht am ende des programms, hier eventuell destroy() exit() einführen
+  destroy(): void; // TODO Werden nur beim entfernen aufgerufen, hier eventuell auch destroy() und exit() einführen
 }
 
 export interface RendererBackend {

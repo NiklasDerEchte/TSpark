@@ -1,11 +1,11 @@
 import { TSpark } from '../../../../app';
-import type { Scene, System } from '../../../../engine';
+import type { System, World } from '../../../../engine';
 
 export class FPSOverlaySystem implements System {
   private fpsNode: Text | undefined;
-  scene!: Scene;
-  init(scene: Scene): void {
-    this.scene = scene;
+  world!: World;
+  init(world: World): void {
+    this.world = world;
     TSpark.Instance.inject({
       html: ['ui/fps-overlay/overlay.html'],
       css: ['ui/fps-overlay/overlay.css'],

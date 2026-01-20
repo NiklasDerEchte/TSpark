@@ -1,15 +1,18 @@
-import type { Component, Entity, System } from './types/index';
+import type { Component, Entity, System, WorldQueryData } from './types/index';
 import { ComponentStore } from './component-store';
 import { generateUniqueId } from './utils/index';
 
 export class World {
   private scenes: Map<string, Scene> = new Map<string, Scene>();
   private activeSceneIndexes: string[] = [];
+  private systems: Map<string, System> = new Map();
+  private fixedSystems: Map<string, System> = new Map();
+
   constructor() {}
 
   /**
    * creates a new scene in the world
-   * @param name 
+   * @param name
    * @returns {Scene} the created scene
    */
   createScene(name: string): Scene {
@@ -30,16 +33,7 @@ export class World {
     if (this.activeSceneIndexes.includes(name)) {
       this.activeSceneIndexes = this.activeSceneIndexes.filter((n) => n !== name);
     }
-    if (this.scenes.has(name)){
-      let scene = this.scenes.get(name);
-      if(scene) {
-        scene.getSystems('normal').forEach((system: System) => {
-          system.destroy();
-        });
-        scene.getSystems('fixed').forEach((system: System) => {
-          system.destroy();
-        });
-      }
+    if (this.scenes.has(name)) {
       return this.scenes.delete(name);
     }
     return false;
@@ -92,13 +86,122 @@ export class World {
       this.activeSceneIndexes = this.activeSceneIndexes.filter((n) => n !== name);
     }
   }
+
+  /**
+   * registers a system in the world scope
+   * @param param0
+   */
+  registerSystem<T extends System>({ key = undefined, system, mode = 'normal' }: { key?: string | undefined; system: T; mode?: 'normal' | 'fixed' }) {
+    if (system == null) {
+      throw new Error('System is null or undefined');
+    }
+    if (!(typeof system === 'object' && system.constructor)) {
+      throw new Error('System must be a class instance');
+    }
+    if (key == undefined) {
+      key = system.constructor.name;
+    }
+    if (mode == 'normal') {
+      if (this.systems.has(key)) {
+        throw new Error(`System with key "${key}" is already registered`);
+      }
+      this.systems.set(key, system);
+    } else if (mode == 'fixed') {
+      if (this.fixedSystems.has(key)) {
+        throw new Error(`FixedSystem with key "${key}" is already registered`);
+      }
+      this.fixedSystems.set(key, system);
+    }
+    system.init(this);
+  }
+
+  /**
+   * removes a system from the world
+   * @param key the key of the system to remove
+   * @returns {boolean} true if the system was removed, false otherwise
+   */
+  removeSystem(key: string): boolean {
+    let system: System;
+    if (this.systems.has(key)) {
+      system = this.systems.get(key) as System;
+      system.destroy();
+      return this.systems.delete(key);
+    } else if (this.fixedSystems.has(key)) {
+      system = this.fixedSystems.get(key) as System;
+      system.destroy();
+      return this.fixedSystems.delete(key);
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * gets a system by its key
+   * @param key the key of the system
+   * @returns {T | false} the system or false if not found
+   */
+  getSystem<T extends System>(key: string): T | false {
+    if (this.systems.has(key)) {
+      return this.systems.get(key) as T;
+    } else if (this.fixedSystems.has(key)) {
+      return this.fixedSystems.get(key) as T;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * gets all systems in the world
+   * @param mode the mode of the systems to get
+   * @returns {System[]}
+   */
+  getSystems(mode: 'normal' | 'fixed' = 'normal'): System[] {
+    if (mode == 'normal') {
+      return Array.from(this.systems.values());
+    } else if (mode == 'fixed') {
+      return Array.from(this.fixedSystems.values());
+    }
+    return [];
+  }
+
+  /**
+   * queries all active scenes for components of a specific type
+   * @param key the component key
+   * @param func the function to execute for each component found
+   */
+  query<T extends Component<any>>(key: string, func: (result: WorldQueryData<T>) => void): void {
+    this.activeSceneIndexes.forEach((index: string) => {
+      let scene = this.scenes.get(index);
+      if (scene) {
+        for (let [entity, component] of scene.getComponentStore<T>(key).entries()) {
+          func({ scene: scene, entity: entity, component: component });
+        }
+      }
+    });
+  }
+
+  /**
+   * queries a specific entity for a component of a specific type
+   * @param key 
+   * @param entity 
+   * @param func 
+   */
+  queryOne<T extends Component<any>>(key: string, entity: Entity, func: (result: WorldQueryData<T>) => void): void {
+    this.activeSceneIndexes.forEach((index: string) => {
+      let scene = this.scenes.get(index);
+      if (scene) {
+        let component = scene.getComponentStore<T>(key).get(entity);
+        if(component) {
+          func({ scene: scene, entity: entity, component: component });
+        }
+      }
+    });
+  }
 }
 
 export class Scene {
   private name: string;
   private entities: Entity[] = [];
-  private systems: Map<string, System> = new Map(); //TODO das hier sollte vielleicht auch in world
-  private fixedSystems: Map<string, System> = new Map(); //TODO das hier sollte vielleicht auch in world
   private componentStores: Map<string, ComponentStore<Component<any>>> = new Map();
   private activeCameraEntity: Entity | undefined = undefined;
 
@@ -182,82 +285,5 @@ export class Scene {
       });
     }
     return this.componentStores.get(key) as ComponentStore<T>;
-  }
-
-  /**
-   * registers a system in the scene
-   * @param param0
-   */
-  registerSystem<T extends System>({ key = undefined, system, mode = 'normal' }: { key?: string | undefined; system: T; mode?: 'normal' | 'fixed' }) {
-    if (system == null) {
-      throw new Error('System is null or undefined');
-    }
-    if (!(typeof system === 'object' && system.constructor)) {
-      throw new Error('System must be a class instance');
-    }
-    if (key == undefined) {
-      key = system.constructor.name;
-    }
-    if (mode == 'normal') {
-      if (this.systems.has(key)) {
-        throw new Error(`System with key "${key}" is already registered`);
-      }
-      this.systems.set(key, system);
-    } else if (mode == 'fixed') {
-      if (this.fixedSystems.has(key)) {
-        throw new Error(`FixedSystem with key "${key}" is already registered`);
-      }
-      this.fixedSystems.set(key, system);
-    }
-    system.init(this);
-  }
-
-  /**
-   * removes a system from the scene
-   * @param key the key of the system to remove
-   * @returns {boolean} true if the system was removed, false otherwise
-   */
-  removeSystem(key: string): boolean {
-    let system: System;
-    if (this.systems.has(key)) {
-      system = this.systems.get(key) as System;
-      system.destroy();
-      return this.systems.delete(key);
-    } else if (this.fixedSystems.has(key)) {
-      system = this.fixedSystems.get(key) as System;
-      system.destroy();
-      return this.fixedSystems.delete(key);
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * gets a system by its key
-   * @param key the key of the system
-   * @returns {T | false} the system or false if not found
-   */
-  getSystem<T extends System>(key: string): T | false {
-    if (this.systems.has(key)) {
-      return this.systems.get(key) as T;
-    } else if (this.fixedSystems.has(key)) {
-      return this.fixedSystems.get(key) as T;
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * gets all systems in the scene
-   * @param mode the mode of the systems to get
-   * @returns {System[]}
-   */
-  getSystems(mode: 'normal' | 'fixed' = 'normal'): System[] {
-    if (mode == 'normal') {
-      return Array.from(this.systems.values());
-    } else if (mode == 'fixed') {
-      return Array.from(this.fixedSystems.values());
-    }
-    return [];
   }
 }

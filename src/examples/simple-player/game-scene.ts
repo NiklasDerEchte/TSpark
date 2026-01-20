@@ -1,6 +1,6 @@
-import { component3D, FreeCameraControlComponent, World, type Scene } from "../../engine";
+import { component3D, FreeCameraControlComponent, RotationLoop, World, type Scene } from "../../engine";
 
-function createGameScene(world: World) {
+export function createGameScene(world: World) {
   let scene = world.createScene('game-scene');
   createFreeCamera(scene);
   createBox(scene);
@@ -24,4 +24,5 @@ function createBox(scene: Scene) {
   let boxComponent = new component3D.Box3();
   boxComponent.position = new component3D.Position3();
   scene.getComponentStore<component3D.Box3>(component3D.Box3.name).add(boxEntity, boxComponent);
+  scene.getComponentStore<RotationLoop>(RotationLoop.name).add(boxEntity, {rotation: new component3D.Rotation3({x: 1})});
 }
