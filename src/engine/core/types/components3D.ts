@@ -38,6 +38,22 @@ export class Velocity3 implements Component<VectorStructure> {
   z: number = 0;
 }
 
+/**
+ * A collection of constant, read-only `Position3` vectors representing common directions.
+ *
+ * This uses a right-handed coordinate system:
+ * - +X is Right
+ * - +Y is Up
+ * - +Z is Front
+ *
+ * @example
+ * ```ts
+ * import { Vector3Defaults } from './components3D';
+ *
+ * const startingPosition = Vector3Defaults.Zero;
+ * const moveDirection = Vector3Defaults.Right;
+ * ```
+ */
 export const Vector3Defaults = {
   Zero: new Position3({x: 0, y: 0, z: 0}),
   Left: new Position3({x: -1, y: 0, z: 0}),
