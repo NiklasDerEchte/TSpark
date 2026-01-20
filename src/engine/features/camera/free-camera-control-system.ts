@@ -1,8 +1,7 @@
 import { TSpark } from '../../../app';
 import { assignProps } from '../../../engine';
-import { component3D, type Component, type Entity, type Properties, type System } from '../../../engine/core/types/index';
+import { component3D, type Component, type Properties, type System } from '../../../engine/core/types/index';
 import { Scene } from '../../../engine/core/world';
-import { Position3, Rotation3 } from '../../core/types/components3D';
 
 export interface IFreeCameraControlComponent {
   camera:

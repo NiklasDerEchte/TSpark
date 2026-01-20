@@ -1,5 +1,10 @@
 import type { Properties } from "../types";
 
+/**
+ * Generates a unique identifier.
+ * @param prefix 
+ * @returns 
+ */
 export function generateUniqueId(prefix?: string): string {
   try {
     if (typeof globalThis.crypto?.randomUUID === 'function') {
@@ -25,15 +30,20 @@ export function generateUniqueId(prefix?: string): string {
   return prefix ? `${prefix}-${id}` : id;
 }
 
+/**
+ * Converts degrees to radians.
+ * @param degree 
+ * @returns 
+ */
 export function degreeToRadians(degree: number): number {
   return degree * (Math.PI / 180);
 }
 
 /**
- * Weist die Eigenschaften eines Teilobjekts einer Klasseninstanz zu.
- * Nützlich für die Initialisierung in Konstruktoren.
- * @param instance Die Klasseninstanz (this)
- * @param props Das Objekt mit den zu setzenden Eigenschaften
+ * Assigns the properties of a partial object to a class instance.
+ * Useful for initialization in constructors.
+ * @param instance The class instance (this)
+ * @param props The object with the properties to set
  */
 export function assignProps<T>(instance: T, props?: Properties<T>): void {
   if (props) {

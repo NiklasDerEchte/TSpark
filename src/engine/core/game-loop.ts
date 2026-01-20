@@ -13,6 +13,11 @@ export class GameLoop {
   private lastFpsUpdateTime: number = 0;
   private fps: number = 0;
 
+  /**
+   * The main game loop
+   * @param currentTime 
+   * @returns 
+   */
   private loop = (currentTime: number) => {
     if (!this.isRunning) return;
     if (this.lastTime === 0) {
@@ -38,6 +43,11 @@ export class GameLoop {
     requestAnimationFrame(this.loop);
   };
 
+  /**
+   * Starts the game loop
+   * @param update 
+   * @param fixedUpdate 
+   */
   start(update: (dt: number) => void, fixedUpdate: (dt: number) => void) {
     this.updateCallback = update;
     this.fixedUpdateCallback = fixedUpdate;
@@ -47,10 +57,17 @@ export class GameLoop {
     requestAnimationFrame(this.loop);
   }
 
+  /**
+   * Stops the game loop
+   */
   stop() {
     this.isRunning = false;
   }
 
+  /**
+   * Gets the current FPS
+   * @returns {number} the current FPS
+   */
   public getFps(): number {
     return this.fps;
   }

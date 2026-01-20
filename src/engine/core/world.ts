@@ -97,8 +97,8 @@ export class World {
 export class Scene {
   private name: string;
   private entities: Entity[] = [];
-  private systems: Map<string, System> = new Map();
-  private fixedSystems: Map<string, System> = new Map();
+  private systems: Map<string, System> = new Map(); //TODO das hier sollte vielleicht auch in world
+  private fixedSystems: Map<string, System> = new Map(); //TODO das hier sollte vielleicht auch in world
   private componentStores: Map<string, ComponentStore<Component<any>>> = new Map();
   private activeCameraEntity: Entity | undefined = undefined;
 
@@ -108,7 +108,7 @@ export class Scene {
 
   /**
    * tells the renderer which entity is the active camera
-   * @param camera 
+   * @param camera
    */
   public setActiveCameraEntity(camera: Entity): void {
     if (this.entities.includes(camera)) {
@@ -149,7 +149,7 @@ export class Scene {
 
   /**
    * registers a component store in the scene
-   * @param param0 
+   * @param param0
    * @returns {string} the key of the registered component store
    */
   registerComponent<T extends Component<any>>({ key = undefined, component }: { key?: string | undefined; component: T }): string {
@@ -186,7 +186,7 @@ export class Scene {
 
   /**
    * registers a system in the scene
-   * @param param0 
+   * @param param0
    */
   registerSystem<T extends System>({ key = undefined, system, mode = 'normal' }: { key?: string | undefined; system: T; mode?: 'normal' | 'fixed' }) {
     if (system == null) {

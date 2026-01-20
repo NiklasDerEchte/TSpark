@@ -1,6 +1,11 @@
 import { colord } from "colord";
 import { component3D } from "../types";
 
+/**
+ * parses a .obj file and returns a RenderItem3 object
+ * @param filePath 
+ * @returns {Promise<component3D.RenderItem3>}
+ */
 export async function objFileToRenderItem(filePath: string): Promise<component3D.RenderItem3> {
   const response = await fetch(filePath);
   const objText = await response.text();
@@ -75,6 +80,11 @@ export async function objFileToRenderItem(filePath: string): Promise<component3D
   return renderItem;
 }
 
+/**
+ * parses a .mtl file and returns a dictionary of material names to Material3 objects
+ * @param filePath 
+ * @returns {Promise<{ [name: string]: component3D.Material3 }>}
+ */
 export async function mtlFileToMaterial(filePath: string): Promise<{ [name: string]: component3D.Material3 }> {
   const response = await fetch(filePath);
   const mtlText = await response.text();
