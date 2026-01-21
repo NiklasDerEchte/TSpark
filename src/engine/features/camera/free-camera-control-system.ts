@@ -124,5 +124,11 @@ export class FreeCameraControlSystem implements System {
       component.camera.position.x += right.x * speed;
       component.camera.position.z += right.z * speed;
     }
+    if (TSpark.Instance.isKeyPressed('Space')) {
+      component.camera.position.y += speed;
+    }
+    if (TSpark.Instance.isKeyPressed('ShiftLeft')) {
+      component.camera.position.y -= speed;
+    }
   }
 }

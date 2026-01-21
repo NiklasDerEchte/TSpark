@@ -99,6 +99,7 @@ export class TSpark {
         throw new Error(`Failed to fetch HTML from ${path}: ${response.statusText}`);
       }
       const injectedHtml = await response.text();
+      //this.getDrawCanvas().insertAdjacentHTML(position, injectedHtml);
       this.getDrawCanvas().insertAdjacentHTML(position, injectedHtml);
     } catch (error) {
       console.error('Error injecting HTML:', error);
