@@ -15,15 +15,15 @@ export interface System {
   destroy(): void; // TODO Werden nur beim entfernen aufgerufen, hier eventuell auch destroy() und exit() einführen
 }
 
-export interface RendererBackend {
+export interface RendererBackend { // TODO Eventuell die möglichkeit schaffen, dynamisch SubRenderer hinzuzufügen
   init(canvas: HTMLCanvasElement): Promise<void>;
-  draw(scenes: Scene[]): void;
+  draw(scenes: Scene[]): void; // TODO Die Scenen werden hier nicht, da man über die Querys arbeiten kann und es bald mehrere Worlds gibt
   destroy(): void;
   resize(size: Dimension): void;
 }
 
 export interface SubRendererBackend {
-  draw(scenes: Scene[]): void;
+  draw(scenes: Scene[]): void; // TODO Die Scenen werden hier nicht, da man über die Querys arbeiten kann und es bald mehrere Worlds gibt
 }
 
 export type SceneObject = {id: string}

@@ -22,7 +22,7 @@ let tspark = new TSpark({
 
 const world = tspark.createWorld('main');
 const scene = world.createScene('scene1');
-scene.registerSystem<RotationLoopBox3System>({
+world.registerSystem<RotationLoopBox3System>({
   key: RotationLoopBox3System.name,
   mode: 'normal',
   system: new RotationLoopBox3System(),
