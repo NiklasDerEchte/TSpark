@@ -5,7 +5,7 @@ import { FreeCameraControlSystem } from '../../engine/features/camera/free-camer
 import { XYZOverlaySystem } from '../../engine/features/movement/xyz-overlay-system';
 import { EditorScene } from './editor-scene';
 
-let viewSize = 400 * 1.5;
+let viewSize = 400 * 1;
 
 let tspark = new TSpark({
   renderer: new DefaultRenderer({

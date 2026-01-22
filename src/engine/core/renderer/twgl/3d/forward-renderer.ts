@@ -20,6 +20,7 @@ export class Forward3DRenderLayer implements RenderLayer {
 
   async init(environment: RenderEnvironment): Promise<void> {
     this.environment = environment;
+    console.log("init");
   }
 
   destroy(): void {}
@@ -30,7 +31,6 @@ export class Forward3DRenderLayer implements RenderLayer {
     }
     worlds.forEach((world: World) => {
       world.getActiveScenes().forEach((scene: Scene) => {
-        console.log(scene.getName());
         let camera: component3D.Camera3 | undefined = undefined;
         let cameraEntity = scene.getActiveCameraEntity();
         if (cameraEntity && scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).has(cameraEntity)) {

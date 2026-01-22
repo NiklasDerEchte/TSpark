@@ -1,4 +1,5 @@
 import { component3D, FreeCameraControlComponent, RotationLoop, World, XYZOverlayComponent, type Scene } from '../../engine';
+import { Position3 } from '../../engine/core/types/components3D';
 
 export class EditorScene {
   private world: World;
@@ -28,6 +29,7 @@ export class EditorScene {
     this.scene.setActiveCameraEntity(cameraEntity);
 
     this.cameraComponent = new component3D.Camera3();
+    this.cameraComponent.position = new Position3({x: 1000000});
     this.scene.getComponentStore<FreeCameraControlComponent>(FreeCameraControlComponent.name).add(cameraEntity, {
       camera: this.cameraComponent,
     });

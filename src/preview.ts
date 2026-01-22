@@ -3,6 +3,11 @@ async function simplePlayerExample() {
   await i.default.start();
 }
 
+async function editorRendererExample() {
+  let i = await import('./examples/editor-world/main');
+  await i.default.start();
+}
+
 async function twglUiHtmlExample() {
   let i = await import('./examples/twgl/ui/html/main');
   await i.default.start();
@@ -12,7 +17,7 @@ async function twgl3DStressTestExample() {
   let i = await import('./examples/twgl/3d/stress-test');
   await i.default.start();
 }
-
-await simplePlayerExample();
+await editorRendererExample();
+// await simplePlayerExample();
 // await twglUiHtmlExample();
 // await twgl3DStressTestExample();

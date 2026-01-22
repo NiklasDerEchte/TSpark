@@ -54,6 +54,7 @@ export class TSpark {
     }
     this.gameLoop = new GameLoop();
     TSpark.Instance = this;
+    (window as any).tspark = TSpark.Instance;
     console.log('TSpark initialized');
   }
 
