@@ -1,2 +1,3 @@
 export * from './canvas2d/renderer';
-export * from './twgl/renderer';
+export * from './twgl/index';
+export * from './default-renderer'
