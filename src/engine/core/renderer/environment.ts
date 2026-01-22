@@ -1,6 +1,7 @@
 import * as twgljs from 'twgl.js';
 
-export interface TwglRenderEnvironment {
+export interface RenderEnvironment { // TODO Überarbeiten - Normalisieren oder schauen das es Generisch für alle Renderer funktionieren kann
+  gl: WebGLRenderingContext;
   shader: {
     baseColor: { vs: string; fs: string };
     texture: { vs: string; fs: string };
@@ -14,9 +15,10 @@ export interface TwglRenderEnvironment {
   sdfProgramInfo: twgljs.ProgramInfo;
 }
 
-export async function setupEnvironment(gl: WebGLRenderingContext): Promise<TwglRenderEnvironment> {
+export async function setupEnvironment(gl: WebGLRenderingContext): Promise<RenderEnvironment> {
   let shader = await getShader();
   return {
+    gl: gl,
     shader: shader,
     baseColorProgramInfo: twgljs.createProgramInfo(gl, [shader.baseColor.vs, shader.baseColor.fs]),
     textureProgramInfo: twgljs.createProgramInfo(gl, [shader.texture.vs, shader.texture.fs]),

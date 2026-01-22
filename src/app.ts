@@ -1,5 +1,6 @@
-import { TwglRenderer, type Dimension, type RendererBackend, type System } from './engine';
+import { type Dimension, type RendererBackend, type System } from './engine';
 import { GameLoop } from './engine/core/game-loop';
+import { DefaultRenderer } from './engine/core/renderer/default-renderer';
 import { Scene, World } from './engine/core/world';
 
 export interface TSparkSetup {
@@ -10,7 +11,7 @@ export interface TSparkSetup {
   onStart?: () => void;
   onUpdate?: () => void;
   onFixedUpdate?: () => void;
-  onDrawUpdate?: (scenes: Scene[]) => void;
+  onDrawUpdate?: (worlds: World[]) => void;
 }
 
 /**
@@ -36,7 +37,7 @@ export class TSpark {
       return;
     }
     let defaultSetup: TSparkSetup = {
-      renderer: new TwglRenderer(),
+      renderer: new DefaultRenderer(),
       size: { height: 640, width: 640 * (16 / 9) },
     };
     this.setup = { ...defaultSetup, ...setup };
@@ -222,8 +223,8 @@ export class TSpark {
    * Draw update function, called after update()
    */
   private drawUpdate() {
-    this.setup.renderer.draw(this.getActiveWorld().getActiveScenes());
-    this.setup.onDrawUpdate?.(this.getActiveWorld().getActiveScenes());
+    this.setup.renderer.draw([this.getActiveWorld()]); // TODO Mehrere welten müssen hier angepasst werden
+    this.setup.onDrawUpdate?.([this.getActiveWorld()]);
   }
 
   /**

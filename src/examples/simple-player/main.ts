@@ -1,5 +1,6 @@
 import { TSpark } from '../../app';
-import { RotationLoopBox3System, TwglRenderer } from '../../engine';
+import { RotationLoopBox3System } from '../../engine';
+import { DefaultRenderer } from '../../engine/core/renderer/default-renderer';
 import { FreeCameraControlOverlaySystem } from '../../engine/features/camera/free-camera-control-overlay-system';
 import { FreeCameraControlSystem } from '../../engine/features/camera/free-camera-control-system';
 import { XYZOverlaySystem } from '../../engine/features/movement/xyz-overlay-system';
@@ -8,7 +9,7 @@ import { GameScene } from './game-scene';
 let viewSize = 400 * 1.5;
 
 let tspark = new TSpark({
-  renderer: new TwglRenderer({
+  renderer: new DefaultRenderer({
     enableCullFace: false,
   }),
   size: { height: viewSize, width: viewSize * (16 / 9) },

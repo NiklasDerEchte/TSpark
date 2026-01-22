@@ -1,9 +1,6 @@
 import * as twgljs from 'twgl.js';
-import { component2D, component3D, type Dimension, type Entity, type RendererBackend } from '../../../index';
-import { Scene } from '../../world';
-import { Sub3DRenderer } from './3d/sub-renderer';
-import { setupEnvironment, type TwglRenderEnvironment } from './environment';
-import { SdfSub2DRenderer } from './2d/sdf-sub-renderer';
+import { World, type Dimension, type RendererBackend, type RenderLayer } from '../../../index';
+import { setupEnvironment, type RenderEnvironment } from '../environment';
 
 export interface TwglRenderSettings {
   clearColor: { r: number; g: number; b: number; a: number };
@@ -13,11 +10,9 @@ export interface TwglRenderSettings {
 
 export class TwglRenderer implements RendererBackend {
   private setup: TwglRenderSettings;
-  private gl!: WebGLRenderingContext;
 
-  private environment!: TwglRenderEnvironment;
-  private sub3DRenderer!: Sub3DRenderer;
-  private sdfSub2DRenderer!: SdfSub2DRenderer;
+  private environment!: RenderEnvironment;
+  private renderLayers: Map<string, RenderLayer> = new Map<string, RenderLayer>();
 
   constructor(setup?: Partial<TwglRenderSettings>) {
     this.setup = {
@@ -32,54 +27,64 @@ export class TwglRenderer implements RendererBackend {
     if (!gl) {
       throw new Error('[twgl] WebGL is not supported');
     }
-    this.gl = gl;
-
     this.environment = await setupEnvironment(gl);
-    this.sub3DRenderer = new Sub3DRenderer(gl, this.environment);
-    this.sdfSub2DRenderer = new SdfSub2DRenderer(gl, this.environment);
-
-    // TODO NEXT Irgendwie wird immer noch kein text gerendert wenn ich sdf verwende
-    await this.sdfSub2DRenderer.loadFont('fonts/arial/arial.fnt', 'fonts/arial/arial.png');
-
+    this.renderLayers.forEach(async (renderLayer: RenderLayer) => {
+      await renderLayer.init(this.environment);
+    });
     console.log('[twgl] WebGL device initialized');
   }
 
   resize(size: Dimension): void {
-    if (!this.gl) return;
-    this.gl.canvas.width = size.width;
-    this.gl.canvas.height = size.height;
-    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+    if (!this.environment?.gl) return;
+    this.environment.gl.canvas.width = size.width;
+    this.environment.gl.canvas.height = size.height;
+    this.environment.gl.viewport(0, 0, this.environment.gl.canvas.width, this.environment.gl.canvas.height);
+  }
+
+  async addRenderLayer(key: string, renderLayer: RenderLayer): Promise<void> {
+    if(this.environment) {
+      await renderLayer.init(this.environment);
+    }
+    this.renderLayers.set(key, renderLayer);
+  }
+
+  getRenderLayer(key: string): RenderLayer | undefined {
+    return this.renderLayers.get(key);
+  }
+
+  removeRenderLayer(key: string): void {
+    if (this.renderLayers.has(key)) {
+      this.renderLayers.delete(key);
+    }
   }
 
   /**
-   * this function is called every frame to draw the scenes
-   * @param scenes
+   * this function is called every frame to draw the worlds
+   * @param worlds
    * @returns
    */
-  draw(scenes: Scene[]): void {
-    if (!this.gl) return;
-
-    twgljs.resizeCanvasToDisplaySize(this.gl.canvas as HTMLCanvasElement);
-    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-    this.gl.clearColor(this.setup.clearColor.r, this.setup.clearColor.g, this.setup.clearColor.b, this.setup.clearColor.a);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+  draw(worlds: World[]): void {
+    if (!this.environment?.gl) return;
+    twgljs.resizeCanvasToDisplaySize(this.environment.gl.canvas as HTMLCanvasElement);
+    this.environment.gl.viewport(0, 0, this.environment.gl.canvas.width, this.environment.gl.canvas.height);
+    this.environment.gl.clearColor(this.setup.clearColor.r, this.setup.clearColor.g, this.setup.clearColor.b, this.setup.clearColor.a);
+    this.environment.gl.clear(this.environment.gl.COLOR_BUFFER_BIT | this.environment.gl.DEPTH_BUFFER_BIT);
     if (this.setup.enableDepthTest) {
-      this.gl.enable(this.gl.DEPTH_TEST);
+      this.environment.gl.enable(this.environment.gl.DEPTH_TEST);
     }
     if (this.setup.enableCullFace) {
-      this.gl.enable(this.gl.CULL_FACE);
+      this.environment.gl.enable(this.environment.gl.CULL_FACE);
     }
-
-    this.sub3DRenderer.draw(scenes);
-    this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
-    this.sdfSub2DRenderer.draw(scenes);
-    if (this.setup.enableDepthTest) {
-      this.gl.enable(this.gl.DEPTH_TEST);
-    }
+    this.renderLayers.forEach((renderLayer: RenderLayer) => {
+      renderLayer.draw(worlds);
+    });
   }
 
   destroy(): void {
     // twgl hat keine explizite destroy-Methode, der GC sollte das übernehmen.
     // WebGL-Kontextverlust kann hier behandelt werden, falls nötig.
+    this.renderLayers.forEach(async (renderLayer: RenderLayer) => {
+      await renderLayer.destroy();
+    });
   }
 }

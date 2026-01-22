@@ -1,8 +1,8 @@
-import { component3D, type Entity, type SubRendererBackend } from "../../../types";
+import { component3D, type Entity, type RenderLayer } from '../../../types';
 import type { RenderItem3 } from "../../../types/components3D";
-import type { Scene } from "../../../world";
+import type { Scene, World } from "../../../world";
 import * as twgljs from 'twgl.js';
-import type { TwglRenderEnvironment } from "../environment";
+import type { RenderEnvironment } from "../../environment";
 import { degreeToRadians } from "../../../utils/common";
 
 const XYZ = 3;
@@ -14,60 +14,66 @@ interface RenderCache {
   programInfo: twgljs.ProgramInfo;
 }
 
-export class Sub3DRenderer implements SubRendererBackend {
+export class Forward3DRenderLayer implements RenderLayer {
   private renderCache: Map<Entity, RenderCache> = new Map<Entity, RenderCache>();
-  private environment!: TwglRenderEnvironment;
-  private gl: WebGLRenderingContext;
+  private environment!: RenderEnvironment;
 
-  constructor(gl: WebGLRenderingContext, environment: TwglRenderEnvironment) {
-    this.gl = gl;
+  async init(environment: RenderEnvironment): Promise<void> {
     this.environment = environment;
   }
 
-  draw(scenes: Scene[]) {
-    scenes.forEach((scene: Scene) => {
-      let camera: component3D.Camera3 | undefined = undefined;
-      let cameraEntity = scene.getActiveCameraEntity();
-      if (cameraEntity && scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).has(cameraEntity)) {
-        camera = scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).get(cameraEntity);
-      }
+  destroy(): void {}
 
-      let worldViewProjection;
-      if (camera) {
-        // --- Camera-Setup ---
-        const aspect = this.gl.canvas.width / this.gl.canvas.height;
-        const projectionMatrix = twgljs.m4.perspective(degreeToRadians(camera.fov), aspect, camera.near, camera.far);
-
-        // Camera Rotation
-        let viewMatrix;
-        if (camera.target) {
-          viewMatrix = twgljs.m4.inverse(twgljs.m4.lookAt(camera.position.toArray(), camera.target.position.toArray(), camera.target.up.toArray()));
-        } else {
-          let rotation = camera.rotation;
-          let cameraMatrix = twgljs.m4.identity();
-          cameraMatrix = twgljs.m4.translate(cameraMatrix, camera.position.toArray());
-          cameraMatrix = twgljs.m4.rotateY(cameraMatrix, rotation.y);
-          cameraMatrix = twgljs.m4.rotateX(cameraMatrix, rotation.x);
-          cameraMatrix = twgljs.m4.rotateZ(cameraMatrix, rotation.z);
-          viewMatrix = twgljs.m4.inverse(cameraMatrix);
+  draw(worlds: World[]) {
+    if(!this.environment) {
+      return;
+    }
+    worlds.forEach((world: World) => {
+      world.getActiveScenes().forEach((scene: Scene) => {
+        console.log(scene.getName());
+        let camera: component3D.Camera3 | undefined = undefined;
+        let cameraEntity = scene.getActiveCameraEntity();
+        if (cameraEntity && scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).has(cameraEntity)) {
+          camera = scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name).get(cameraEntity);
         }
-        worldViewProjection = twgljs.m4.multiply(projectionMatrix, viewMatrix);
-      } else {
-        worldViewProjection = twgljs.m4.identity();
-      }
 
-      for (const [entity, renderItem] of scene.getComponentStore<component3D.RenderItem3>(component3D.RenderItem3.name).entries()) {
-        this.calculateRenderItem(entity, worldViewProjection, { renderItem: renderItem });
-      }
+        let worldViewProjection;
+        if (camera) {
+          // --- Camera-Setup ---
+          const aspect = this.environment.gl.canvas.width / this.environment.gl.canvas.height;
+          const projectionMatrix = twgljs.m4.perspective(degreeToRadians(camera.fov), aspect, camera.near, camera.far);
 
-      for (const [entity, component] of scene.getComponentStore<component3D.Box3>(component3D.Box3.name).entries()) {
-        this.calculateRenderItem(entity, worldViewProjection, {
-          renderItem: component.renderItem,
-          position: component.position,
-          rotation: component.rotation,
-          scale: component.scale,
-        });
-      }
+          // Camera Rotation
+          let viewMatrix;
+          if (camera.target) {
+            viewMatrix = twgljs.m4.inverse(twgljs.m4.lookAt(camera.position.toArray(), camera.target.position.toArray(), camera.target.up.toArray()));
+          } else {
+            let rotation = camera.rotation;
+            let cameraMatrix = twgljs.m4.identity();
+            cameraMatrix = twgljs.m4.translate(cameraMatrix, camera.position.toArray());
+            cameraMatrix = twgljs.m4.rotateY(cameraMatrix, rotation.y);
+            cameraMatrix = twgljs.m4.rotateX(cameraMatrix, rotation.x);
+            cameraMatrix = twgljs.m4.rotateZ(cameraMatrix, rotation.z);
+            viewMatrix = twgljs.m4.inverse(cameraMatrix);
+          }
+          worldViewProjection = twgljs.m4.multiply(projectionMatrix, viewMatrix);
+        } else {
+          worldViewProjection = twgljs.m4.identity();
+        }
+
+        for (const [entity, renderItem] of scene.getComponentStore<component3D.RenderItem3>(component3D.RenderItem3.name).entries()) {
+          this.calculateRenderItem(entity, worldViewProjection, { renderItem: renderItem });
+        }
+
+        for (const [entity, component] of scene.getComponentStore<component3D.Box3>(component3D.Box3.name).entries()) {
+          this.calculateRenderItem(entity, worldViewProjection, {
+            renderItem: component.renderItem,
+            position: component.position,
+            rotation: component.rotation,
+            scale: component.scale,
+          });
+        }
+      });
     });
   }
 
@@ -129,7 +135,7 @@ export class Sub3DRenderer implements SubRendererBackend {
           numComponents: UV,
           data: item.renderItem.material.uvs as number[] | Float32Array,
         };
-        pixelTexture = twgljs.createTexture(this.gl, {
+        pixelTexture = twgljs.createTexture(this.environment.gl, {
           src: item.renderItem.material.texture,
           flipY: 1, // TODO das hier muss wegen den Blender Textures gemacht werden, ansonsten 0
         });
@@ -137,7 +143,7 @@ export class Sub3DRenderer implements SubRendererBackend {
         programInfo = this.environment.baseColorProgramInfo;
       }
 
-      bufferInfo = twgljs.createBufferInfoFromArrays(this.gl, arrays);
+      bufferInfo = twgljs.createBufferInfoFromArrays(this.environment.gl, arrays);
 
       this.renderCache.set(entity, {
         buffer: bufferInfo,
@@ -146,7 +152,7 @@ export class Sub3DRenderer implements SubRendererBackend {
       });
     }
 
-    this.gl.useProgram(programInfo.program);
+    this.environment.gl.useProgram(programInfo.program);
 
     const uniforms: { [key: string]: any } = {
       u_worldViewProjection: worldViewProjection,
@@ -167,8 +173,8 @@ export class Sub3DRenderer implements SubRendererBackend {
       }
     }
 
-    twgljs.setBuffersAndAttributes(this.gl, programInfo, bufferInfo);
+    twgljs.setBuffersAndAttributes(this.environment.gl, programInfo, bufferInfo);
     twgljs.setUniforms(programInfo, uniforms);
-    twgljs.drawBufferInfo(this.gl, bufferInfo);
+    twgljs.drawBufferInfo(this.environment.gl, bufferInfo);
   }
 }
