@@ -56,6 +56,15 @@ export class EditorRenderLayer implements RenderLayer {
     // Enable blending für Transparenz
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    
+    // Depth testing anpassen für weniger Z-Fighting
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+    gl.depthMask(false); // Grid schreibt nicht in Depth-Buffer
+    
+    // Polygon Offset gegen Zittern/Z-Fighting
+    gl.enable(gl.POLYGON_OFFSET_FILL);
+    gl.polygonOffset(-1, -1);
 
     worlds.forEach((world: World) => {
       world.getActiveScenes().forEach((scene: Scene) => {
@@ -99,7 +108,7 @@ export class EditorRenderLayer implements RenderLayer {
           uProjection: projectionMatrix,
           uGridSize: this.gridSize,
           uLineWidth: 0.05,
-          uCameraPosition: camera.position.toArray(), // NEU: Kamera-Position übergeben
+          uCameraPosition: camera.position.toArray(),
         };
 
         twgljs.setBuffersAndAttributes(gl, this.environment.editorGridProgramInfo, this.gridBufferInfo);
@@ -108,6 +117,9 @@ export class EditorRenderLayer implements RenderLayer {
       });
     });
 
+    // Restore states
+    gl.disable(gl.POLYGON_OFFSET_FILL);
+    gl.depthMask(true);
     gl.disable(gl.BLEND);
   }
 }

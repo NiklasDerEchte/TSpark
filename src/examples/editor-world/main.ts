@@ -3,6 +3,7 @@ import { DefaultRenderer, RotationLoopBox3System } from '../../engine';
 import { FreeCameraControlOverlaySystem } from '../../engine/features/camera/free-camera-control-overlay-system';
 import { FreeCameraControlSystem } from '../../engine/features/camera/free-camera-control-system';
 import { XYZOverlaySystem } from '../../engine/features/movement/xyz-overlay-system';
+import { FPSOverlaySystem } from '../twgl/ui/html/fps-overlay-system';
 import { EditorScene } from './editor-scene';
 
 let viewSize = 400 * 1;
@@ -27,6 +28,10 @@ world.registerSystem<RotationLoopBox3System>({
 
 world.registerSystem<FreeCameraControlOverlaySystem>({
   system: new FreeCameraControlOverlaySystem(),
+});
+
+world.registerSystem<FPSOverlaySystem>({
+  system: new FPSOverlaySystem(),
 });
 
 world.registerSystem<XYZOverlaySystem>({
