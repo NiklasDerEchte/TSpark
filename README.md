@@ -29,3 +29,5 @@ Hier ist eine kurze Demonstration des Stress-Tests, der mehrere hundert Würfel 
 
 ![TSpark Stress Test](docs/res/stress-test-17_1.gif)
 
+![TSpark Stress Test](docs/res/editor-space_23_1.gif)
+

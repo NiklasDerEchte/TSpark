@@ -2,14 +2,12 @@
 
 precision highp float;
 
-varying vec3 vRelativePos;   // Relative Position
+varying vec3 vRelativePos;
 
 uniform float uGridSize;
 uniform float uLineWidth;
 
 void main() {
-  // WICHTIG: Nutze vRelativePos für die Grid-Berechnung!
-  // Das Grid-Pattern basiert auf der relativen Position (bleibt lokal klein)
   vec2 coord = vRelativePos.xz / uGridSize;
 
   vec2 grid = abs(fract(coord - 0.5) - 0.5) / fwidth(coord);

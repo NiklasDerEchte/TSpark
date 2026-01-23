@@ -1,5 +1,5 @@
-import { component3D, FreeCameraControlComponent, RotationLoop, World, XYZOverlayComponent, type Scene } from '../../engine';
-import { Position3 } from '../../engine/core/types/components3D';
+import { component3D, degreeToRadians, FreeCameraControlComponent, RotationLoop, World, XYZOverlayComponent, type Scene } from '../../engine';
+import { Position3, Rotation3 } from '../../engine/core/types/components3D';
 
 export class EditorScene {
   private world: World;
@@ -29,7 +29,8 @@ export class EditorScene {
     this.scene.setActiveCameraEntity(cameraEntity);
 
     this.cameraComponent = new component3D.Camera3();
-    this.cameraComponent.position = new Position3({x: 999999});
+    this.cameraComponent.position = new Position3({z: 15, y: 5});
+    this.cameraComponent.rotation = new Rotation3({ x: degreeToRadians(-16) });
     this.scene.getComponentStore<FreeCameraControlComponent>(FreeCameraControlComponent.name).add(cameraEntity, {
       camera: this.cameraComponent,
     });

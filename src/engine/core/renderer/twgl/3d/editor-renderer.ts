@@ -8,7 +8,7 @@ export class EditorRenderLayer implements RenderLayer {
   private environment!: RenderEnvironment;
   private gridBufferInfo!: twgljs.BufferInfo;
   private gridSize: number = 1.0;
-  private gridPlaneSize: number = 1000.0; // Große Plane für "unendliches" Grid
+  private gridPlaneSize: number = 1000.0;
 
   async init(environment: RenderEnvironment): Promise<void> {
     this.environment = environment;
@@ -16,14 +16,12 @@ export class EditorRenderLayer implements RenderLayer {
   }
 
   private createGridPlane(): void {
-    // Erstelle eine große horizontale Plane auf der XZ-Ebene (Y = 0)
     const halfSize = this.gridPlaneSize / 2;
 
     const arrays: twgljs.Arrays = {
       position: {
         numComponents: 3,
         data: [
-          // Zwei Dreiecke für die Plane
           -halfSize,
           0,
           -halfSize,
@@ -53,16 +51,13 @@ export class EditorRenderLayer implements RenderLayer {
 
     const gl = this.environment.gl;
 
-    // Enable blending für Transparenz
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     
-    // Depth testing anpassen für weniger Z-Fighting
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
-    gl.depthMask(false); // Grid schreibt nicht in Depth-Buffer
+    gl.depthMask(false);
     
-    // Polygon Offset gegen Zittern/Z-Fighting
     gl.enable(gl.POLYGON_OFFSET_FILL);
     gl.polygonOffset(-1, -1);
 
@@ -95,20 +90,14 @@ export class EditorRenderLayer implements RenderLayer {
           viewMatrix = twgljs.m4.inverse(cameraMatrix);
         }
 
-        // CAMERA-RELATIVE RENDERING für perfekte Präzision bei beliebigen Koordinaten
-        // Runde Kamera-Position auf Grid-Grenzen, sodass nur kleine Werte verarbeitet werden
-        const gridAlignedX = Math.floor(camera.position.x / this.gridSize) * this.gridSize;
-        const gridAlignedZ = Math.floor(camera.position.z / this.gridSize) * this.gridSize;
-        
-        // Model-Matrix: Verschiebe Grid zur grid-aligned Position (nicht zur vollen Kamera-Position!)
+        // Model-Matrix
         let modelMatrix = twgljs.m4.identity();
-        modelMatrix = twgljs.m4.translate(modelMatrix, [gridAlignedX, 0, gridAlignedZ]);
+        modelMatrix = twgljs.m4.translate(modelMatrix, [camera.position.x, 0, camera.position.z]);
         
-        // Berechne feinen Offset zwischen echter Kamera und Grid-Grenze
-        const cameraOffsetX = camera.position.x - gridAlignedX;
-        const cameraOffsetZ = camera.position.z - gridAlignedZ;
+        const cameraOffsetX = ((camera.position.x % this.gridSize) + this.gridSize) % this.gridSize;
+        const cameraOffsetZ = ((camera.position.z % this.gridSize) + this.gridSize) % this.gridSize;
 
-        // Render das Grid
+        // Render
         gl.useProgram(this.environment.editorGridProgramInfo.program);
 
         const uniforms = {

@@ -6,7 +6,7 @@ import { XYZOverlaySystem } from '../../engine/features/movement/xyz-overlay-sys
 import { FPSOverlaySystem } from '../twgl/ui/html/fps-overlay-system';
 import { EditorScene } from './editor-scene';
 
-let viewSize = 400 * 1;
+let viewSize = 400 * 1.6;
 
 let tspark = new TSpark({
   renderer: new DefaultRenderer({
