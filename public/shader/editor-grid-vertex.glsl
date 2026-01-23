@@ -2,19 +2,16 @@ attribute vec3 position;
 uniform mat4 uModel;
 uniform mat4 uView;
 uniform mat4 uProjection;
-uniform vec3 uCameraPosition;
+uniform vec3 uCameraOffset;  // Fractional offset relativ zu Grid-Cell
 
-varying vec3 vWorldPos;      // Für Grid-Berechnung
 varying vec3 vRelativePos;   // Für Präzision
 
 void main() {
+  // Berechne relative Position DIREKT (keine großen Werte!)
+  // position bleibt bei ±500, uCameraOffset bei ±0.5
+  vRelativePos = position + uCameraOffset;
+  
+  // World-Transformation für Projektion
   vec4 worldPos = uModel * vec4(position, 1.0);
-  
-  // Absolute Welt-Position für Grid-Pattern
-  vWorldPos = worldPos.xyz;
-  
-  // Relative Position für Präzision bei fract()
-  vRelativePos = worldPos.xyz - vec3(floor(uCameraPosition.x), 0.0, floor(uCameraPosition.z));
-  
   gl_Position = uProjection * uView * worldPos;
 }

@@ -29,7 +29,7 @@ export class EditorScene {
     this.scene.setActiveCameraEntity(cameraEntity);
 
     this.cameraComponent = new component3D.Camera3();
-    this.cameraComponent.position = new Position3({x: 1000000});
+    this.cameraComponent.position = new Position3({x: 999999});
     this.scene.getComponentStore<FreeCameraControlComponent>(FreeCameraControlComponent.name).add(cameraEntity, {
       camera: this.cameraComponent,
     });

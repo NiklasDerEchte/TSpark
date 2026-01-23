@@ -2,7 +2,6 @@
 
 precision highp float;
 
-varying vec3 vWorldPos;      // Absolute Position
 varying vec3 vRelativePos;   // Relative Position
 
 uniform float uGridSize;

@@ -95,9 +95,18 @@ export class EditorRenderLayer implements RenderLayer {
           viewMatrix = twgljs.m4.inverse(cameraMatrix);
         }
 
-        // Model-Matrix: Plane folgt der Kamera auf der XZ-Ebene (Y bleibt bei 0)
+        // CAMERA-RELATIVE RENDERING für perfekte Präzision bei beliebigen Koordinaten
+        // Runde Kamera-Position auf Grid-Grenzen, sodass nur kleine Werte verarbeitet werden
+        const gridAlignedX = Math.floor(camera.position.x / this.gridSize) * this.gridSize;
+        const gridAlignedZ = Math.floor(camera.position.z / this.gridSize) * this.gridSize;
+        
+        // Model-Matrix: Verschiebe Grid zur grid-aligned Position (nicht zur vollen Kamera-Position!)
         let modelMatrix = twgljs.m4.identity();
-        modelMatrix = twgljs.m4.translate(modelMatrix, [camera.position.x, 0, camera.position.z]);
+        modelMatrix = twgljs.m4.translate(modelMatrix, [gridAlignedX, 0, gridAlignedZ]);
+        
+        // Berechne feinen Offset zwischen echter Kamera und Grid-Grenze
+        const cameraOffsetX = camera.position.x - gridAlignedX;
+        const cameraOffsetZ = camera.position.z - gridAlignedZ;
 
         // Render das Grid
         gl.useProgram(this.environment.editorGridProgramInfo.program);
@@ -108,7 +117,7 @@ export class EditorRenderLayer implements RenderLayer {
           uProjection: projectionMatrix,
           uGridSize: this.gridSize,
           uLineWidth: 0.05,
-          uCameraPosition: camera.position.toArray(),
+          uCameraOffset: [cameraOffsetX, 0, cameraOffsetZ],
         };
 
         twgljs.setBuffersAndAttributes(gl, this.environment.editorGridProgramInfo, this.gridBufferInfo);
