@@ -1,9 +1,10 @@
 import * as twgljs from 'twgl.js';
 import { World, type Dimension, type RendererBackend, type RenderLayer } from '../../../index';
 import { setupEnvironment, type RenderEnvironment } from '../environment';
+import { colord, type Colord } from 'colord';
 
 export interface TwglRenderSettings {
-  clearColor: { r: number; g: number; b: number; a: number };
+  clearColor: Colord;
   enableDepthTest: boolean;
   enableCullFace: boolean;
 }
@@ -18,7 +19,7 @@ export class TwglRenderer implements RendererBackend {
     this.setup = {
       enableCullFace: setup?.enableCullFace ?? false,
       enableDepthTest: setup?.enableDepthTest ?? true,
-      clearColor: setup?.clearColor ?? { r: 0.97, g: 0.97, b: 0.97, a: 1 },
+      clearColor: setup?.clearColor ?? colord({ r: 247, g: 247, b: 247, a: 1 }),
     };
   }
 
@@ -67,7 +68,8 @@ export class TwglRenderer implements RendererBackend {
     if (!this.environment?.gl) return;
     twgljs.resizeCanvasToDisplaySize(this.environment.gl.canvas as HTMLCanvasElement);
     this.environment.gl.viewport(0, 0, this.environment.gl.canvas.width, this.environment.gl.canvas.height);
-    this.environment.gl.clearColor(this.setup.clearColor.r, this.setup.clearColor.g, this.setup.clearColor.b, this.setup.clearColor.a);
+    let clearRGBA = this.setup.clearColor.toRgb();
+    this.environment.gl.clearColor(clearRGBA.r / 255, clearRGBA.g / 255, clearRGBA.b / 255, clearRGBA.a);
     this.environment.gl.clear(this.environment.gl.COLOR_BUFFER_BIT | this.environment.gl.DEPTH_BUFFER_BIT);
     if (this.setup.enableDepthTest) {
       this.environment.gl.enable(this.environment.gl.DEPTH_TEST);

@@ -2,7 +2,7 @@ import { component3D, type Entity, type RenderLayer } from '../../../types';
 import type { RenderItem3 } from "../../../types/components3D";
 import type { Scene, World } from "../../../world";
 import * as twgljs from 'twgl.js';
-import type { RenderEnvironment } from "../../environment";
+import { createProgramInfo, type RenderEnvironment } from "../../environment";
 import { degreeToRadians } from "../../../utils/common";
 
 const XYZ = 3;
@@ -17,16 +17,20 @@ interface RenderCache {
 export class Forward3DRenderLayer implements RenderLayer {
   private renderCache: Map<Entity, RenderCache> = new Map<Entity, RenderCache>();
   private environment!: RenderEnvironment;
+  private textureProgramInfo: twgljs.ProgramInfo | undefined;
+  private baseColorProgramInfo: twgljs.ProgramInfo | undefined;
 
   async init(environment: RenderEnvironment): Promise<void> {
     this.environment = environment;
-    console.log("init");
+    this.textureProgramInfo = await createProgramInfo(this.environment, 'shader/texture-vertex.glsl', 'shader/texture-fragment.glsl');
+    this.baseColorProgramInfo = await createProgramInfo(this.environment, 'shader/base-color-vertex.glsl', 'shader/base-color-fragment.glsl');
+    console.log('init');
   }
 
   destroy(): void {}
 
   draw(worlds: World[]) {
-    if(!this.environment) {
+    if (!this.environment || !this.textureProgramInfo || !this.baseColorProgramInfo) {
       return;
     }
     worlds.forEach((world: World) => {
@@ -130,7 +134,7 @@ export class Forward3DRenderLayer implements RenderLayer {
         item.renderItem.material.texture.src &&
         item.renderItem.material.uvs.length > 0
       ) {
-        programInfo = this.environment.textureProgramInfo;
+        programInfo = this.textureProgramInfo!;
         arrays.texCoord = {
           numComponents: UV,
           data: item.renderItem.material.uvs as number[] | Float32Array,
@@ -140,7 +144,7 @@ export class Forward3DRenderLayer implements RenderLayer {
           flipY: 1, // TODO das hier muss wegen den Blender Textures gemacht werden, ansonsten 0
         });
       } else {
-        programInfo = this.environment.baseColorProgramInfo;
+        programInfo = this.baseColorProgramInfo!;
       }
 
       bufferInfo = twgljs.createBufferInfoFromArrays(this.environment.gl, arrays);
@@ -159,7 +163,7 @@ export class Forward3DRenderLayer implements RenderLayer {
       u_world: modelMatrix,
     };
 
-    if (programInfo === this.environment.textureProgramInfo) {
+    if (programInfo === this.textureProgramInfo!) {
       uniforms.u_texture = pixelTexture;
     } else {
       if (item.renderItem.material instanceof component3D.BaseColor3) {

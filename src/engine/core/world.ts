@@ -170,6 +170,7 @@ export class World {
    * @param func the function to execute for each component found
    */
   query<T extends Component<any>>(key: string, func: (result: WorldQueryData<T>) => void): void {
+    // TODO Erweitern für mehrere Componenten Transform + Velocity
     this.activeSceneIndexes.forEach((index: string) => {
       let scene = this.scenes.get(index);
       if (scene) {
@@ -199,6 +200,7 @@ export class World {
   }
 }
 
+// TODO ? Entity Archetype ?
 export class Scene {
   private name: string;
   private entities: Entity[] = [];
@@ -240,6 +242,17 @@ export class Scene {
     } while (this.entities.includes(entity));
     this.entities.push(entity);
     return entity;
+  }
+
+  /**
+   * destroys an entity in the scene
+   * @param entity 
+   */
+  public destroyEntity(entity: Entity): void {
+    this.entities = this.entities.filter((e) => e !== entity);
+    this.componentStores.forEach((store) => {
+      store.remove(entity);
+    });
   }
 
   /**
