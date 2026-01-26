@@ -11,6 +11,7 @@
 
 # 3D-Renderer:
 - culling - nur die meshes anzeigen die im view sind
+- grid shader macht bei weiten positionen faxxen, eventuell ab x oder z ± 10000 ausschalten
 
 # UI-Text Rendern:
 - 2D SubRenderer updaten, sodass der Text verfünftig angezeigt wird
