@@ -1,7 +1,7 @@
 import { component3D, type RenderLayer } from '../../../types';
 import type { Scene, World } from '../../../world';
 import * as twgljs from 'twgl.js';
-import type { RenderEnvironment } from '../../environment';
+import { createProgramInfo, type RenderEnvironment } from '../../environment';
 import { degreeToRadians } from '../../../utils/common';
 
 export class EditorRenderLayer implements RenderLayer {
@@ -9,9 +9,11 @@ export class EditorRenderLayer implements RenderLayer {
   private gridBufferInfo!: twgljs.BufferInfo;
   private gridSize: number = 1.0;
   private gridPlaneSize: number = 1000.0;
+  private programInfo: twgljs.ProgramInfo | undefined;
 
   async init(environment: RenderEnvironment): Promise<void> {
     this.environment = environment;
+    this.programInfo = await createProgramInfo(this.environment, 'shader/editor-grid-vertex.glsl', 'shader/editor-grid-fragment.glsl');
     this.createGridPlane();
   }
 
@@ -37,7 +39,7 @@ export class EditorRenderLayer implements RenderLayer {
   destroy(): void {}
 
   draw(worlds: World[]) {
-    if (!this.environment) {
+    if (!this.environment || !this.programInfo) {
       return;
     }
 
@@ -96,7 +98,7 @@ export class EditorRenderLayer implements RenderLayer {
         }
 
         // Render
-        gl.useProgram(this.environment.editorGridProgramInfo.program);
+        gl.useProgram(this.programInfo!.program);
 
         const uniforms = {
           uModel: modelMatrix,
@@ -107,8 +109,8 @@ export class EditorRenderLayer implements RenderLayer {
           uCameraOffset: [cameraOffsetX, 0, cameraOffsetZ],
         };
 
-        twgljs.setBuffersAndAttributes(gl, this.environment.editorGridProgramInfo, this.gridBufferInfo);
-        twgljs.setUniforms(this.environment.editorGridProgramInfo, uniforms);
+        twgljs.setBuffersAndAttributes(gl, this.programInfo!, this.gridBufferInfo);
+        twgljs.setUniforms(this.programInfo!, uniforms);
         twgljs.drawBufferInfo(gl, this.gridBufferInfo);
       });
     });
