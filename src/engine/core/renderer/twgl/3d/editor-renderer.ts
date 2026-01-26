@@ -7,8 +7,9 @@ import { degreeToRadians } from '../../../utils/common';
 export class EditorRenderLayer implements RenderLayer {
   private environment!: RenderEnvironment;
   private gridBufferInfo!: twgljs.BufferInfo;
-  private gridSize: number = 1.0;
-  private gridPlaneSize: number = 1000.0;
+  private gridCellSize: number = 1;
+  private gridViewSize: number = 80.0; // change size here to make the grid bigger
+  private planeSize: number = this.gridViewSize * 1.25;
   private programInfo: twgljs.ProgramInfo | undefined;
 
   async init(environment: RenderEnvironment): Promise<void> {
@@ -18,7 +19,7 @@ export class EditorRenderLayer implements RenderLayer {
   }
 
   private createGridPlane(): void {
-    const halfSize = this.gridPlaneSize / 2;
+    const halfSize = this.planeSize / 2;
 
     const arrays: twgljs.Arrays = {
       position: {
@@ -88,13 +89,13 @@ export class EditorRenderLayer implements RenderLayer {
         let modelMatrix = twgljs.m4.identity();
         modelMatrix = twgljs.m4.translate(modelMatrix, [camera.position.x, 0, camera.position.z]);
 
-        let cameraOffsetX = camera.position.x % this.gridSize;
+        let cameraOffsetX = camera.position.x % this.gridViewSize;
         if (cameraOffsetX < 0) {
-          cameraOffsetX += this.gridSize;
+          cameraOffsetX += this.gridViewSize;
         }
-        let cameraOffsetZ = camera.position.z % this.gridSize;
+        let cameraOffsetZ = camera.position.z % this.gridViewSize;
         if (cameraOffsetZ < 0) {
-          cameraOffsetZ += this.gridSize;
+          cameraOffsetZ += this.gridViewSize;
         }
 
         // Render
@@ -104,12 +105,11 @@ export class EditorRenderLayer implements RenderLayer {
           uModel: modelMatrix,
           uView: viewMatrix,
           uProjection: projectionMatrix,
-          uGridSize: this.gridSize,
+          uGridSize: this.gridViewSize,
           uGridMinPixelsBetweenCells: 2,
-          uGridCellSize: 0.025,
+          uGridCellSize: this.gridCellSize,
           uGridColorThin: [0.5, 0.5, 0.5, 1.0],
-          uGridColorThick: [0.0, 0.0, 0.0, 1.0],
-          //uLineWidth: 0.05,
+          uGridColorThick: [0.1, 0.1, 0.1, 1.0],
           uCameraOffset: [cameraOffsetX, 0, cameraOffsetZ],
         };
 
