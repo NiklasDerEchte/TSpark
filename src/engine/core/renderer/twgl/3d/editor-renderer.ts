@@ -103,7 +103,11 @@ export class EditorRenderLayer implements RenderLayer {
           uView: viewMatrix,
           uProjection: projectionMatrix,
           uGridSize: this.gridSize,
-          uLineWidth: 0.05,
+          uGridMinPixelsBetweenCells: 2,
+          uGridCellSize: 0.025,
+          uGridColorThin: [0.5, 0.5, 0.5, 1.0],
+          uGridColorThick: [0.0, 0.0, 0.0, 1.0],
+          //uLineWidth: 0.05,
           uCameraOffset: [cameraOffsetX, 0, cameraOffsetZ],
         };
 
