@@ -32,7 +32,7 @@ Here is a brief demonstration of the stress test, rendering and rotating several
 
 Example of free camera controls in a 3D editor space.
 
-![TSpark Stress Test](docs/res/editor-space_23_1.gif)
+![TSpark Stress Test](docs/res/editor-space_26_1.gif)
 
 ## 📚 Documentation
 
