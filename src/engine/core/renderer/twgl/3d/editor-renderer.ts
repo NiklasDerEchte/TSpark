@@ -22,19 +22,11 @@ export class EditorRenderLayer implements RenderLayer {
       position: {
         numComponents: 3,
         data: [
-          -halfSize,
-          0,
-          -halfSize,
-          halfSize,
-          0,
-          -halfSize,
-          halfSize,
-          0,
-          halfSize,
-          -halfSize,
-          0,
-          halfSize,
-        ],
+          [-halfSize, 0, -halfSize],
+          [halfSize, 0, -halfSize],
+          [halfSize, 0, halfSize],
+          [-halfSize, 0, halfSize],
+        ].flat(),
       },
       indices: [0, 1, 2, 0, 2, 3],
     };
@@ -53,11 +45,11 @@ export class EditorRenderLayer implements RenderLayer {
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    
+
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
     gl.depthMask(false);
-    
+
     gl.enable(gl.POLYGON_OFFSET_FILL);
     gl.polygonOffset(-1, -1);
 
@@ -93,9 +85,15 @@ export class EditorRenderLayer implements RenderLayer {
         // Model-Matrix
         let modelMatrix = twgljs.m4.identity();
         modelMatrix = twgljs.m4.translate(modelMatrix, [camera.position.x, 0, camera.position.z]);
-        
-        const cameraOffsetX = ((camera.position.x % this.gridSize) + this.gridSize) % this.gridSize;
-        const cameraOffsetZ = ((camera.position.z % this.gridSize) + this.gridSize) % this.gridSize;
+
+        let cameraOffsetX = camera.position.x % this.gridSize;
+        if (cameraOffsetX < 0) {
+          cameraOffsetX += this.gridSize;
+        }
+        let cameraOffsetZ = camera.position.z % this.gridSize;
+        if (cameraOffsetZ < 0) {
+          cameraOffsetZ += this.gridSize;
+        }
 
         // Render
         gl.useProgram(this.environment.editorGridProgramInfo.program);
