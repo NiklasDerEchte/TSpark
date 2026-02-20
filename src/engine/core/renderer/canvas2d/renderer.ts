@@ -1,5 +1,5 @@
-import type { Scene } from '../../../core/world';
-import { type RendererBackend, type Dimension, component2D, component3D } from '../../types/index';
+import type { World } from '../../../core/world';
+import { type RendererBackend, type Dimension, component2D, component3D, type RenderLayer } from '../../types/index';
 
 export class Canvas2DRenderer implements RendererBackend {
   private canvas!: HTMLCanvasElement;
@@ -17,7 +17,7 @@ export class Canvas2DRenderer implements RendererBackend {
     this.canvas.height = size.height;
   }
 
-  draw(scenes: Scene[]) {
+  draw(worlds: World[]) {
     // let camera = getDefaultCamera(scene);
     // const bg = camera?.background ?? '#000';
     // this.ctx.fillStyle = bg;
@@ -31,6 +31,30 @@ export class Canvas2DRenderer implements RendererBackend {
     //   }
     // });
   }
+
+  
+    /**
+     * Add a render layer to the renderer
+     * @param key 
+     * @param renderLayer 
+     */
+    async addRenderLayer(key: string, renderLayer: RenderLayer): Promise<void> {
+      return;
+    }
+  
+    /**
+     * Get a render layer by key
+     * @param key 
+     */
+    getRenderLayer(key: string): RenderLayer | undefined {
+      return undefined;
+    }
+  
+    /**
+     * Remove a render layer by key
+     * @param key 
+     */
+    removeRenderLayer(key: string): void {}
 
   // private drawSprite(t: component3D.Transform, s: component2D.Sprite): void {
   //   this.ctx.fillStyle = s.color;

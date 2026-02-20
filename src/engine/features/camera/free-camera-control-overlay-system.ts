@@ -5,10 +5,12 @@ export class FreeCameraControlOverlaySystem implements System {
   world!: World;
   init(world: World): void {
     this.world = world;
-    TSpark.Instance.inject({
-      html: ['ui/free-camera-control-overlay/overlay.html'],
-      css: ['ui/free-camera-control-overlay/overlay.css'],
-    }).then(() => {});
+    TSpark.getInstance()
+      .inject({
+        html: ['ui/free-camera-control-overlay/overlay.html'],
+        css: ['ui/free-camera-control-overlay/overlay.css'],
+      })
+      .then(() => {});
   }
 
   exec(dt: number) {}

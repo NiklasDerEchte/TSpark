@@ -18,16 +18,18 @@ export class XYZOverlaySystem implements System {
   world!: World;
   init(world: World): void {
     this.world = world;
-    TSpark.Instance.inject({
-      html: ['ui/xyz-overlay/overlay.html'],
-      css: ['ui/xyz-overlay/overlay.css'],
-    }).then(() => {
-      this.x = this.createTextNode('#x');
-      this.y = this.createTextNode('#y');
-      this.z = this.createTextNode('#z');
-      this.label = this.createTextNode('#label');
-      this.ready = true;
-    });
+    TSpark.getInstance()
+      .inject({
+        html: ['ui/xyz-overlay/overlay.html'],
+        css: ['ui/xyz-overlay/overlay.css'],
+      })
+      .then(() => {
+        this.x = this.createTextNode('#x');
+        this.y = this.createTextNode('#y');
+        this.z = this.createTextNode('#z');
+        this.label = this.createTextNode('#label');
+        this.ready = true;
+      });
   }
 
   createTextNode(id: string): Text {

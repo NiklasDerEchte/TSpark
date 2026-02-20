@@ -18,7 +18,8 @@ export interface TSparkSetup {
  * TSpark Engine Main Class
  */
 export class TSpark {
-  public static Instance: TSpark;
+  private static _singleton: TSpark;
+
   private setup!: TSparkSetup;
   private gameLoop!: GameLoop;
   private drawCanvas!: HTMLCanvasElement;
@@ -32,7 +33,7 @@ export class TSpark {
    * @returns TSpark instance
    */
   constructor(setup: Partial<TSparkSetup> = {}) {
-    if (TSpark.Instance) {
+    if (TSpark._singleton) {
       console.warn('TSpark instance already exists!');
       return;
     }
@@ -53,9 +54,18 @@ export class TSpark {
       this.drawCanvas = drawCanvas as HTMLCanvasElement;
     }
     this.gameLoop = new GameLoop();
-    TSpark.Instance = this;
-    (window as any).tspark = TSpark.Instance;
-    console.log('TSpark initialized');
+    TSpark._singleton = this;
+    (globalThis as any).tspark = TSpark._singleton;
+    console.info('TSpark initialized');
+    console.info('Accessible in console via tspark or globalThis.tspark');
+  }
+
+  /**
+   * Get the singleton instance of TSpark
+   * @returns TSpark instance
+   */
+  public static getInstance(): TSpark {
+    return this._singleton;
   }
 
   /**
@@ -202,9 +212,11 @@ export class TSpark {
    * @param deltaTimeMs number
    */
   private update = (deltaTimeMs: number) => {
-    this.getActiveWorld().getSystems().forEach((system: System) => {
-      system.exec(deltaTimeMs);
-    });
+    this.getActiveWorld()
+      .getSystems()
+      .forEach((system: System) => {
+        system.exec(deltaTimeMs);
+      });
     this.setup.onUpdate?.();
     this.drawUpdate();
   };
@@ -214,9 +226,11 @@ export class TSpark {
    * @param deltaTimeMs number
    */
   private fixedUpdate = (deltaTimeMs: number) => {
-    this.getActiveWorld().getSystems('fixed').forEach((system: System) => {
-      system.exec(deltaTimeMs);
-    });
+    this.getActiveWorld()
+      .getSystems('fixed')
+      .forEach((system: System) => {
+        system.exec(deltaTimeMs);
+      });
     this.setup.onFixedUpdate?.();
   };
 

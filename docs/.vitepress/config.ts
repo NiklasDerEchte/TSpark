@@ -9,27 +9,60 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' },
+      { text: 'Guide', link: '/getting-started' },
+      { text: 'Examples', link: '/examples/simple-scene' },
+      { text: 'API', link: '/api/' },
     ],
 
     sidebar: [
       {
+        text: 'Getting Started',
+        items: [
+          { text: 'Introduction', link: '/getting-started' },
+          { text: 'Core Concepts', link: '/core-concepts' },
+        ],
+      },
+      {
+        text: 'Guide',
+        items: [
+          { text: 'World & Scenes', link: '/guide/world-and-scenes' },
+          { text: 'Entities & Components', link: '/guide/entities-and-components' },
+          { text: 'Systems', link: '/guide/systems' },
+          { text: 'Rendering', link: '/guide/rendering' },
+        ],
+      },
+      {
         text: 'Examples',
         items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' },
+          { text: 'Simple 3D Scene', link: '/examples/simple-scene' },
+          { text: 'Camera Controls', link: '/examples/camera-controls' },
+        ],
+      },
+      {
+        text: 'Reference',
+        items: [
+          { text: 'API Documentation', link: '/api/' },
           {
-            text: 'API',
-            items: [
-              { text: 'Modules', link: '/api/modules' },
-              { text: 'Classes', link: '/api/classes/TSpark.md' },
-              { text: 'Interfaces', link: '/api/interfaces/TSparkSetup.md' },
-            ],
+            text: 'Core Classes',
+            items: [{ text: 'TSpark', link: '/api/classes/TSpark' }],
+          },
+          {
+            text: 'Interfaces',
+            items: [{ text: 'TSparkSetup', link: '/api/interfaces/TSparkSetup' }],
           },
         ],
       },
     ],
 
-    socialLinks: [{ icon: 'github', link: 'https://github.com/vuejs/vitepress' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/niklasderechte/tspark' }],
+
+    search: {
+      provider: 'local',
+    },
+
+    footer: {
+      message: 'Released under the MIT License.',
+      copyright: `Copyright © ${new Date().getFullYear()} TSpark Contributors`,
+    },
   },
 });

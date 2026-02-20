@@ -36,7 +36,7 @@ export class FreeCameraControlSystem implements System {
     this.world = world;
     document.addEventListener('mousemove', this.handleMouseMove.bind(this));
     document.addEventListener('pointerlockchange', this.onPointerLockChange);
-    TSpark.Instance.getDrawCanvas().addEventListener('click', this.onClick);
+    TSpark.getInstance().getDrawCanvas().addEventListener('click', this.onClick);
   }
 
   exec(dt: number) {
@@ -55,14 +55,14 @@ export class FreeCameraControlSystem implements System {
    * Handle pointer lock change events
    */
   private onPointerLockChange = () => {
-    this.isPointerLocked = document.pointerLockElement === TSpark.Instance.getDrawCanvas();
+    this.isPointerLocked = document.pointerLockElement === TSpark.getInstance().getDrawCanvas();
   };
 
   /**
    * Handle click events to request pointer lock
    */
   private onClick = () => {
-    TSpark.Instance.getDrawCanvas().requestPointerLock();
+    TSpark.getInstance().getDrawCanvas().requestPointerLock();
   };
 
   /**
@@ -108,26 +108,26 @@ export class FreeCameraControlSystem implements System {
       z: -Math.sin(yaw),
     });
 
-    if (TSpark.Instance.isKeyPressed('KeyW') || TSpark.Instance.isKeyPressed('ArrowUp')) {
+    if (TSpark.getInstance().isKeyPressed('KeyW') || TSpark.getInstance().isKeyPressed('ArrowUp')) {
       component.camera.position.x -= forward.x * speed;
       component.camera.position.z -= forward.z * speed;
     }
-    if (TSpark.Instance.isKeyPressed('KeyA') || TSpark.Instance.isKeyPressed('ArrowLeft')) {
+    if (TSpark.getInstance().isKeyPressed('KeyA') || TSpark.getInstance().isKeyPressed('ArrowLeft')) {
       component.camera.position.x -= right.x * speed;
       component.camera.position.z -= right.z * speed;
     }
-    if (TSpark.Instance.isKeyPressed('KeyS') || TSpark.Instance.isKeyPressed('ArrowDown')) {
+    if (TSpark.getInstance().isKeyPressed('KeyS') || TSpark.getInstance().isKeyPressed('ArrowDown')) {
       component.camera.position.x += forward.x * speed;
       component.camera.position.z += forward.z * speed;
     }
-    if (TSpark.Instance.isKeyPressed('KeyD') || TSpark.Instance.isKeyPressed('ArrowRight')) {
+    if (TSpark.getInstance().isKeyPressed('KeyD') || TSpark.getInstance().isKeyPressed('ArrowRight')) {
       component.camera.position.x += right.x * speed;
       component.camera.position.z += right.z * speed;
     }
-    if (TSpark.Instance.isKeyPressed('Space')) {
+    if (TSpark.getInstance().isKeyPressed('Space')) {
       component.camera.position.y += speed;
     }
-    if (TSpark.Instance.isKeyPressed('ShiftLeft')) {
+    if (TSpark.getInstance().isKeyPressed('ShiftLeft')) {
       component.camera.position.y -= speed;
     }
   }
