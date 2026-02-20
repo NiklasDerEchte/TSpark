@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: 'TSpark — Modular TypeScript ECS Framework for Games',
+  title: 'TSpark',
   description:
     'TSpark’s TypeScript ECS lets you build responsive games and interactive simulations by composing behavior from small, reusable components. Define entities, attach components for data, and implement systems for input, physics, AI, and rendering, all decoupled and testable. Swap renderer backends (Canvas/WebGL), create multiple worlds and scenes, and scale complexity without tangled inheritance. The structured game loop provides deterministic fixed updates and smooth draw updates, while dynamic imports keep optional features lightweight. Use it to prototype quickly, iterate safely, and ship maintainable gameplay mechanics with clear APIs and straightforward extension points.',
   themeConfig: {
@@ -11,7 +11,7 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/getting-started' },
       { text: 'Examples', link: '/examples/simple-scene' },
-      { text: 'API', link: '/api/' },
+      { text: 'API', link: '/api/README.md' },
     ],
 
     sidebar: [
@@ -41,7 +41,7 @@ export default defineConfig({
       {
         text: 'Reference',
         items: [
-          { text: 'API Documentation', link: '/api/' },
+          { text: 'API Documentation', link: '/api/README.md' },
           {
             text: 'Core Classes',
             items: [{ text: 'TSpark', link: '/api/classes/TSpark' }],
@@ -61,8 +61,7 @@ export default defineConfig({
     },
 
     footer: {
-      message: 'Released under the MIT License.',
-      copyright: `Copyright © ${new Date().getFullYear()} TSpark Contributors`,
+      message: 'Made with ❤️ by Niklas Wockenfuß',
     },
   },
 });

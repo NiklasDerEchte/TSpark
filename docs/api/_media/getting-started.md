@@ -1,16 +1,16 @@
 # Getting Started
 
-TSpark ist ein leichtgewichtiges, modulares 2D- und 3D-Game-Engine-Framework, das auf TypeScript und WebGL basiert. Es verwendet eine Entity-Component-System (ECS) Architektur für flexible und erweiterbare Spiellogik.
+TSpark is a lightweight, modular 2D and 3D game engine framework built on TypeScript and WebGL. It uses an Entity-Component-System (ECS) architecture for flexible and extensible game logic.
 
 ## Installation
 
-Installiere zunächst alle Abhängigkeiten:
+First, install all dependencies:
 
 ```bash
 npm install
 ```
 
-## Schnellstart
+## Quick Start
 
 ### 1. TSpark initialisieren
 
@@ -24,14 +24,14 @@ const tspark = new TSpark({
 });
 ```
 
-### 2. World und Scene erstellen
+### 2. Create World and Scene
 
 ```typescript
 const world = tspark.createWorld('MyWorld');
 const scene = world.createScene('MyScene');
 ```
 
-### 3. Kamera hinzufügen
+### 3. Add Camera
 
 ```typescript
 import { component3D } from './engine';
@@ -45,7 +45,7 @@ scene.getComponentStore<component3D.Camera3>(component3D.Camera3.name)
   .add(cameraEntity, camera);
 ```
 
-### 4. 3D Box erstellen
+### 4. Create 3D Box
 
 ```typescript
 const boxEntity = scene.createEntity();
@@ -55,24 +55,24 @@ scene.getComponentStore<component3D.Box3>(component3D.Box3.name)
   .add(boxEntity, box);
 ```
 
-### 5. Engine starten
+### 5. Start the Engine
 
 ```typescript
 tspark.start();
 ```
 
-## Entwicklungsserver starten
+## Start Development Server
 
 ```bash
 npm run tspark:dev
 ```
 
-Der Entwicklungsserver startet einen Vite-Server, der die Beispiele unter `src/examples` bereitstellt.
+The development server starts a Vite server that serves the examples from `src/examples`.
 
-## Nächste Schritte
+## Next Steps
 
-- [Core Concepts](/core-concepts) - Verstehe die ECS-Architektur
-- [World & Scenes](/guide/world-and-scenes) - Lerne mehr über Worlds und Scenes
-- [Entities & Components](/guide/entities-and-components) - Arbeite mit Entities und Components
-- [Systems](/guide/systems) - Erstelle eigene Systems
-- [Beispiele](/examples/simple-scene) - Schaue dir praktische Beispiele an
+- [Core Concepts](/core-concepts) - Understand the ECS architecture
+- [World & Scenes](/guide/world-and-scenes) - Learn more about Worlds and Scenes
+- [Entities & Components](/guide/entities-and-components) - Work with Entities and Components
+- [Systems](/guide/systems) - Create your own Systems
+- [Examples](/examples/simple-scene) - Check out practical examples

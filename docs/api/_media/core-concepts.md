@@ -1,16 +1,16 @@
 # Core Concepts
 
-TSpark basiert auf einer **Entity-Component-System (ECS)** Architektur, die eine saubere Trennung von Daten und Logik ermöglicht.
+TSpark is based on an **Entity-Component-System (ECS)** architecture that enables clean separation of data and logic.
 
-## Was ist ECS?
+## What is ECS?
 
-ECS ist ein Architekturmuster, das in der Spieleentwicklung weit verbreitet ist:
+ECS is an architectural pattern widely used in game development:
 
-- **Entities** sind eindeutige Identifikatoren für Spielobjekte
-- **Components** sind Datencontainer, die Entities zugeordnet werden
-- **Systems** sind Logikprozessoren, die auf Entities mit bestimmten Components arbeiten
+- **Entities** are unique identifiers for game objects
+- **Components** are data containers attached to entities
+- **Systems** are logic processors that operate on entities with specific components
 
-## Architektur-Übersicht
+## Architecture Overview
 
 ```
 TSpark
@@ -24,19 +24,19 @@ TSpark
 
 ### TSpark
 
-Die Hauptklasse, die das gesamte Framework initialisiert und verwaltet:
+The main class that initializes and manages the entire framework:
 
-- Verwaltet den Game Loop
-- Koordiniert das Rendering
-- Verwaltet Worlds
+- Manages the Game Loop
+- Coordinates rendering
+- Manages Worlds
 
 ### World
 
-Ein Top-Level-Container für Spiellogik:
+A top-level container for game logic:
 
-- Kann mehrere **Scenes** enthalten
-- Verwaltet **Systems**
-- Führt Queries über alle aktiven Scenes aus
+- Can contain multiple **Scenes**
+- Manages **Systems**
+- Executes queries across all active scenes
 
 ```typescript
 const world = tspark.createWorld('MyWorld');
@@ -44,11 +44,11 @@ const world = tspark.createWorld('MyWorld');
 
 ### Scene
 
-Eine Sammlung von Entities innerhalb einer World:
+A collection of entities within a World:
 
-- Enthält **Entities** und ihre **Components**
-- Verwaltet **ComponentStores**
-- Kann aktiviert/deaktiviert werden
+- Contains **Entities** and their **Components**
+- Manages **ComponentStores**
+- Can be activated/deactivated
 
 ```typescript
 const scene = world.createScene('MyScene');
@@ -56,10 +56,10 @@ const scene = world.createScene('MyScene');
 
 ### Entity
 
-Ein eindeutiger Identifier (String) für ein Spielobjekt:
+A unique identifier (String) for a game object:
 
-- Hat selbst keine Daten oder Logik
-- Wird verwendet, um Components zu gruppieren
+- Has no data or logic itself
+- Used to group components together
 
 ```typescript
 const entity = scene.createEntity();
@@ -67,11 +67,11 @@ const entity = scene.createEntity();
 
 ### Component
 
-Ein Datencontainer, der einer Entity zugeordnet wird:
+A data container assigned to an entity:
 
-- Enthält nur Daten, keine Logik
-- Wird in ComponentStores gespeichert
-- Beispiele: `Position3`, `Rotation3`, `Camera3`, `Box3`
+- Contains only data, no logic
+- Stored in ComponentStores
+- Examples: `Position3`, `Rotation3`, `Camera3`, `Box3`
 
 ```typescript
 const position = new component3D.Position3({ x: 0, y: 0, z: 5 });
@@ -81,11 +81,11 @@ scene.getComponentStore<component3D.Position3>(component3D.Position3.name)
 
 ### System
 
-Eine Logikeinheit, die auf Entities mit bestimmten Components arbeitet:
+A logic unit that operates on entities with specific components:
 
-- Implementiert das `System` Interface
-- Hat Zugriff auf die gesamte World
-- Wird jeden Frame oder in festen Zeitintervallen aufgerufen
+- Implements the `System` interface
+- Has access to the entire World
+- Called every frame or at fixed time intervals
 
 ```typescript
 export interface System {
@@ -115,25 +115,25 @@ class RotationSystem implements System {
 }
 ```
 
-## Datenfluss
+## Data Flow
 
 1. **Initialization**: TSpark → World → Scene → Entities + Components
 2. **Game Loop**: 
-   - Fixed Update: Systems werden in festen Zeitintervallen aufgerufen
-   - Update: Systems werden jeden Frame aufgerufen
-   - Draw: Renderer zeichnet alle Worlds
-3. **Queries**: Systems fragen Components über die World ab
+   - Fixed Update: Systems are called at fixed time intervals
+   - Update: Systems are called every frame
+   - Draw: Renderer draws all Worlds
+3. **Queries**: Systems query components through the World
 
-## Vorteile von ECS
+## Advantages of ECS
 
-- **Modularität**: Components und Systems sind wiederverwendbar
-- **Flexibilität**: Entities können zur Laufzeit verändert werden
-- **Performance**: Cache-freundliche Datenstruktur
-- **Testbarkeit**: Logik ist von Daten getrennt
-- **Skalierbarkeit**: Neue Features können einfach als Systems hinzugefügt werden
+- **Modularity**: Components and Systems are reusable
+- **Flexibility**: Entities can be modified at runtime
+- **Performance**: Cache-friendly data structure
+- **Testability**: Logic is separated from data
+- **Scalability**: New features can easily be added as Systems
 
-## Nächste Schritte
+## Next Steps
 
-- [World & Scenes](/guide/world-and-scenes) - Detaillierte Informationen
-- [Entities & Components](/guide/entities-and-components) - Component-Entwicklung
-- [Systems](/guide/systems) - System-Entwicklung
+- [World & Scenes](/guide/world-and-scenes) - Detailed information
+- [Entities & Components](/guide/entities-and-components) - Component development
+- [Systems](/guide/systems) - System development

@@ -12,7 +12,7 @@ hero:
       link: /getting-started
     - theme: alt
       text: View on GitHub
-      link: https://github.com/yourusername/tspark
+      link: https://github.com/niklasderechte/tspark
 
 features:
   - icon: 🎮

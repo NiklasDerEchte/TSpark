@@ -18,13 +18,10 @@ TSpark is a lightweight and modular 2D and 3D game engine written in TypeScript,
 
 ## 📚 Documentation
 
-**[Read the full documentation →](https://your-docs-url.com)**
+**[Read the full documentation →](https://niklaswockenfuss.de/tspark)**
 
 - **[Getting Started](_media/getting-started.md)** - Quick start guide
 - **[Core Concepts](_media/core-concepts.md)** - Understanding ECS architecture
-- **[Guide](_media/guide)** - Comprehensive guides on World, Scenes, Systems, and more
-- **[Examples](_media/examples)** - Practical examples and tutorials
-- **[API Reference](docs/api/)** - Complete API documentation
 
 ## 🚀 Quick Start
 
@@ -154,6 +151,8 @@ TSpark/
 - **[Vite](https://vitejs.dev/)** - Fast build tool and dev server
 - **[TypeDoc](https://typedoc.org/)** - API documentation generation
 - **[VitePress](https://vitepress.dev/)** - Documentation site generator
+
+```
 │   ├── engine/           # Core engine code
 │   │   ├── core/         # Core systems (ECS, rendering, game loop)
 │   │   └── features/     # Feature systems (camera, input, movement)
@@ -167,21 +166,11 @@ TSpark/
 └── index.html            # Entry point
 ```
 
-## 🔧 Technologies
-
-- **TypeScript** - Type-safe development
-- **TWGL.js** - WebGL helper library
-- **Vite** - Fast build tool and dev server
-- **TypeDoc** - API documentation generation
-- **VitePress** - Documentation site
-
 ## 🤝 Contributing
 
 Contributions are welcome! Feel free to open issues or submit pull requests.
 
-## 📄 License
-
-MI# Development Workflow
+## 💡 Development Workflow
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -193,15 +182,13 @@ MI# Development Workflow
 
 ## 📄 License
 
-MIT - See [LICENSE](LICENSE) file for details
+MIT - See [LICENSE](_media/LICENSE) file for details
 
 ## 🔗 Links
 
-- **[Documentation](https://your-docs-url.com)** - Full documentation
-- **[Examples](src/examples/)** - Example projects
-- **[API Reference](docs/api/)** - Auto-generated API docs
-- **[Issues](https://github.com/yourusername/tspark/issues)** - Bug reports and feature requests
+- **[Documentation](https://niklaswockenfuss.de/tspark)** - Full documentation
+- **[GitHub](https://github.com/niklasderechte/tspark)** - Source code repository
 
 ---
 
-Made with ❤️ by the TSpark team
+Made with ❤️ by Niklas Wockenfuß
