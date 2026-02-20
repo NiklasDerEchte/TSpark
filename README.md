@@ -176,10 +176,6 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request
 
-## 📄 License
-
-MIT - See [LICENSE](LICENSE) file for details
-
 ## 🔗 Links
 
 - **[Documentation](https://niklaswockenfuss.de/tspark)** - Full documentation
