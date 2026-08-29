@@ -17,7 +17,19 @@ async function twgl3DStressTestExample() {
   let i = await import('./examples/twgl/3d/stress-test');
   await i.default.start();
 }
-await editorRendererExample();
+
+async function powderSimulationExample() {
+  let i = await import('./examples/powder-simulation/main');
+  await i.default.start();
+}
+
+async function powderPlayerExample() {
+  let i = await import('./examples/powder-player/main');
+  await i.default.start();
+}
+//await editorRendererExample();
+await powderPlayerExample();
+// await powderSimulationExample();
 // await simplePlayerExample();
 // await twglUiHtmlExample();
 // await twgl3DStressTestExample();

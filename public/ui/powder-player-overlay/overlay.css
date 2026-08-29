@@ -1,0 +1,41 @@
+#player-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #e8e4d8;
+  text-shadow: 0 1px 2px #000;
+}
+
+#player-panel {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 210px;
+  background: rgba(8, 10, 16, 0.78);
+  border: 1px solid rgba(210, 176, 108, 0.25);
+  padding: 10px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+#player-title {
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #d2b06c;
+  margin-bottom: 8px;
+}
+
+#player-help {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  max-width: 420px;
+  background: rgba(8, 10, 16, 0.72);
+  border: 1px solid rgba(210, 176, 108, 0.18);
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.55;
+  color: #b8b4a8;
+}
