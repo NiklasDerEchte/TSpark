@@ -1,3 +1,4 @@
+export * from './tools';
 export * from './player-component';
 export * from './sprite-animator';
 export * from './animator-controller';

@@ -1,6 +1,7 @@
 import { assignProps } from '../../core/utils/common';
 import type { Component, Properties } from '../../core/types';
 import type { MaterialId } from '../particles/materials';
+import { DEFAULT_HOTBAR, TOOLS, type ToolDef, type ToolId } from './tools';
 
 export interface CargoPixel {
   id: MaterialId;
@@ -39,6 +40,9 @@ export class PlayerComponent implements Component<{
   jumpHeld: boolean;
   maxStepHeight: number;
   coyoteTicks: number;
+  hotbar: ToolId[];
+  selectedSlot: number;
+  wrongTool: boolean;
 }> {
   x: number = 0;
   y: number = 0;
@@ -72,6 +76,9 @@ export class PlayerComponent implements Component<{
   /** How many solid cells the player can walk up or down without jumping. */
   maxStepHeight: number = 4;
   coyoteTicks: number = 0;
+  hotbar: ToolId[] = [...DEFAULT_HOTBAR];
+  selectedSlot: number = 0;
+  wrongTool: boolean = false;
 
   constructor(props?: Properties<PlayerComponent>) {
     assignProps(this, props);
@@ -83,6 +90,11 @@ export class PlayerComponent implements Component<{
 
   centerY(): number {
     return this.y + this.height * 0.5;
+  }
+
+  activeTool(): ToolDef {
+    const id = this.hotbar[this.selectedSlot] ?? this.hotbar[0];
+    return TOOLS[id];
   }
 
   inToolRange(range: number): boolean {

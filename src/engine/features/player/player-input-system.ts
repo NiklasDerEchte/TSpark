@@ -14,6 +14,7 @@ export class PlayerInputSystem implements System {
   private middle = false;
   private jumpWasDown = false;
   private fitted = false;
+  private keyWasDown = new Set<string>();
 
   init(world: World): void {
     this.world = world;
@@ -67,12 +68,21 @@ export class PlayerInputSystem implements System {
     player.grabHeld = this.right;
     player.panHeld = this.middle;
 
+    for (let slot = 0; slot < player.hotbar.length; slot++) {
+      const code = `Digit${slot + 1}`;
+      const down = tspark.isKeyPressed(code);
+      if (down && !this.keyWasDown.has(code)) player.selectedSlot = slot;
+      if (down) this.keyWasDown.add(code);
+      else this.keyWasDown.delete(code);
+    }
+
+    powder.brushRadius = player.activeTool().radius;
+
     const world = this.screenToWorld(powder, this.mouseX, this.mouseY);
     player.cursorX = world.x;
     player.cursorY = world.y;
     powder.cursorX = Math.floor(world.x);
     powder.cursorY = Math.floor(world.y);
-    powder.brushRadius = player.digRadius;
   }
 
   private screenToWorld(powder: PowderWorldComponent, clientX: number, clientY: number): { x: number; y: number } {

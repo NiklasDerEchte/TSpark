@@ -113,12 +113,13 @@ export class PowderGrid {
   }
 
   /** Break a static cell into falling material. Never deletes. */
-  loosen(x: number, y: number): void {
+  loosen(x: number, y: number, allowed?: (materialId: number) => boolean): void {
     if (!this.inBounds(x, y)) return;
     const i = this.index(x, y);
     const id = this.cells[i];
     if (id === Material.Empty || id === Material.Bedrock || id === Material.Shaker) return;
     if ((this.flags[i] & CellFlag.Dynamic) !== 0) return;
+    if (allowed && !allowed(id)) return;
     const def = MATERIALS[id];
     if (!def) return;
     if (def.digsTo !== undefined && def.digsTo !== id) {
@@ -280,12 +281,12 @@ export class PowderGrid {
     }
   }
 
-  digCircle(cx: number, cy: number, radius: number): void {
+  digCircle(cx: number, cy: number, radius: number, allowed?: (materialId: number) => boolean): void {
     const r2 = radius * radius;
     for (let dy = -radius; dy <= radius; dy++) {
       for (let dx = -radius; dx <= radius; dx++) {
         if (dx * dx + dy * dy > r2) continue;
-        this.loosen(cx + dx, cy + dy);
+        this.loosen(cx + dx, cy + dy, allowed);
       }
     }
   }

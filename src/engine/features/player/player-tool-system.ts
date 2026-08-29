@@ -4,6 +4,7 @@ import { Material, type MaterialId } from '../particles/materials';
 import type { PowderGrid } from '../particles/powder-grid';
 import { PowderWorldComponent } from '../particles/powder-world';
 import { PlayerComponent, type CargoPixel } from './player-component';
+import { canHarvest } from './tools';
 
 const PICKABLE = new Set<number>([Material.Sand, Material.WetSand, Material.Gold, Material.Residue, Material.Stone]);
 
@@ -24,8 +25,16 @@ export class PlayerToolSystem implements System {
 
     this.world.query<PlayerComponent>(PlayerComponent.name, (result: WorldQueryData<PlayerComponent>) => {
       const player = result.component;
+      player.wrongTool = false;
       if (player.digHeld && player.inToolRange(player.digRange)) {
-        powderGrid.digCircle(Math.floor(player.aimX), Math.floor(player.aimY), player.digRadius);
+        const tool = player.activeTool();
+        const ax = Math.floor(player.aimX);
+        const ay = Math.floor(player.aimY);
+        const under = powderGrid.get(ax, ay);
+        if (under !== Material.Empty && !canHarvest(tool, under) && !powderGrid.isDynamic(ax, ay)) {
+          player.wrongTool = true;
+        }
+        powderGrid.digCircle(ax, ay, tool.radius, (id) => canHarvest(tool, id));
       }
       if (player.grabHeld) {
         this.pickUp(player, powderGrid);

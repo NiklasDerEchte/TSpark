@@ -16,6 +16,7 @@ export const Material = {
 export type MaterialId = (typeof Material)[keyof typeof Material];
 
 export type MatterPhase = 'powder' | 'slushy' | 'liquid' | 'gas' | 'static';
+export type HarvestGroup = 'soft' | 'hard' | 'none';
 
 export interface MaterialDef {
   id: MaterialId;
@@ -35,12 +36,14 @@ export interface MaterialDef {
   digsTo?: MaterialId;
   /** Static liquid/gas starts flowing when a neighbor becomes empty. */
   exposesWhenOpen?: boolean;
+  /** Which tool group can break this cell. */
+  harvest: HarvestGroup;
 }
 
 export const MATERIALS: MaterialDef[] = [];
 
-function define(def: MaterialDef): void {
-  MATERIALS[def.id] = def;
+function define(def: Omit<MaterialDef, 'harvest'> & { harvest?: HarvestGroup }): void {
+  MATERIALS[def.id] = { harvest: 'none', ...def };
 }
 
 define({
@@ -67,6 +70,7 @@ define({
   color: [210, 176, 108, 255],
   hotkey: '1',
   canFreeze: true,
+  harvest: 'soft',
 });
 
 define({
@@ -94,6 +98,7 @@ define({
   color: [132, 102, 64, 255],
   hotkey: '3',
   canFreeze: true,
+  harvest: 'soft',
 });
 
 define({
@@ -120,6 +125,7 @@ define({
   color: [108, 102, 86, 255],
   hotkey: '5',
   canFreeze: true,
+  harvest: 'soft',
 });
 
 define({
@@ -134,6 +140,7 @@ define({
   hotkey: '6',
   canFreeze: false,
   digsTo: Material.Sand,
+  harvest: 'soft',
 });
 
 define({
@@ -147,6 +154,7 @@ define({
   color: [98, 104, 112, 255],
   hotkey: '7',
   canFreeze: true,
+  harvest: 'hard',
 });
 
 define({
