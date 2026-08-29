@@ -2,7 +2,7 @@ import type { System, WorldQueryData } from '../../core/types';
 import type { World } from '../../core/world';
 import { Material } from '../particles/materials';
 import { PowderWorldComponent } from '../particles/powder-world';
-import type { PowderGrid } from '../particles/powder-grid';
+import { CellFlag, type PowderGrid } from '../particles/powder-grid';
 import { PlayerComponent } from './player-component';
 import { AnimatorControllerComponent } from './animator-controller';
 import { SpriteAnimatorComponent } from './sprite-animator';
@@ -18,6 +18,7 @@ const COYOTE_TICKS = 8;
 
 export class PlayerMotorSystem implements System {
   world!: World;
+  private ghosts = new Set<number>();
 
   init(world: World): void {
     this.world = world;
@@ -48,6 +49,7 @@ export class PlayerMotorSystem implements System {
 
   private step(player: PlayerComponent, grid: PowderGrid): void {
     this.updateCrouch(player, grid);
+    this.collectGhosts(player, grid);
 
     const accel = player.grounded ? WALK : AIR;
     if (player.moveX !== 0) {
@@ -178,6 +180,21 @@ export class PlayerMotorSystem implements System {
     return this.solid(grid, x0, y) || this.solid(grid, x1, y) || this.solid(grid, player.centerX(), y);
   }
 
+  private collectGhosts(player: PlayerComponent, grid: PowderGrid): void {
+    this.ghosts.clear();
+    const x0 = Math.floor(player.x);
+    const y0 = Math.floor(player.y);
+    const x1 = Math.ceil(player.x + player.width) - 1;
+    const y1 = Math.ceil(player.y + player.height) - 1;
+    for (let y = y0; y <= y1; y++) {
+      for (let x = x0; x <= x1; x++) {
+        if (!grid.inBounds(x, y)) continue;
+        const i = grid.index(x, y);
+        if ((grid.flags[i] & CellFlag.Settled) !== 0) this.ghosts.add(i);
+      }
+    }
+  }
+
   private collides(player: PlayerComponent, grid: PowderGrid): boolean {
     const x0 = Math.floor(player.x);
     const y0 = Math.floor(player.y);
@@ -194,9 +211,12 @@ export class PlayerMotorSystem implements System {
   private solid(grid: PowderGrid, x: number, y: number): boolean {
     const ix = Math.floor(x);
     const iy = Math.floor(y);
-    const id = grid.get(ix, iy);
+    if (!grid.inBounds(ix, iy)) return true;
+    const i = grid.index(ix, iy);
+    if (this.ghosts.has(i)) return false;
+    const id = grid.cells[i];
     if (id === Material.Empty || id === Material.Water || id === Material.Steam || id === Material.Lava) return false;
-    if (grid.isDynamic(ix, iy)) return false;
+    if ((grid.flags[i] & CellFlag.Dynamic) !== 0) return false;
     return true;
   }
 
