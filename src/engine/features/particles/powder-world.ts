@@ -16,7 +16,6 @@ export class PowderWorldComponent implements Component<{
   tick: number;
   particleCount: number;
   debugMatter: boolean;
-  regenerate?: () => void;
 }> {
   grid: PowderGrid;
   cameraX: number = 0;
@@ -30,7 +29,6 @@ export class PowderWorldComponent implements Component<{
   tick: number = 0;
   particleCount: number = 0;
   debugMatter: boolean = false;
-  regenerate?: () => void;
 
   constructor(props?: Properties<PowderWorldComponent> & { width?: number; height?: number }) {
     this.grid = props?.grid ?? new PowderGrid(props?.width ?? 640, props?.height ?? 360);
@@ -43,12 +41,5 @@ export class PowderWorldComponent implements Component<{
       delete rest.height;
       assignProps(this, rest as Properties<PowderWorldComponent>);
     }
-  }
-
-  fitCamera(viewWidth: number, viewHeight: number): void {
-    const z = Math.min(viewWidth / this.grid.width, viewHeight / this.grid.height);
-    this.zoom = Math.max(1, z);
-    this.cameraX = this.grid.width * 0.5;
-    this.cameraY = this.grid.height * 0.5;
   }
 }

@@ -61,7 +61,7 @@ export class PowderInputSystem implements System {
 
   private update(powder: PowderWorldComponent, dt: number): void {
     if (!this.fitted && this.canvas.width > 0) {
-      powder.fitCamera(this.canvas.width, this.canvas.height);
+      this.fitView(powder, this.canvas.width, this.canvas.height);
       this.fitted = true;
     }
 
@@ -145,17 +145,10 @@ export class PowderInputSystem implements System {
 
     const fitDown = tspark.isKeyPressed('KeyF');
     if (fitDown && !this.keyWasDown.has('KeyF')) {
-      powder.fitCamera(this.canvas.width, this.canvas.height);
+      this.fitView(powder, this.canvas.width, this.canvas.height);
     }
     if (fitDown) this.keyWasDown.add('KeyF');
     else this.keyWasDown.delete('KeyF');
-
-    const resetDown = tspark.isKeyPressed('KeyR');
-    if (resetDown && !this.keyWasDown.has('KeyR')) {
-      powder.regenerate?.();
-    }
-    if (resetDown) this.keyWasDown.add('KeyR');
-    else this.keyWasDown.delete('KeyR');
 
     const qDown = tspark.isKeyPressed('KeyQ');
     if (qDown && !this.keyWasDown.has('KeyQ')) this.zoomAtCursor(powder, 1 / 1.15);
@@ -177,6 +170,13 @@ export class PowderInputSystem implements System {
     if (!PAINTABLE_MATERIALS.includes(powder.selectedMaterial) && powder.selectedMaterial !== Material.Empty) {
       powder.selectedMaterial = Material.Sand;
     }
+  }
+
+  private fitView(powder: PowderWorldComponent, viewWidth: number, viewHeight: number): void {
+    const z = Math.min(viewWidth / powder.grid.width, viewHeight / powder.grid.height);
+    powder.zoom = Math.max(1, z);
+    powder.cameraX = powder.grid.width * 0.5;
+    powder.cameraY = powder.grid.height * 0.5;
   }
 
   private zoomAtCursor(powder: PowderWorldComponent, factor: number): void {

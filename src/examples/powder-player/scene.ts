@@ -10,7 +10,7 @@ import {
   type World,
 } from '../../engine';
 import { Material } from '../../engine/features/particles/materials';
-import { generateSandustryTerrain } from '../powder-simulation/simulation';
+import { resetTerrain } from '../powder-simulation/simulation';
 
 export class PowderPlayerScene {
   private scene: Scene;
@@ -24,11 +24,7 @@ export class PowderPlayerScene {
   private createWorld(): PowderWorldComponent {
     const entity = this.scene.createEntity();
     const powder = new PowderWorldComponent({ width: 640, height: 360 });
-    powder.regenerate = () => {
-      generateSandustryTerrain(powder.grid, (Math.random() * 0xffff) | 0);
-      powder.particleCount = powder.grid.countParticles();
-    };
-    powder.regenerate();
+    resetTerrain(powder);
     powder.zoom = 3.4;
     this.scene.getComponentStore<PowderWorldComponent>(PowderWorldComponent.name).add(entity, powder);
     return powder;

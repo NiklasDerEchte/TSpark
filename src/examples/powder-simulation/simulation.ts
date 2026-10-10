@@ -1,9 +1,12 @@
+import { TSpark } from '../../app';
 import {
   Material,
   PowderWorldComponent,
   type PowderGrid,
   type Scene,
+  type System,
   type World,
+  type WorldQueryData,
 } from '../../engine';
 
 const WORLD_WIDTH = 640;
@@ -23,16 +26,38 @@ export class PowderSimulationScene {
   private createPowderWorld(): void {
     const entity = this.scene.createEntity();
     this.powder = new PowderWorldComponent({ width: WORLD_WIDTH, height: WORLD_HEIGHT });
-    this.powder.regenerate = () => {
-      generateSandustryTerrain(this.powder.grid, (Math.random() * 0xffff) | 0);
-      this.powder.particleCount = this.powder.grid.countParticles();
-    };
-    this.powder.regenerate();
+    resetTerrain(this.powder);
     this.scene.getComponentStore<PowderWorldComponent>(PowderWorldComponent.name).add(entity, this.powder);
   }
 }
 
-export function generateSandustryTerrain(grid: PowderGrid, seed: number = 1): void {
+export function resetTerrain(powder: PowderWorldComponent): void {
+  generateTerrain(powder.grid, (Math.random() * 0xffff) | 0);
+  powder.particleCount = powder.grid.countParticles();
+}
+
+export class TerrainResetSystem implements System {
+  world!: World;
+  private resetWasDown = false;
+
+  init(world: World): void {
+    this.world = world;
+  }
+
+  exec(): void {
+    const down = TSpark.getInstance().isKeyPressed('KeyR');
+    if (down && !this.resetWasDown) {
+      this.world.query<PowderWorldComponent>(PowderWorldComponent.name, (result: WorldQueryData<PowderWorldComponent>) => {
+        resetTerrain(result.component);
+      });
+    }
+    this.resetWasDown = down;
+  }
+
+  destroy(): void {}
+}
+
+export function generateTerrain(grid: PowderGrid, seed: number = 1): void {
   grid.clear();
   const w = grid.width;
   const h = grid.height;

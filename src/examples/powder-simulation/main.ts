@@ -8,7 +8,7 @@ import {
   TwglRenderer,
 } from '../../engine';
 import { FPSOverlaySystem } from '../twgl/ui/html/fps-overlay-system';
-import { PowderSimulationScene } from './simulation';
+import { PowderSimulationScene, TerrainResetSystem } from './simulation';
 
 const viewSize = 600 * 1.6;
 
@@ -33,6 +33,10 @@ world.registerSystem({
 
 world.registerSystem({
   system: new PowderInputSystem(),
+});
+
+world.registerSystem({
+  system: new TerrainResetSystem(),
 });
 
 world.registerSystem({
